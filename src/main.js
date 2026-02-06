@@ -1482,30 +1482,34 @@ class GameScene extends Phaser.Scene {
     const skipBtn = this.add.container(0, 70);
     const skipBg = this.add.rectangle(0, 0, 160, 40, 0x2A2520);
     skipBg.setStrokeStyle(2, 0x8B7355);
-    const skipText = this.add.text(0, 0, 'SKIP LEVEL', {
+    const nextLevel = this.level + 1;
+    const skipLabel = nextLevel <= LEVELS.length ? `SKIP TO ${nextLevel}` : 'MAX LEVEL';
+    const skipText = this.add.text(0, 0, skipLabel, {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#C9A86C'
     }).setOrigin(0.5);
     skipBtn.add([skipBg, skipText]);
 
-    skipBg.setInteractive({ useHandCursor: true });
-    skipBg.on('pointerover', () => {
-      skipBg.setFillStyle(0x3A3530);
-      skipText.setColor('#FFD700');
-    });
-    skipBg.on('pointerout', () => {
-      skipBg.setFillStyle(0x2A2520);
-      skipText.setColor('#C9A86C');
-    });
-    skipBg.on('pointerdown', () => {
-      if (this.level < LEVELS.length) {
+    if (nextLevel <= LEVELS.length) {
+      skipBg.setInteractive({ useHandCursor: true });
+      skipBg.on('pointerover', () => {
+        skipBg.setFillStyle(0x3A3530);
+        skipText.setColor('#FFD700');
+      });
+      skipBg.on('pointerout', () => {
+        skipBg.setFillStyle(0x2A2520);
+        skipText.setColor('#C9A86C');
+      });
+      skipBg.on('pointerdown', () => {
         this.settingsOverlay.destroy();
         this.settingsOverlay = null;
         this.level++;
         this.startLevel(this.level);
-      }
-    });
+      });
+    } else {
+      skipText.setColor('#666666');
+    }
 
     // Close button
     const closeBtn = this.add.container(0, 130);
