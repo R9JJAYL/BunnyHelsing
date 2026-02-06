@@ -1867,8 +1867,10 @@ class GameScene extends Phaser.Scene {
           repeat: -1
         });
 
-        // Allow shooting
-        this.tutorialBlockShoot = false;
+        // Allow shooting after short delay (so click from previous step doesn't fire)
+        this.time.delayedCall(200, () => {
+          this.tutorialBlockShoot = false;
+        });
         this.tutorialWaitingForBounce = true;
         break;
 
