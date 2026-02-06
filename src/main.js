@@ -992,12 +992,35 @@ class GameScene extends Phaser.Scene {
       return;
     }
 
-    // Simple faint line from gun to cursor
-    this.aimLine.lineStyle(2, COLORS.oldGold, 0.3);
-    this.aimLine.beginPath();
-    this.aimLine.moveTo(gunX, gunY);
-    this.aimLine.lineTo(pointer.x, pointer.y);
-    this.aimLine.strokePath();
+    // Normalize direction
+    const dirX = dx / dist;
+    const dirY = dy / dist;
+
+    // Max distance for dots is 1/3 of the distance to pointer, capped at 100px
+    const maxDotDist = Math.min(dist / 3, 100);
+
+    // Animate dots moving in/out based on time
+    const time = this.time.now / 200; // Slower animation
+    const pulse = (Math.sin(time) + 1) / 2; // 0 to 1
+
+    // Draw 3 dots that pulse in and out
+    for (let i = 0; i < 3; i++) {
+      // Base position for each dot (evenly spaced)
+      const baseOffset = (i + 1) * (maxDotDist / 4);
+      // Add pulsing offset
+      const pulseOffset = pulse * 15;
+      const dotDist = baseOffset + pulseOffset;
+
+      const dotX = gunX + dirX * dotDist;
+      const dotY = gunY + dirY * dotDist;
+
+      // Fade dots based on distance (closer = more visible)
+      const alpha = 0.7 - (i * 0.15);
+      const size = 5 - i; // Closer dots are bigger
+
+      this.aimLine.fillStyle(COLORS.oldGold, alpha);
+      this.aimLine.fillCircle(dotX, dotY, size);
+    }
 
     // Clear any old trajectory dots
     this.trajectoryDots.forEach(dot => dot.destroy());
