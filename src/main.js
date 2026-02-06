@@ -2645,47 +2645,41 @@ class GameScene extends Phaser.Scene {
 
     const overlay = this.add.rectangle(600, 325, 1200, 650, 0x000000, 0.85);
 
-    // Victory banner
-    const banner = this.add.graphics();
-    banner.fillStyle(0x8B0000);
-    banner.fillRect(350, 200, 500, 80);
-    banner.lineStyle(4, 0xFFD700);
-    banner.strokeRect(350, 200, 500, 80);
+    // Victory modal - matches new aesthetic
+    const modalBg = this.add.rectangle(600, 300, 420, 280, 0x1A1714, 0.95);
+    modalBg.setStrokeStyle(3, 0xC9A86C);
 
-    const victoryText = this.add.text(600, 240, 'SOULS FREED!', {
-      fontSize: '44px',
-      fontFamily: 'Georgia, serif',
-      color: '#FFD700',
-      stroke: '#000',
-      strokeThickness: 6
+    const victoryText = this.add.text(600, 200, 'SOULS FREED!', {
+      fontSize: '36px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#FFD700'
     }).setOrigin(0.5);
 
-    const statsText = this.add.text(600, 320, `Ammo remaining: ${this.ammoRemaining}`, {
-      fontSize: '22px',
-      fontFamily: 'Georgia, serif',
-      color: '#C9A86C',
-      stroke: '#000',
-      strokeThickness: 3
+    const statsText = this.add.text(600, 270, `Ammo remaining: ${this.ammoRemaining}`, {
+      fontSize: '18px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#C9A86C'
     }).setOrigin(0.5);
 
-    const nextText = this.add.text(600, 380, 'Click or press N for next level', {
-      fontSize: '20px',
-      fontFamily: 'Georgia, serif',
-      color: '#FFFFFF'
-    }).setOrigin(0.5);
-
-    const restartText = this.add.text(600, 415, 'Press R to replay this level', {
+    const nextText = this.add.text(600, 340, 'Click or press S for next level', {
       fontSize: '16px',
-      fontFamily: 'Georgia, serif',
-      color: '#888888'
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#CCCCCC'
+    }).setOrigin(0.5);
+
+    const restartText = this.add.text(600, 380, 'Press R to replay this level', {
+      fontSize: '14px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#666666'
     }).setOrigin(0.5);
 
     this.tweens.add({
       targets: victoryText,
-      scale: 1.05,
-      duration: 500,
+      scale: 1.03,
+      duration: 800,
       yoyo: true,
-      repeat: -1
+      repeat: -1,
+      ease: 'Sine.easeInOut'
     });
 
     // Epic celebration - gold confetti and fireworks!
@@ -2709,28 +2703,30 @@ class GameScene extends Phaser.Scene {
 
     const overlay = this.add.rectangle(600, 325, 1200, 650, 0x000000, 0.85);
 
-    const failText = this.add.text(600, 240, 'THE SHADOWS REMAIN...', {
-      fontSize: '38px',
-      fontFamily: 'Georgia, serif',
-      color: '#8B0000',
-      stroke: '#000',
-      strokeThickness: 6
+    // Failure modal - matches new aesthetic
+    const modalBg = this.add.rectangle(600, 300, 420, 280, 0x1A1714, 0.95);
+    modalBg.setStrokeStyle(3, 0x8B4513);
+
+    const failText = this.add.text(600, 200, 'THE SHADOWS REMAIN...', {
+      fontSize: '28px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#8B0000'
     }).setOrigin(0.5);
 
-    const sadPanda = this.add.text(600, 320, '🐼⛓️', {
-      fontSize: '48px'
+    const sadPanda = this.add.text(600, 280, '🐼⛓️', {
+      fontSize: '42px'
     }).setOrigin(0.5);
 
-    const retryText = this.add.text(600, 400, 'Press R or click to retry', {
-      fontSize: '22px',
-      fontFamily: 'Georgia, serif',
+    const retryText = this.add.text(600, 350, 'Press R or click to retry', {
+      fontSize: '16px',
+      fontFamily: 'Cinzel, Georgia, serif',
       color: '#C9A86C'
     }).setOrigin(0.5);
 
-    const skipText = this.add.text(600, 290, 'Press N to skip level', {
-      fontSize: '18px',
-      fontFamily: 'Georgia, serif',
-      color: '#6B6B6B'
+    const skipText = this.add.text(600, 390, 'Press S to skip level', {
+      fontSize: '14px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#666666'
     }).setOrigin(0.5);
 
     // Click to retry
