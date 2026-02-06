@@ -50,14 +50,18 @@ const LEVELS = [
     obstacles: [],
     movingObstacles: []
   },
-  // Level 2: First obstacle - Learn to ricochet
+  // Level 2: Chandelier drop - Learn environmental kills
+  // Bamboo blocks the panda but gap at top lets you hit the chandelier
   {
-    ammo: 4,
-    pandas: [{ x: 1000, y: 200 }, { x: 1000, y: 450 }],
+    ammo: 3,
+    pandas: [{ x: 1000, y: 450 }], // Only bottom panda
     obstacles: [
-      { x: 700, y: 325, w: 20, h: 350 }, // Vertical bamboo blocking direct shots
+      { x: 700, y: 420, w: 20, h: 420 }, // Bamboo with gap at top - ricochet to hit chandelier!
     ],
-    movingObstacles: []
+    movingObstacles: [],
+    chandeliers: [
+      { x: 1000, y: 120 } // Chandelier above the panda - the only way to kill it
+    ]
   },
   // Level 3: Angled bamboo - Learn angle shots
   {
@@ -190,8 +194,13 @@ class MainMenuScene extends Phaser.Scene {
     const centerX = W / 2, centerY = H / 2;
 
     // === BACKGROUND ===
-    // Solid dark background that fills entire canvas
-    const bg = this.add.rectangle(centerX, centerY, W, H, 0x0D0D12);
+    // Dark outer background
+    const outerBg = this.add.rectangle(centerX, centerY, W, H, 0x030306);
+    outerBg.setDepth(-2);
+
+    // Lighter inner area (inside bamboo frame) - grey
+    const innerBg = this.add.rectangle(centerX, centerY, W - 40, H - 40, 0x2a2a32);
+    innerBg.setDepth(-1);
 
     // Atmospheric fog particles (slow, dreamy)
     this.createAtmosphere();
@@ -462,6 +471,7 @@ class GameScene extends Phaser.Scene {
     this.walls = [];
     this.movingWalls = [];
     this.obstacleImages = []; // Store bamboo obstacle images
+    this.chandeliers = []; // Store chandelier objects
     this.aimLine = null;
     this.trajectoryDots = [];
     this.bulletFired = false;
@@ -501,6 +511,7 @@ class GameScene extends Phaser.Scene {
     this.slowMoActive = false;
     this.trailEvent = null;
     this.vignette = null;
+    this.chandeliers = [];
 
     if (data.level) {
       this.level = data.level;
@@ -538,8 +549,11 @@ class GameScene extends Phaser.Scene {
     this.gameTime = 0;
     this.movingWalls = [];
 
-    // Plain black background
+    // Set background - use level-specific or default to black
     this.cameras.main.setBackgroundColor(0x000000);
+
+    // Create starry sky background
+    this.createStarryBackground();
 
     // Create bamboo border walls
     this.createBambooWalls();
@@ -550,6 +564,11 @@ class GameScene extends Phaser.Scene {
     // Create moving obstacles
     if (levelConfig.movingObstacles) {
       this.createMovingObstacles(levelConfig.movingObstacles);
+    }
+
+    // Create chandeliers (environmental hazards)
+    if (levelConfig.chandeliers) {
+      this.createChandeliers(levelConfig.chandeliers);
     }
 
     // Create pandas
@@ -641,6 +660,64 @@ class GameScene extends Phaser.Scene {
         });
       }
     });
+  }
+
+  createStarryBackground() {
+    // Dark gradient background
+    const bg = this.add.graphics();
+    bg.setDepth(-10);
+
+    // Very dark blue-black gradient
+    bg.fillGradientStyle(0x050510, 0x050510, 0x0a0a18, 0x0a0a18, 1);
+    bg.fillRect(0, 0, 1200, 650);
+
+    // Add stars - mix of sizes and brightness
+    for (let i = 0; i < 80; i++) {
+      const x = Phaser.Math.Between(30, 1170);
+      const y = Phaser.Math.Between(30, 620);
+      const size = Math.random() < 0.8 ? 1 : (Math.random() < 0.9 ? 1.5 : 2);
+      const alpha = 0.3 + Math.random() * 0.5;
+
+      const star = this.add.circle(x, y, size, 0xFFFFFF, alpha);
+      star.setDepth(-9);
+
+      // Some stars twinkle
+      if (Math.random() < 0.3) {
+        this.tweens.add({
+          targets: star,
+          alpha: alpha * 0.3,
+          duration: 1000 + Math.random() * 2000,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut'
+        });
+      }
+    }
+
+    // Add a few brighter stars
+    for (let i = 0; i < 5; i++) {
+      const x = Phaser.Math.Between(50, 1150);
+      const y = Phaser.Math.Between(50, 400);
+
+      // Star glow
+      const glow = this.add.circle(x, y, 4, 0xFFFFFF, 0.1);
+      glow.setDepth(-9);
+
+      // Star core
+      const star = this.add.circle(x, y, 2, 0xFFFFFF, 0.8);
+      star.setDepth(-8);
+
+      // Twinkle
+      this.tweens.add({
+        targets: [star, glow],
+        alpha: { from: star.alpha, to: star.alpha * 0.4 },
+        scale: { from: 1, to: 0.8 },
+        duration: 1500 + Math.random() * 1500,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+      });
+    }
   }
 
   createBambooWalls() {
@@ -900,6 +977,276 @@ class GameScene extends Phaser.Scene {
       },
       repeat: -1
     });
+  }
+
+  createChandeliers(chandelierPositions) {
+    this.chandeliers = [];
+    chandelierPositions.forEach(pos => {
+      const chandelier = this.createChandelier(pos.x, pos.y);
+      this.chandeliers.push(chandelier);
+    });
+  }
+
+  createChandelier(x, y) {
+    const container = this.add.container(x, y);
+
+    // Chain connecting to ceiling
+    const chainGraphics = this.add.graphics();
+    chainGraphics.lineStyle(3, 0x888888);
+    chainGraphics.beginPath();
+    chainGraphics.moveTo(0, -y + 20); // To top of screen
+    chainGraphics.lineTo(0, 0);
+    chainGraphics.strokePath();
+
+    // Chain links
+    for (let i = 0; i < (y - 20) / 15; i++) {
+      const linkY = -y + 20 + i * 15;
+      chainGraphics.fillStyle(0x666666);
+      chainGraphics.fillEllipse(0, linkY + 7, 4, 6);
+    }
+
+    // Main chandelier body - ornate golden frame
+    const frameGraphics = this.add.graphics();
+
+    // Top crown
+    frameGraphics.fillStyle(0xC9A227);
+    frameGraphics.fillTriangle(-5, -25, 5, -25, 0, -35);
+
+    // Main body ring
+    frameGraphics.lineStyle(4, 0xC9A227);
+    frameGraphics.strokeEllipse(0, 0, 60, 20);
+
+    // Candle holders (5 candles)
+    const candleAngles = [-60, -30, 0, 30, 60];
+    candleAngles.forEach(angle => {
+      const rad = Phaser.Math.DegToRad(angle);
+      const cx = Math.sin(rad) * 30;
+      const cy = Math.cos(rad) * 10;
+
+      // Holder
+      frameGraphics.fillStyle(0xC9A227);
+      frameGraphics.fillRect(cx - 3, cy - 5, 6, 10);
+
+      // Candle
+      frameGraphics.fillStyle(0xF5F5DC);
+      frameGraphics.fillRect(cx - 2, cy - 20, 4, 15);
+
+      // Flame
+      frameGraphics.fillStyle(0xFF6B35);
+      frameGraphics.fillTriangle(cx - 3, cy - 20, cx + 3, cy - 20, cx, cy - 30);
+      frameGraphics.fillStyle(0xFFD700);
+      frameGraphics.fillTriangle(cx - 2, cy - 22, cx + 2, cy - 22, cx, cy - 28);
+    });
+
+    // Bottom ornament
+    frameGraphics.fillStyle(0xC9A227);
+    frameGraphics.fillTriangle(-8, 15, 8, 15, 0, 30);
+
+    // Crystals hanging
+    frameGraphics.fillStyle(0xADD8E6, 0.7);
+    [-20, -10, 10, 20].forEach(offset => {
+      frameGraphics.fillTriangle(offset - 3, 10, offset + 3, 10, offset, 25);
+    });
+
+    container.add([chainGraphics, frameGraphics]);
+
+    // Add glow effect
+    const glow = this.add.circle(0, -10, 50, 0xFFAA00, 0.15);
+    container.add(glow);
+
+    // Flicker animation for the glow
+    this.tweens.add({
+      targets: glow,
+      alpha: 0.08,
+      scale: 0.9,
+      duration: 200 + Math.random() * 100,
+      yoyo: true,
+      repeat: -1
+    });
+
+    // Gentle sway animation
+    this.tweens.add({
+      targets: container,
+      angle: 2,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
+
+    // Physics body for the chandelier - OUTSIDE container so physics works
+    const hitbox = this.add.circle(x, y, 40, 0xFF0000, 0); // Invisible hitbox at chandelier position
+    this.physics.add.existing(hitbox, true);
+
+    // Physics body for the rope/chain - tall thin rectangle from ceiling to chandelier
+    const ropeHitbox = this.add.rectangle(x, y / 2, 15, y - 20, 0x00FF00, 0); // Invisible rope hitbox
+    this.physics.add.existing(ropeHitbox, true);
+
+    // Store references
+    container.hitbox = hitbox;
+    container.ropeHitbox = ropeHitbox;
+    container.chainGraphics = chainGraphics;
+    container.glow = glow;
+    container.isFalling = false;
+    container.startY = y;
+
+    return container;
+  }
+
+  dropChandelier(chandelier) {
+    if (chandelier.isFalling) return;
+    chandelier.isFalling = true;
+
+    // Stop the sway
+    this.tweens.killTweensOf(chandelier);
+    chandelier.angle = 0;
+
+    // Snap the chain - visual effect
+    chandelier.chainGraphics.clear();
+
+    // Create falling chain pieces
+    for (let i = 0; i < 5; i++) {
+      const chainPiece = this.add.ellipse(
+        chandelier.x + Phaser.Math.Between(-10, 10),
+        chandelier.startY - 50 - i * 30,
+        4, 8, 0x666666
+      );
+      this.tweens.add({
+        targets: chainPiece,
+        y: chainPiece.y + 200,
+        x: chainPiece.x + Phaser.Math.Between(-30, 30),
+        alpha: 0,
+        duration: 800,
+        ease: 'Bounce.easeOut',
+        onComplete: () => chainPiece.destroy()
+      });
+    }
+
+    // Spark effect at break point
+    for (let i = 0; i < 10; i++) {
+      const spark = this.add.circle(
+        chandelier.x,
+        40,
+        2,
+        0xFFD700
+      );
+      this.tweens.add({
+        targets: spark,
+        x: spark.x + Phaser.Math.Between(-40, 40),
+        y: spark.y + Phaser.Math.Between(-20, 40),
+        alpha: 0,
+        duration: 300,
+        onComplete: () => spark.destroy()
+      });
+    }
+
+    // Make chandelier fall with physics
+    chandelier.hitbox.body.enable = false; // Disable static body
+
+    // Animate the fall
+    this.tweens.add({
+      targets: chandelier,
+      y: 600, // Fall to near bottom
+      angle: Phaser.Math.Between(-15, 15),
+      duration: 800,
+      ease: 'Bounce.easeOut',
+      onUpdate: () => {
+        // Check for panda collisions during fall
+        this.checkChandelierPandaCollision(chandelier);
+      },
+      onComplete: () => {
+        // Crash effect
+        this.createChandelierCrash(chandelier.x, 580);
+        chandelier.destroy();
+
+        // Remove from array
+        const index = this.chandeliers.indexOf(chandelier);
+        if (index > -1) this.chandeliers.splice(index, 1);
+      }
+    });
+  }
+
+  checkChandelierPandaCollision(chandelier) {
+    this.pandas.forEach(panda => {
+      if (!panda.active) return;
+
+      const dist = Phaser.Math.Distance.Between(
+        chandelier.x, chandelier.y,
+        panda.x, panda.y
+      );
+
+      // If chandelier is close enough and below its starting position
+      if (dist < 70 && chandelier.y > chandelier.startY + 50) {
+        this.onPandaHit(panda);
+      }
+    });
+  }
+
+  createChandelierCrash(x, y) {
+    // Screen shake
+    this.cameras.main.shake(200, 0.015);
+
+    // Explosion of crystals and metal
+    for (let i = 0; i < 20; i++) {
+      const iscrystal = Math.random() > 0.5;
+      const piece = this.add.circle(
+        x + Phaser.Math.Between(-20, 20),
+        y + Phaser.Math.Between(-20, 10),
+        iscrystal ? 4 : 3,
+        iscrystal ? 0xADD8E6 : 0xC9A227
+      );
+
+      this.tweens.add({
+        targets: piece,
+        x: piece.x + Phaser.Math.Between(-80, 80),
+        y: piece.y + Phaser.Math.Between(-60, 20),
+        alpha: 0,
+        scale: 0.3,
+        duration: 600 + Math.random() * 400,
+        ease: 'Sine.easeOut',
+        onComplete: () => piece.destroy()
+      });
+    }
+
+    // Fire burst
+    for (let i = 0; i < 8; i++) {
+      const flame = this.add.circle(
+        x + Phaser.Math.Between(-30, 30),
+        y + Phaser.Math.Between(-20, 0),
+        8 + Math.random() * 8,
+        Math.random() > 0.5 ? 0xFF6B35 : 0xFFD700,
+        0.8
+      );
+
+      this.tweens.add({
+        targets: flame,
+        y: flame.y - 40,
+        alpha: 0,
+        scale: 2,
+        duration: 400,
+        onComplete: () => flame.destroy()
+      });
+    }
+
+    // Smoke
+    for (let i = 0; i < 5; i++) {
+      const smoke = this.add.circle(
+        x + Phaser.Math.Between(-20, 20),
+        y,
+        15 + Math.random() * 10,
+        0x333333,
+        0.5
+      );
+
+      this.tweens.add({
+        targets: smoke,
+        y: smoke.y - 80,
+        scale: 2.5,
+        alpha: 0,
+        duration: 1000,
+        onComplete: () => smoke.destroy()
+      });
+    }
   }
 
   createPandas(pandaPositions) {
@@ -1572,6 +1919,22 @@ class GameScene extends Phaser.Scene {
       });
     });
 
+    // Chandelier collision - shoot chandelier OR rope to drop
+    this.chandeliers.forEach(chandelier => {
+      // Chandelier body hitbox
+      if (chandelier.hitbox && chandelier.hitbox.body) {
+        this.physics.add.overlap(this.bullet, chandelier.hitbox, () => {
+          this.dropChandelier(chandelier);
+        });
+      }
+      // Rope/chain hitbox
+      if (chandelier.ropeHitbox && chandelier.ropeHitbox.body) {
+        this.physics.add.overlap(this.bullet, chandelier.ropeHitbox, () => {
+          this.dropChandelier(chandelier);
+        });
+      }
+    });
+
     this.bulletFired = true;
     this.updateAmmoUI();
 
@@ -1753,47 +2116,58 @@ class GameScene extends Phaser.Scene {
     const bx = this.bullet.body.x + this.bullet.body.width / 2;
     const by = this.bullet.body.y + this.bullet.body.height / 2;
 
-    // Brief bright flash (steel striking)
-    const impactFlash = this.add.circle(bx, by, 4, COLORS.torchYellow, 1);
+    // Brief bright flash (steel striking) - BIGGER
+    const impactFlash = this.add.circle(bx, by, 8, COLORS.torchYellow, 1);
     this.tweens.add({
       targets: impactFlash,
-      scale: 2.5,
+      scale: 3,
       alpha: 0,
-      duration: 100,
+      duration: 120,
       ease: 'Sine.easeOut',
       onComplete: () => impactFlash.destroy()
     });
 
-    // Fire burst from flaming bolt
-    const fireBurst = this.add.circle(bx, by, 8, COLORS.dragonFire, 0.7);
+    // White core flash
+    const coreFlash = this.add.circle(bx, by, 5, 0xFFFFFF, 1);
     this.tweens.add({
-      targets: fireBurst,
+      targets: coreFlash,
       scale: 2,
       alpha: 0,
-      duration: 180,
+      duration: 80,
+      ease: 'Sine.easeOut',
+      onComplete: () => coreFlash.destroy()
+    });
+
+    // Fire burst from flaming bolt - BIGGER
+    const fireBurst = this.add.circle(bx, by, 12, COLORS.dragonFire, 0.8);
+    this.tweens.add({
+      targets: fireBurst,
+      scale: 2.5,
+      alpha: 0,
+      duration: 200,
       ease: 'Sine.easeOut',
       onComplete: () => fireBurst.destroy()
     });
 
-    // Metal sparks (steel on stone)
+    // Metal sparks (steel on stone) - MORE AND BIGGER
     const velX = this.bullet.body.velocity.x;
     const velY = this.bullet.body.velocity.y;
-    const sparkCount = 8 + Math.floor(Math.random() * 6);
+    const sparkCount = 12 + Math.floor(Math.random() * 8);
 
     for (let i = 0; i < sparkCount; i++) {
-      const spreadAngle = (Math.random() - 0.5) * Math.PI * 0.7;
+      const spreadAngle = (Math.random() - 0.5) * Math.PI * 0.8;
       const baseAngle = Math.atan2(-velY, -velX);
       const sparkAngle = baseAngle + spreadAngle;
-      const sparkDist = 25 + Math.random() * 40;
+      const sparkDist = 35 + Math.random() * 50;
 
-      const sparkSize = 1 + Math.random() * 2;
+      const sparkSize = 2 + Math.random() * 3;
       // Metal spark colors: bright yellow/white fading to orange
-      const sparkColor = Math.random() > 0.4 ? COLORS.torchYellow : COLORS.torchOrange;
+      const sparkColor = Math.random() > 0.3 ? COLORS.torchYellow : (Math.random() > 0.5 ? 0xFFFFFF : COLORS.torchOrange);
 
       const spark = this.add.circle(bx, by, sparkSize, sparkColor, 1);
 
       const endX = bx + Math.cos(sparkAngle) * sparkDist;
-      const endY = by + Math.sin(sparkAngle) * sparkDist + (Math.random() * 20); // slight gravity
+      const endY = by + Math.sin(sparkAngle) * sparkDist + (Math.random() * 25); // slight gravity
 
       this.tweens.add({
         targets: spark,
@@ -1801,7 +2175,7 @@ class GameScene extends Phaser.Scene {
         y: endY,
         scale: 0.1,
         alpha: 0,
-        duration: 150 + Math.random() * 150,
+        duration: 200 + Math.random() * 200,
         ease: 'Sine.easeOut',
         onComplete: () => spark.destroy()
       });
