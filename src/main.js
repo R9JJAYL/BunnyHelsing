@@ -950,8 +950,8 @@ class GameScene extends Phaser.Scene {
 
   createAmmoUI() {
     this.ammoButtons = [];
-    const startX = 95;
-    const spacing = 32;
+    const startX = 120;
+    const spacing = 36;
 
     for (let i = 0; i < this.ammoTotal; i++) {
       const btn = this.createAmmoButton(startX + i * spacing, 672, i + 1);
