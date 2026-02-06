@@ -1653,6 +1653,15 @@ class GameScene extends Phaser.Scene {
   }
 
   createAmmoUI() {
+    // Restore ammo panel structure if it was replaced (e.g., by next level button)
+    const ammoPanel = document.querySelector('.ammo-panel');
+    if (ammoPanel && !document.getElementById('ammo-buttons')) {
+      ammoPanel.innerHTML = `
+        <span class="ammo-label">AMMO</span>
+        <div class="ammo-buttons" id="ammo-buttons"></div>
+      `;
+    }
+
     // Create HTML ammo buttons
     const container = document.getElementById('ammo-buttons');
     container.innerHTML = '';
