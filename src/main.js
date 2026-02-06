@@ -1075,11 +1075,11 @@ class GameScene extends Phaser.Scene {
     });
 
     // Physics body for the chandelier - OUTSIDE container so physics works
-    const hitbox = this.add.circle(x, y, 40, 0xFF0000, 0); // Invisible hitbox at chandelier position
+    const hitbox = this.add.circle(x, y, 25, 0xFF0000, 0); // Smaller hitbox - must hit the chandelier
     this.physics.add.existing(hitbox, true);
 
     // Physics body for the rope/chain - tall thin rectangle from ceiling to chandelier
-    const ropeHitbox = this.add.rectangle(x, y / 2, 15, y - 20, 0x00FF00, 0); // Invisible rope hitbox
+    const ropeHitbox = this.add.rectangle(x, y / 2, 6, y - 20, 0x00FF00, 0); // Thin rope hitbox
     this.physics.add.existing(ropeHitbox, true);
 
     // Store references
