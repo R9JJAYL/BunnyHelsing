@@ -1353,6 +1353,21 @@ class GameScene extends Phaser.Scene {
     levelsBtn.onclick = () => {
       this.showLevelSelectModal();
     };
+
+    // Controls button - show controls info
+    const controlsBtn = document.getElementById('btn-controls');
+    controlsBtn.onclick = () => {
+      this.showControlsModal();
+    };
+
+    // Skip button - skip to next level
+    const skipBtn = document.getElementById('btn-skip');
+    skipBtn.onclick = () => {
+      if (this.level < LEVELS.length) {
+        this.level++;
+        this.startLevel(this.level);
+      }
+    };
   }
 
   showSettingsModal() {
@@ -1428,6 +1443,78 @@ class GameScene extends Phaser.Scene {
     });
 
     this.settingsOverlay.add([bg, title, soundLabel, soundStatus, musicLabel, musicStatus, closeBtn]);
+  }
+
+  showControlsModal() {
+    // Create controls overlay
+    if (this.settingsOverlay) return; // Already open
+
+    this.settingsOverlay = this.add.container(600, 325);
+    this.settingsOverlay.setDepth(2000);
+
+    // Dark background
+    const bg = this.add.rectangle(0, 0, 400, 300, 0x000000, 0.9);
+    bg.setStrokeStyle(2, 0xC9A86C);
+
+    // Title
+    const title = this.add.text(0, -120, 'CONTROLS', {
+      fontSize: '24px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#FFD700'
+    }).setOrigin(0.5);
+
+    // Control instructions
+    const controls = [
+      { key: 'CLICK', action: 'Shoot' },
+      { key: '1-9', action: 'Select ammo' },
+      { key: 'R', action: 'Restart level' }
+    ];
+
+    const controlTexts = [];
+    controls.forEach((ctrl, i) => {
+      const keyText = this.add.text(-80, -50 + i * 40, ctrl.key, {
+        fontSize: '16px',
+        fontFamily: 'Cinzel, Georgia, serif',
+        color: '#FFD700'
+      }).setOrigin(0, 0.5);
+
+      const actionText = this.add.text(80, -50 + i * 40, ctrl.action, {
+        fontSize: '16px',
+        fontFamily: 'Cinzel, Georgia, serif',
+        color: '#CCCCCC'
+      }).setOrigin(0.5);
+
+      controlTexts.push(keyText, actionText);
+    });
+
+    // Close button
+    const closeBtn = this.add.container(0, 100);
+    const closeBg = this.add.rectangle(0, 0, 120, 40, 0x2A2520);
+    closeBg.setStrokeStyle(2, 0x8B7355);
+    const closeText = this.add.text(0, 0, 'CLOSE', {
+      fontSize: '16px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#C9A86C'
+    }).setOrigin(0.5);
+    closeBtn.add([closeBg, closeText]);
+
+    closeBg.setInteractive({ useHandCursor: true });
+    closeBg.on('pointerover', () => {
+      closeBg.setFillStyle(0x3A3530);
+      closeText.setColor('#FFD700');
+    });
+    closeBg.on('pointerout', () => {
+      closeBg.setFillStyle(0x2A2520);
+      closeText.setColor('#C9A86C');
+    });
+    closeBg.on('pointerdown', () => {
+      this.settingsOverlay.destroy();
+      this.time.delayedCall(100, () => {
+        this.settingsOverlay = null;
+      });
+    });
+
+    this.settingsOverlay.add([bg, title, ...controlTexts, closeBtn]);
   }
 
   showLevelSelectModal() {
