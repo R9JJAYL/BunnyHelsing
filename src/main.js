@@ -4,11 +4,11 @@ import Phaser from 'phaser';
 // BUNNY BASHERS - MEDIEVAL CASTLE THEME
 // ============================================
 
-// Available bunny skins
+// Available bunny skins with position offsets to align them
 const BUNNY_SKINS = [
-  { id: 'bunny-hero', name: 'Classic' },
-  { id: 'bunny-mobster', name: 'Mobster' },
-  { id: 'bunny-crimson', name: 'Crimson' }
+  { id: 'bunny-hero', name: 'Classic', offsetX: 0, offsetY: 0, scale: 0.09 },
+  { id: 'bunny-mobster', name: 'Mobster', offsetX: 0, offsetY: 25, scale: 0.09 },  // No ears, needs Y offset
+  { id: 'bunny-crimson', name: 'Crimson', offsetX: 0, offsetY: 0, scale: 0.09 }
 ];
 
 // Current selected skin (persisted in localStorage)
@@ -1315,15 +1315,17 @@ class GameScene extends Phaser.Scene {
 
     this.bunny = this.add.container(x, y);
 
-    // Use the selected skin
-    const bunnySprite = this.add.image(0, 0, currentSkin);
-    bunnySprite.setScale(0.09); // Scale down to fit game
+    // Use the selected skin with its specific offsets
+    const skinConfig = BUNNY_SKINS.find(s => s.id === currentSkin) || BUNNY_SKINS[0];
+    const bunnySprite = this.add.image(skinConfig.offsetX, skinConfig.offsetY, currentSkin);
+    bunnySprite.setScale(skinConfig.scale);
     bunnySprite.setOrigin(0.5, 1); // Origin at bottom center so feet touch floor
 
     // Ground shadow - positioned at the bunny's feet
     const shadow = this.add.ellipse(0, 0, 45, 12, 0x000000, 0.4);
 
     this.bunny.add([shadow, bunnySprite]);
+    this.bunny.skinConfig = skinConfig; // Store for reference
 
     // Store gun offset for bullet firing - at the tip of the gun barrel
     // The bunny sprite faces right with gun extended
@@ -1628,7 +1630,11 @@ class GameScene extends Phaser.Scene {
       // Find and update the bunny sprite (it's the second item after shadow)
       const bunnySprite = this.bunny.list.find(child => child.type === 'Image');
       if (bunnySprite) {
+        const skinConfig = BUNNY_SKINS.find(s => s.id === currentSkin) || BUNNY_SKINS[0];
         bunnySprite.setTexture(currentSkin);
+        bunnySprite.setPosition(skinConfig.offsetX, skinConfig.offsetY);
+        bunnySprite.setScale(skinConfig.scale);
+        this.bunny.skinConfig = skinConfig;
       }
     }
   }
