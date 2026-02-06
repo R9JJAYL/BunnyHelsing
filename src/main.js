@@ -3062,6 +3062,13 @@ class GameScene extends Phaser.Scene {
   onLevelFailed() {
     this.levelEnded = true;
 
+    // Hide tutorial if active
+    if (this.tutorialActive) {
+      this.tutorialActive = false;
+      if (this.tutorialContainer) this.tutorialContainer.setVisible(false);
+      if (this.tutorialArrow) this.tutorialArrow.setVisible(false);
+    }
+
     const overlay = this.add.rectangle(600, 325, 1200, 650, 0x000000, 0.85);
 
     // Failure modal - matches new aesthetic
