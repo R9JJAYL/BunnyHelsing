@@ -2685,6 +2685,9 @@ class GameScene extends Phaser.Scene {
     // Epic celebration - gold confetti and fireworks!
     this.createVictoryCelebration();
 
+    // Transform ammo panel into "NEXT LEVEL" button
+    this.showNextLevelButton();
+
     // Click to go to next level
     this.input.once('pointerdown', () => {
       const nextLevel = Math.min(this.level + 1, LEVELS.length);
@@ -2696,6 +2699,22 @@ class GameScene extends Phaser.Scene {
       const nextLevel = Math.min(this.level + 1, LEVELS.length);
       this.scene.restart({ level: nextLevel });
     });
+  }
+
+  showNextLevelButton() {
+    const ammoPanel = document.querySelector('.ammo-panel');
+    if (ammoPanel) {
+      ammoPanel.innerHTML = `
+        <button class="next-level-btn" id="next-level-btn">
+          NEXT LEVEL →
+        </button>
+      `;
+      const btn = document.getElementById('next-level-btn');
+      btn.addEventListener('click', () => {
+        const nextLevel = Math.min(this.level + 1, LEVELS.length);
+        this.scene.restart({ level: nextLevel });
+      });
+    }
   }
 
   onLevelFailed() {
