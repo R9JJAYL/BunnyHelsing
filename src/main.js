@@ -1359,15 +1359,6 @@ class GameScene extends Phaser.Scene {
     controlsBtn.onclick = () => {
       this.showControlsModal();
     };
-
-    // Skip button - skip to next level
-    const skipBtn = document.getElementById('btn-skip');
-    skipBtn.onclick = () => {
-      if (this.level < LEVELS.length) {
-        this.level++;
-        this.startLevel(this.level);
-      }
-    };
   }
 
   showSettingsModal() {
@@ -1453,11 +1444,11 @@ class GameScene extends Phaser.Scene {
     this.settingsOverlay.setDepth(2000);
 
     // Dark background
-    const bg = this.add.rectangle(0, 0, 400, 300, 0x000000, 0.9);
+    const bg = this.add.rectangle(0, 0, 400, 340, 0x000000, 0.9);
     bg.setStrokeStyle(2, 0xC9A86C);
 
     // Title
-    const title = this.add.text(0, -120, 'CONTROLS', {
+    const title = this.add.text(0, -140, 'CONTROLS', {
       fontSize: '24px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#FFD700'
@@ -1472,13 +1463,13 @@ class GameScene extends Phaser.Scene {
 
     const controlTexts = [];
     controls.forEach((ctrl, i) => {
-      const keyText = this.add.text(-80, -50 + i * 40, ctrl.key, {
+      const keyText = this.add.text(-80, -70 + i * 40, ctrl.key, {
         fontSize: '16px',
         fontFamily: 'Cinzel, Georgia, serif',
         color: '#FFD700'
       }).setOrigin(0, 0.5);
 
-      const actionText = this.add.text(80, -50 + i * 40, ctrl.action, {
+      const actionText = this.add.text(80, -70 + i * 40, ctrl.action, {
         fontSize: '16px',
         fontFamily: 'Cinzel, Georgia, serif',
         color: '#CCCCCC'
@@ -1487,8 +1478,37 @@ class GameScene extends Phaser.Scene {
       controlTexts.push(keyText, actionText);
     });
 
+    // Skip level button
+    const skipBtn = this.add.container(0, 70);
+    const skipBg = this.add.rectangle(0, 0, 160, 40, 0x2A2520);
+    skipBg.setStrokeStyle(2, 0x8B7355);
+    const skipText = this.add.text(0, 0, 'SKIP LEVEL', {
+      fontSize: '16px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#C9A86C'
+    }).setOrigin(0.5);
+    skipBtn.add([skipBg, skipText]);
+
+    skipBg.setInteractive({ useHandCursor: true });
+    skipBg.on('pointerover', () => {
+      skipBg.setFillStyle(0x3A3530);
+      skipText.setColor('#FFD700');
+    });
+    skipBg.on('pointerout', () => {
+      skipBg.setFillStyle(0x2A2520);
+      skipText.setColor('#C9A86C');
+    });
+    skipBg.on('pointerdown', () => {
+      if (this.level < LEVELS.length) {
+        this.settingsOverlay.destroy();
+        this.settingsOverlay = null;
+        this.level++;
+        this.startLevel(this.level);
+      }
+    });
+
     // Close button
-    const closeBtn = this.add.container(0, 100);
+    const closeBtn = this.add.container(0, 130);
     const closeBg = this.add.rectangle(0, 0, 120, 40, 0x2A2520);
     closeBg.setStrokeStyle(2, 0x8B7355);
     const closeText = this.add.text(0, 0, 'CLOSE', {
@@ -1514,7 +1534,7 @@ class GameScene extends Phaser.Scene {
       });
     });
 
-    this.settingsOverlay.add([bg, title, ...controlTexts, closeBtn]);
+    this.settingsOverlay.add([bg, title, ...controlTexts, skipBtn, closeBtn]);
   }
 
   showLevelSelectModal() {
