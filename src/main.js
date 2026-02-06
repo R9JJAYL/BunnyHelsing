@@ -5,9 +5,10 @@ import Phaser from 'phaser';
 // ============================================
 
 // Available bunny skins with position offsets to align them
+// offsetY is relative to bottom of sprite (negative = up from ground)
 const BUNNY_SKINS = [
   { id: 'bunny-hero', name: 'Classic', offsetX: 0, offsetY: 0, scale: 0.09 },
-  { id: 'bunny-mobster', name: 'Mobster', offsetX: 0, offsetY: 25, scale: 0.09 },  // No ears, needs Y offset
+  { id: 'bunny-mobster', name: 'Mobster', offsetX: 0, offsetY: -45, scale: 0.09 },  // Lots of empty space at bottom
   { id: 'bunny-crimson', name: 'Crimson', offsetX: 0, offsetY: 0, scale: 0.09 }
 ];
 
