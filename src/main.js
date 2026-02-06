@@ -1876,8 +1876,8 @@ class GameScene extends Phaser.Scene {
         // They saw the bounce - bullet missed, explain ammo
         this.tutorialBlockShoot = true;
         this.tutorialContainer.setPosition(600, 250);
-        this.tutorialText.setText('Your bullet bounced!');
-        this.tutorialSubtext.setText('But it missed... More bounces = better aim!\nClick to continue...');
+        this.tutorialText.setText('Your bullet bounced once!');
+        this.tutorialSubtext.setText('1 ammo = 1 ricochet\n2 ammo = 2 ricochets, and so on!\nClick to continue...');
         this.tutorialArrow.setVisible(false);
 
         this.input.once('pointerdown', () => {
@@ -1888,8 +1888,8 @@ class GameScene extends Phaser.Scene {
       case 3:
         // Now select more bounces
         this.tutorialContainer.setPosition(400, 400);
-        this.tutorialText.setText('Select 2 bounces');
-        this.tutorialSubtext.setText('Press 2 or click the 2 button\nMore ammo = more bounces!');
+        this.tutorialText.setText('Select 2 for 2 ricochets');
+        this.tutorialSubtext.setText('Press 2 or click the 2 button');
 
         // Arrow pointing at the "2" ammo button
         this.tutorialArrow.setVisible(true);
