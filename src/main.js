@@ -4,6 +4,16 @@ import Phaser from 'phaser';
 // BUNNY BASHERS - MEDIEVAL CASTLE THEME
 // ============================================
 
+// Available bunny skins
+const BUNNY_SKINS = [
+  { id: 'bunny-hero', name: 'Classic' },
+  { id: 'bunny-mobster', name: 'Mobster' },
+  { id: 'bunny-crimson', name: 'Crimson' }
+];
+
+// Current selected skin (persisted in localStorage)
+let currentSkin = localStorage.getItem('bunnySkin') || 'bunny-hero';
+
 const COLORS = {
   // Castle stone colors
   stoneLight: 0x6B6B63,
@@ -185,6 +195,8 @@ class MainMenuScene extends Phaser.Scene {
   preload() {
     this.load.image('logo', '/assets/logo.png');
     this.load.image('bunny-hero', '/assets/bunny-hero.png');
+    this.load.image('bunny-mobster', '/assets/bunny-mobster.png');
+    this.load.image('bunny-crimson', '/assets/bunny-crimson.png');
     this.load.image('panda-jason', '/assets/panda-jason.png');
     this.load.image('bamboo', '/assets/bamboo.png');
   }
@@ -243,8 +255,8 @@ class MainMenuScene extends Phaser.Scene {
     });
 
     // === CHARACTERS ===
-    // Bunny hero - left side
-    const bunny = this.add.image(220, 330, 'bunny-hero');
+    // Bunny hero - left side (uses selected skin)
+    const bunny = this.add.image(220, 330, currentSkin);
     bunny.setScale(0.10);
 
     // Bunny breathing animation
@@ -521,6 +533,8 @@ class GameScene extends Phaser.Scene {
   preload() {
     // Load character sprites
     this.load.image('bunny-hero', '/assets/bunny-hero.png');
+    this.load.image('bunny-mobster', '/assets/bunny-mobster.png');
+    this.load.image('bunny-crimson', '/assets/bunny-crimson.png');
     this.load.image('panda-jason', '/assets/panda-jason.png');
     this.load.image('panda-pennywise', '/assets/panda-pennywise.png');
     this.load.image('panda-freddy', '/assets/panda-freddy.png');
@@ -1301,8 +1315,8 @@ class GameScene extends Phaser.Scene {
 
     this.bunny = this.add.container(x, y);
 
-    // Use the sprite image!
-    const bunnySprite = this.add.image(0, 0, 'bunny-hero');
+    // Use the selected skin
+    const bunnySprite = this.add.image(0, 0, currentSkin);
     bunnySprite.setScale(0.09); // Scale down to fit game
     bunnySprite.setOrigin(0.5, 1); // Origin at bottom center so feet touch floor
 
@@ -1443,12 +1457,12 @@ class GameScene extends Phaser.Scene {
     this.settingsOverlay = this.add.container(600, 325);
     this.settingsOverlay.setDepth(2000);
 
-    // Dark background
-    const bg = this.add.rectangle(0, 0, 400, 340, 0x000000, 0.9);
+    // Dark background - taller to fit skin selection
+    const bg = this.add.rectangle(0, 0, 400, 420, 0x000000, 0.9);
     bg.setStrokeStyle(2, 0xC9A86C);
 
     // Title
-    const title = this.add.text(0, -140, 'CONTROLS', {
+    const title = this.add.text(0, -180, 'CONTROLS', {
       fontSize: '24px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#FFD700'
@@ -1464,14 +1478,14 @@ class GameScene extends Phaser.Scene {
 
     const controlTexts = [];
     controls.forEach((ctrl, i) => {
-      const keyText = this.add.text(-80, -70 + i * 40, ctrl.key, {
-        fontSize: '16px',
+      const keyText = this.add.text(-80, -110 + i * 35, ctrl.key, {
+        fontSize: '14px',
         fontFamily: 'Cinzel, Georgia, serif',
         color: '#FFD700'
       }).setOrigin(0, 0.5);
 
-      const actionText = this.add.text(80, -70 + i * 40, ctrl.action, {
-        fontSize: '16px',
+      const actionText = this.add.text(80, -110 + i * 35, ctrl.action, {
+        fontSize: '14px',
         fontFamily: 'Cinzel, Georgia, serif',
         color: '#CCCCCC'
       }).setOrigin(0.5);
@@ -1479,8 +1493,61 @@ class GameScene extends Phaser.Scene {
       controlTexts.push(keyText, actionText);
     });
 
+    // Skin selection section
+    const skinLabel = this.add.text(0, 50, 'SKIN', {
+      fontSize: '18px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#FFD700'
+    }).setOrigin(0.5);
+
+    const skinButtons = [];
+    const skinBtnWidth = 100;
+    const skinSpacing = 110;
+    const startX = -((BUNNY_SKINS.length - 1) * skinSpacing) / 2;
+
+    BUNNY_SKINS.forEach((skin, i) => {
+      const btnX = startX + i * skinSpacing;
+      const btnContainer = this.add.container(btnX, 100);
+
+      const btnBg = this.add.rectangle(0, 0, skinBtnWidth, 36, 0x2A2520);
+      btnBg.setStrokeStyle(2, currentSkin === skin.id ? 0xFFD700 : 0x8B7355);
+
+      const btnText = this.add.text(0, 0, skin.name, {
+        fontSize: '12px',
+        fontFamily: 'Cinzel, Georgia, serif',
+        color: currentSkin === skin.id ? '#FFD700' : '#C9A86C'
+      }).setOrigin(0.5);
+
+      btnContainer.add([btnBg, btnText]);
+
+      btnBg.setInteractive({ useHandCursor: true });
+      btnBg.on('pointerover', () => {
+        btnBg.setFillStyle(0x3A3530);
+      });
+      btnBg.on('pointerout', () => {
+        btnBg.setFillStyle(0x2A2520);
+      });
+      btnBg.on('pointerdown', () => {
+        // Update skin
+        currentSkin = skin.id;
+        localStorage.setItem('bunnySkin', skin.id);
+
+        // Update all button styles
+        skinButtons.forEach((sb, idx) => {
+          const isSelected = BUNNY_SKINS[idx].id === currentSkin;
+          sb.bg.setStrokeStyle(2, isSelected ? 0xFFD700 : 0x8B7355);
+          sb.text.setColor(isSelected ? '#FFD700' : '#C9A86C');
+        });
+
+        // Update bunny sprite immediately
+        this.updateBunnySkin();
+      });
+
+      skinButtons.push({ container: btnContainer, bg: btnBg, text: btnText });
+    });
+
     // Close button
-    const closeBtn = this.add.container(0, 100);
+    const closeBtn = this.add.container(0, 165);
     const closeBg = this.add.rectangle(0, 0, 120, 40, 0x2A2520);
     closeBg.setStrokeStyle(2, 0x8B7355);
     const closeText = this.add.text(0, 0, 'CLOSE', {
@@ -1506,7 +1573,17 @@ class GameScene extends Phaser.Scene {
       });
     });
 
-    this.settingsOverlay.add([bg, title, ...controlTexts, closeBtn]);
+    this.settingsOverlay.add([bg, title, ...controlTexts, skinLabel, ...skinButtons.map(sb => sb.container), closeBtn]);
+  }
+
+  updateBunnySkin() {
+    if (this.bunny && this.bunny.list) {
+      // Find and update the bunny sprite (it's the second item after shadow)
+      const bunnySprite = this.bunny.list.find(child => child.type === 'Image');
+      if (bunnySprite) {
+        bunnySprite.setTexture(currentSkin);
+      }
+    }
   }
 
   showLevelSelectModal() {
