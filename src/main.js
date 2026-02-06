@@ -1850,48 +1850,10 @@ class GameScene extends Phaser.Scene {
         break;
 
       case 1:
-        // First, just shoot to see the bounce (will miss)
-        this.tutorialContainer.setPosition(600, 150);
-        this.tutorialText.setText('Shoot the wall!');
-        this.tutorialSubtext.setText('Click anywhere on the top wall\nWatch your bullet bounce!');
-
-        // Arrow pointing at top wall
-        this.tutorialArrow.setVisible(true);
-        this.tutorialArrow.setText('👆');
-        this.tutorialArrow.setPosition(400, 80);
-        this.tweens.add({
-          targets: this.tutorialArrow,
-          y: 60,
-          duration: 500,
-          yoyo: true,
-          repeat: -1
-        });
-
-        // Allow shooting after short delay (so click from previous step doesn't fire)
-        this.time.delayedCall(200, () => {
-          this.tutorialBlockShoot = false;
-        });
-        this.tutorialWaitingForBounce = true;
-        break;
-
-      case 2:
-        // They saw the bounce - bullet missed, explain ammo
-        this.tutorialBlockShoot = true;
-        this.tutorialContainer.setPosition(600, 250);
-        this.tutorialText.setText('Your bullet bounced once!');
-        this.tutorialSubtext.setText('1 ammo = 1 ricochet\n2 ammo = 2 ricochets, and so on!\nClick to continue...');
-        this.tutorialArrow.setVisible(false);
-
-        this.input.once('pointerdown', () => {
-          this.showTutorialStep(3);
-        });
-        break;
-
-      case 3:
-        // Now select more bounces
+        // First, select ammo 2
         this.tutorialContainer.setPosition(400, 400);
-        this.tutorialText.setText('Select 2 for 2 ricochets');
-        this.tutorialSubtext.setText('Press 2 or click the 2 button');
+        this.tutorialText.setText('Select 2 ricochets');
+        this.tutorialSubtext.setText('Press 2 or click the 2 button\n2 ammo = 2 wall bounces!');
 
         // Arrow pointing at the "2" ammo button
         this.tutorialArrow.setVisible(true);
@@ -1909,11 +1871,49 @@ class GameScene extends Phaser.Scene {
         this.tutorialWaitingForAmmo = 2;
         break;
 
+      case 2:
+        // Now shoot the wall
+        this.tutorialContainer.setPosition(600, 150);
+        this.tutorialText.setText('Shoot the wall!');
+        this.tutorialSubtext.setText('Click anywhere on the top wall\nWatch your bullet bounce twice!');
+
+        // Arrow pointing at top wall
+        this.tutorialArrow.setVisible(true);
+        this.tutorialArrow.setText('👆');
+        this.tutorialArrow.setPosition(400, 80);
+        this.tweens.add({
+          targets: this.tutorialArrow,
+          y: 60,
+          duration: 500,
+          yoyo: true,
+          repeat: -1
+        });
+
+        // Allow shooting after short delay
+        this.time.delayedCall(200, () => {
+          this.tutorialBlockShoot = false;
+        });
+        this.tutorialWaitingForBounce = true;
+        break;
+
+      case 3:
+        // They saw the bounces - explain
+        this.tutorialBlockShoot = true;
+        this.tutorialContainer.setPosition(600, 250);
+        this.tutorialText.setText('Nice! Your bullet bounced twice!');
+        this.tutorialSubtext.setText('More ammo = more ricochets to reach targets\nClick to continue...');
+        this.tutorialArrow.setVisible(false);
+
+        this.input.once('pointerdown', () => {
+          this.showTutorialStep(4);
+        });
+        break;
+
       case 4:
-        // Now hit the panda with more bounces
+        // Now hit the panda
         this.tutorialContainer.setPosition(600, 150);
         this.tutorialText.setText('Now hit the panda!');
-        this.tutorialSubtext.setText('Use your extra bounce to reach it');
+        this.tutorialSubtext.setText('Use ricochets to reach tricky targets');
 
         // Arrow pointing at panda
         this.tutorialArrow.setVisible(true);
@@ -2051,7 +2051,7 @@ class GameScene extends Phaser.Scene {
       // If tutorial is waiting for specific ammo selection
       if (this.tutorialWaitingForAmmo && amount === this.tutorialWaitingForAmmo) {
         this.tutorialWaitingForAmmo = false;
-        this.showTutorialStep(4);
+        this.showTutorialStep(2);
       }
     }
   }
@@ -2505,7 +2505,7 @@ class GameScene extends Phaser.Scene {
       this.tutorialWaitingForBounce = false;
       // Wait for bullet to finish its journey, then explain
       this.time.delayedCall(1500, () => {
-        this.showTutorialStep(2);
+        this.showTutorialStep(3);
       });
     }
 
