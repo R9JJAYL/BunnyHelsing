@@ -108,6 +108,65 @@ const LEVELS = [
       { x: 600, y: 150, w: 200, h: 16, moveX: 60, moveY: 0, speed: 0.6 },
     ]
   },
+  // Level 7: The Maze - Complex ricochet puzzle (from design doc)
+  // Game area: 1200x650, playable area ~1160x610 (20px bamboo border)
+  // Grid reference: ~24 cols x 12 rows, each cell ~48x50px
+  {
+    ammo: 8,
+    pandas: [
+      // Panda 1: Behind left vertical bar - moved left to avoid top-left bamboo (x=400)
+      // Panda hitbox ~45px radius, need 60px+ clearance
+      { x: 320, y: 180 },
+      // Panda 2: Top right area - clear of right upper bamboo (x=920)
+      { x: 1050, y: 150 },
+      // Panda 3: Center - moved up to avoid lower-center horizontal (y=430)
+      { x: 640, y: 340 },
+      // Panda 4: Bottom right - clear of obstacles
+      { x: 1050, y: 530 }
+    ],
+    obstacles: [
+      // 1. Left vertical bamboo - connects to left wall, ~col 5, rows 3-9
+      // Position: x=240, y=325 (center), height ~300px
+      { x: 240, y: 325, w: 20, h: 300 },
+
+      // 2. Top-left vertical bamboo - ~col 8, rows 1-4
+      // Position: x=385, y=130, height ~180px
+      { x: 400, y: 140, w: 20, h: 200 },
+
+      // 3. Top-center vertical bamboo - ~col 12, rows 1-4
+      // Position: x=575, y=130, height ~180px
+      { x: 590, y: 140, w: 20, h: 200 },
+
+      // 4. Center-right vertical bamboo - ~col 15, rows 3-7
+      // Position: x=720, y=260, height ~200px
+      { x: 740, y: 280, w: 20, h: 220 },
+
+      // 5. Middle-left horizontal bamboo - ~cols 5-8, row 6
+      // Position: x=290, y=325, width ~150px (connects to left vertical)
+      { x: 310, y: 325, w: 150, h: 20 },
+
+      // 6. Center vertical bamboo (small) - ~col 11, rows 7-9
+      // Position: x=530, y=420, height ~140px
+      { x: 545, y: 430, w: 20, h: 160 },
+
+      // 7. Lower-center horizontal bamboo - ~cols 10-14, row 8
+      // Position: x=575, y=420, width ~200px
+      { x: 590, y: 430, w: 180, h: 20 },
+
+      // 8. Bottom horizontal bamboo - ~cols 12-16, row 11
+      // Position: x=670, y=560, width ~200px
+      { x: 680, y: 570, w: 200, h: 20 },
+
+      // 9. Right upper vertical bamboo - ~col 19, rows 2-5
+      // Position: x=910, y=180, height ~180px
+      { x: 920, y: 190, w: 20, h: 200 },
+
+      // 10. Right lower vertical bamboo - ~col 19, rows 9-12
+      // Position: x=910, y=500, height ~180px
+      { x: 920, y: 510, w: 20, h: 200 },
+    ],
+    movingObstacles: []
+  },
 ];
 
 // ============================================
@@ -322,7 +381,7 @@ class MainMenuScene extends Phaser.Scene {
       color: '#CCCCCC'
     }).setOrigin(0.5);
 
-    this.add.text(centerX, 480, 'Master the art of the ricochet shot across 6 deadly levels.', {
+    this.add.text(centerX, 480, 'Master the art of the ricochet shot across 7 deadly levels.', {
       fontSize: '11px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#888888'
@@ -666,8 +725,8 @@ class GameScene extends Phaser.Scene {
       // Store reference to prevent any issues
       this.obstacleImages.push(bamboo);
 
-      // Physics hitbox matches visual exactly (no padding in image anymore)
-      const hitboxThickness = visualThickness;
+      // Physics hitbox - minimum 20px thick to prevent bullet tunneling
+      const hitboxThickness = Math.max(visualThickness, 20);
 
       if (angle === 0) {
         // Simple case: no rotation, single physics body
@@ -708,10 +767,11 @@ class GameScene extends Phaser.Scene {
       const scale = length / BAMBOO_WIDTH;
       const visualThickness = BAMBOO_HEIGHT * scale;
 
-      // Physics body - match the visual bamboo size
+      // Physics body - minimum 20px thick to prevent bullet tunneling
       const isVertical = obs.h > obs.w;
-      const hitboxW = isVertical ? visualThickness : length;
-      const hitboxH = isVertical ? length : visualThickness;
+      const minThickness = Math.max(visualThickness, 20);
+      const hitboxW = isVertical ? minThickness : length;
+      const hitboxH = isVertical ? length : minThickness;
       const wall = this.add.rectangle(0, 0, hitboxW, hitboxH, 0x000000, 0);
       this.physics.add.existing(wall, true);
 
@@ -940,6 +1000,12 @@ class GameScene extends Phaser.Scene {
     settingsBtn.onclick = () => {
       this.showSettingsModal();
     };
+
+    // Levels button - show level select
+    const levelsBtn = document.getElementById('btn-levels');
+    levelsBtn.onclick = () => {
+      this.showLevelSelectModal();
+    };
   }
 
   showSettingsModal() {
@@ -1015,6 +1081,112 @@ class GameScene extends Phaser.Scene {
     });
 
     this.settingsOverlay.add([bg, title, soundLabel, soundStatus, musicLabel, musicStatus, closeBtn]);
+  }
+
+  showLevelSelectModal() {
+    // Create level select overlay
+    if (this.settingsOverlay) return; // Already have a modal open
+
+    this.settingsOverlay = this.add.container(600, 325);
+    this.settingsOverlay.setDepth(2000);
+
+    // Dark background - larger for level grid
+    const bg = this.add.rectangle(0, 0, 500, 380, 0x000000, 0.9);
+    bg.setStrokeStyle(2, 0xC9A86C);
+
+    // Title
+    const title = this.add.text(0, -160, 'SELECT LEVEL', {
+      fontSize: '24px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#FFD700'
+    }).setOrigin(0.5);
+
+    this.settingsOverlay.add([bg, title]);
+
+    // Create level buttons in a grid (4 columns)
+    const cols = 4;
+    const btnSize = 70;
+    const spacing = 85;
+    const startX = -((cols - 1) * spacing) / 2;
+    const startY = -80;
+
+    for (let i = 0; i < LEVELS.length; i++) {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const x = startX + col * spacing;
+      const y = startY + row * spacing;
+      const levelNum = i + 1;
+      const isCurrentLevel = levelNum === this.level;
+
+      // Level button container
+      const levelBtn = this.add.container(x, y);
+
+      // Button background
+      const btnBg = this.add.rectangle(0, 0, btnSize, btnSize, isCurrentLevel ? 0x4A3A20 : 0x2A2520);
+      btnBg.setStrokeStyle(2, isCurrentLevel ? 0xFFD700 : 0x5C4A3D);
+
+      // Level number
+      const levelText = this.add.text(0, 0, `${levelNum}`, {
+        fontSize: '28px',
+        fontFamily: 'Cinzel, Georgia, serif',
+        color: isCurrentLevel ? '#FFD700' : '#C9A86C'
+      }).setOrigin(0.5);
+
+      levelBtn.add([btnBg, levelText]);
+
+      // Make interactive
+      btnBg.setInteractive({ useHandCursor: true });
+      btnBg.on('pointerover', () => {
+        btnBg.setFillStyle(0x3A3530);
+        btnBg.setStrokeStyle(2, 0xFFD700);
+        levelText.setColor('#FFD700');
+      });
+      btnBg.on('pointerout', () => {
+        btnBg.setFillStyle(isCurrentLevel ? 0x4A3A20 : 0x2A2520);
+        btnBg.setStrokeStyle(2, isCurrentLevel ? 0xFFD700 : 0x5C4A3D);
+        levelText.setColor(isCurrentLevel ? '#FFD700' : '#C9A86C');
+      });
+      btnBg.on('pointerdown', () => {
+        this.settingsOverlay.destroy();
+        // Delay restart so pointerup doesn't fire a shot in the new level
+        this.time.delayedCall(100, () => {
+          this.settingsOverlay = null;
+          // Go to selected level
+          this.scene.restart({ level: levelNum });
+        });
+      });
+
+      this.settingsOverlay.add(levelBtn);
+    }
+
+    // Close button
+    const closeBtn = this.add.container(0, 150);
+    const closeBg = this.add.rectangle(0, 0, 120, 40, 0x2A2520);
+    closeBg.setStrokeStyle(2, 0x8B7355);
+    const closeText = this.add.text(0, 0, 'CLOSE', {
+      fontSize: '16px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#C9A86C'
+    }).setOrigin(0.5);
+    closeBtn.add([closeBg, closeText]);
+
+    closeBg.setInteractive({ useHandCursor: true });
+    closeBg.on('pointerover', () => {
+      closeBg.setFillStyle(0x3A3530);
+      closeText.setColor('#FFD700');
+    });
+    closeBg.on('pointerout', () => {
+      closeBg.setFillStyle(0x2A2520);
+      closeText.setColor('#C9A86C');
+    });
+    closeBg.on('pointerdown', () => {
+      this.settingsOverlay.destroy();
+      this.time.delayedCall(100, () => {
+        this.settingsOverlay = null;
+      });
+    });
+
+    this.settingsOverlay.add(closeBtn);
   }
 
   createUI() {
@@ -1280,7 +1452,7 @@ class GameScene extends Phaser.Scene {
 
     if (power < 20) return;
 
-    const speed = power * 4;
+    const speed = Math.min(power * 4, 600); // Cap max speed to prevent tunneling
 
     this.ammoRemaining -= this.selectedAmmo;
     const maxBounces = this.selectedAmmo;
@@ -2264,7 +2436,8 @@ const config = {
     default: 'arcade',
     arcade: {
       debug: false,
-      gravity: { y: 0 }
+      gravity: { y: 0 },
+      fps: 120  // Higher physics framerate to prevent tunneling
     }
   },
   scene: [MainMenuScene, GameScene]
