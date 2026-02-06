@@ -38,99 +38,75 @@ const COLORS = {
 };
 
 // Level configurations - Much harder with angles and moving parts
-// Game area is now 1200x700 landscape (play area ~645px tall, ~1140px wide)
-// Bamboo obstacles: length determines visual size. Bamboo is ~7% as thick as long.
-// For visible bamboo: 300px length = ~20px thick, 450px = ~30px thick
+// Game area is now 1200x650 landscape (bamboo frame fills entire canvas)
+// Bunny is at bottom-left around x:150, y:580
+// Bamboo obstacles scale uniformly - longer bamboo = proportionally thicker
+// For good visibility use lengths of 250-400px
 const LEVELS = [
-  // Level 1: Introduction - angled walls
+  // Level 1: Tutorial - Simple open shot, learn the basics
+  {
+    ammo: 3,
+    pandas: [{ x: 900, y: 300 }],
+    obstacles: [],
+    movingObstacles: []
+  },
+  // Level 2: First obstacle - Learn to ricochet
   {
     ammo: 4,
-    pandas: [{ x: 1000, y: 200 }, { x: 900, y: 480 }],
+    pandas: [{ x: 1000, y: 200 }, { x: 1000, y: 450 }],
     obstacles: [
-      { x: 500, y: 250, w: 350, h: 24, angle: 15 },
-      { x: 720, y: 350, w: 24, h: 300 },
+      { x: 700, y: 325, w: 20, h: 350 }, // Vertical bamboo blocking direct shots
     ],
-    movingObstacles: [],
-    torches: [{ x: 50, y: 100 }, { x: 1150, y: 100 }, { x: 50, y: 500 }, { x: 1150, y: 500 }]
+    movingObstacles: []
   },
-  // Level 2: First moving obstacle
+  // Level 3: Angled bamboo - Learn angle shots
   {
     ammo: 5,
-    pandas: [{ x: 1050, y: 150 }, { x: 1050, y: 500 }, { x: 600, y: 320 }],
+    pandas: [{ x: 1050, y: 150 }, { x: 1050, y: 500 }],
     obstacles: [
-      { x: 750, y: 180, w: 20, h: 280 },
-      { x: 750, y: 480, w: 20, h: 280 },
-      { x: 400, y: 280, w: 300, h: 20, angle: -20 },
+      { x: 550, y: 280, w: 350, h: 20, angle: 20 }, // Angled bamboo for ricochet practice
+      { x: 800, y: 325, w: 20, h: 250 }, // Vertical blocker
+    ],
+    movingObstacles: []
+  },
+  // Level 4: First moving obstacle
+  {
+    ammo: 5,
+    pandas: [{ x: 1000, y: 200 }, { x: 1000, y: 450 }, { x: 650, y: 325 }],
+    obstacles: [
+      { x: 450, y: 200, w: 300, h: 20, angle: 15 },
+      { x: 450, y: 450, w: 300, h: 20, angle: -15 },
     ],
     movingObstacles: [
-      { x: 550, y: 320, w: 250, h: 17, moveX: 0, moveY: 100, speed: 0.8 }
-    ],
-    torches: [{ x: 50, y: 100 }, { x: 1150, y: 100 }, { x: 50, y: 500 }, { x: 1150, y: 500 }]
+      { x: 750, y: 325, w: 20, h: 200, moveX: 0, moveY: 80, speed: 0.7 }
+    ]
   },
-  // Level 3: Diagonal gauntlet
-  {
-    ammo: 5,
-    pandas: [{ x: 1100, y: 120 }, { x: 1100, y: 320 }, { x: 1100, y: 520 }],
-    obstacles: [
-      { x: 350, y: 180, w: 280, h: 19, angle: 30 },
-      { x: 550, y: 320, w: 280, h: 19, angle: -30 },
-      { x: 350, y: 460, w: 280, h: 19, angle: 30 },
-      { x: 820, y: 200, w: 20, h: 320 },
-      { x: 820, y: 480, w: 20, h: 320 },
-    ],
-    movingObstacles: [],
-    torches: [{ x: 50, y: 100 }, { x: 1150, y: 100 }, { x: 50, y: 520 }, { x: 1150, y: 520 }]
-  },
-  // Level 4: The gauntlet - multiple moving parts
+  // Level 5: The corridor - Timing challenge
   {
     ammo: 6,
-    pandas: [{ x: 1050, y: 150 }, { x: 1050, y: 500 }, { x: 700, y: 320 }],
+    pandas: [{ x: 1050, y: 150 }, { x: 1050, y: 325 }, { x: 1050, y: 500 }],
     obstacles: [
-      { x: 450, y: 200, w: 280, h: 19, angle: 25 },
-      { x: 450, y: 450, w: 280, h: 19, angle: -25 },
+      { x: 500, y: 325, w: 20, h: 400 }, // Long vertical bamboo
+      { x: 750, y: 150, w: 20, h: 200 },
+      { x: 750, y: 500, w: 20, h: 200 },
     ],
     movingObstacles: [
-      { x: 600, y: 150, w: 17, h: 220, moveX: 0, moveY: 80, speed: 1.2 },
-      { x: 600, y: 420, w: 17, h: 220, moveX: 0, moveY: 80, speed: 1.2, offset: 0.5 },
-      { x: 850, y: 300, w: 200, h: 14, moveX: 80, moveY: 0, speed: 0.6 }
-    ],
-    torches: [{ x: 50, y: 100 }, { x: 1150, y: 100 }, { x: 400, y: 50 }, { x: 50, y: 500 }, { x: 1150, y: 500 }]
+      { x: 750, y: 325, w: 250, h: 18, moveX: 0, moveY: 100, speed: 0.8 }
+    ]
   },
-  // Level 5: The maze
+  // Level 6: The gauntlet - Multiple paths
   {
     ammo: 7,
-    pandas: [{ x: 1100, y: 100 }, { x: 1100, y: 320 }, { x: 1100, y: 540 }, { x: 600, y: 200 }],
+    pandas: [{ x: 1050, y: 120 }, { x: 1050, y: 325 }, { x: 1050, y: 530 }, { x: 700, y: 220 }],
     obstacles: [
-      { x: 300, y: 180, w: 22, h: 350 },
-      { x: 500, y: 280, w: 350, h: 24 },
-      { x: 300, y: 460, w: 22, h: 350 },
-      { x: 700, y: 180, w: 20, h: 280 },
-      { x: 700, y: 460, w: 20, h: 280 },
-      { x: 500, y: 520, w: 280, h: 19, angle: 35 },
+      { x: 400, y: 200, w: 300, h: 18, angle: 25 },
+      { x: 400, y: 450, w: 300, h: 18, angle: -25 },
+      { x: 850, y: 325, w: 18, h: 280 },
     ],
     movingObstacles: [
-      { x: 900, y: 200, w: 15, h: 200, moveX: 0, moveY: 60, speed: 1.5 },
-      { x: 900, y: 430, w: 15, h: 200, moveX: 0, moveY: 60, speed: 1.5, offset: 0.5 },
-    ],
-    torches: [{ x: 50, y: 80 }, { x: 1150, y: 80 }, { x: 600, y: 50 }, { x: 50, y: 540 }, { x: 1150, y: 540 }]
-  },
-  // Level 6: Chaos
-  {
-    ammo: 8,
-    pandas: [{ x: 1050, y: 100 }, { x: 1050, y: 320 }, { x: 1050, y: 540 }, { x: 650, y: 200 }, { x: 650, y: 450 }],
-    obstacles: [
-      { x: 350, y: 160, w: 250, h: 17, angle: 45 },
-      { x: 350, y: 500, w: 250, h: 17, angle: -45 },
-      { x: 500, y: 320, w: 20, h: 300 },
-      { x: 800, y: 160, w: 250, h: 17, angle: -30 },
-      { x: 800, y: 500, w: 250, h: 17, angle: 30 },
-    ],
-    movingObstacles: [
-      { x: 550, y: 100, w: 200, h: 14, moveX: 100, moveY: 0, speed: 1.0 },
-      { x: 550, y: 540, w: 200, h: 14, moveX: 100, moveY: 0, speed: 1.0, offset: 0.5 },
-      { x: 900, y: 280, w: 15, h: 200, moveX: 0, moveY: 100, speed: 1.3 },
-    ],
-    torches: [{ x: 50, y: 100 }, { x: 1150, y: 100 }, { x: 50, y: 320 }, { x: 1150, y: 320 }, { x: 50, y: 540 }, { x: 1150, y: 540 }]
+      { x: 600, y: 325, w: 18, h: 180, moveX: 0, moveY: 70, speed: 1.0 },
+      { x: 600, y: 150, w: 200, h: 16, moveX: 60, moveY: 0, speed: 0.6 },
+    ]
   },
 ];
 
@@ -146,7 +122,7 @@ class GameScene extends Phaser.Scene {
     this.pandas = [];
     this.walls = [];
     this.movingWalls = [];
-    this.torches = [];
+    this.obstacleImages = []; // Store bamboo obstacle images
     this.aimLine = null;
     this.trajectoryDots = [];
     this.bulletFired = false;
@@ -170,7 +146,7 @@ class GameScene extends Phaser.Scene {
     this.pandas = [];
     this.walls = [];
     this.movingWalls = [];
-    this.torches = [];
+    this.obstacleImages = []; // Store bamboo obstacle images
     this.aimLine = null;
     this.trajectoryDots = [];
     this.bulletFired = false;
@@ -229,9 +205,6 @@ class GameScene extends Phaser.Scene {
     if (levelConfig.movingObstacles) {
       this.createMovingObstacles(levelConfig.movingObstacles);
     }
-
-    // Create torches with flickering light
-    this.createTorches(levelConfig.torches);
 
     // Create pandas
     this.createPandas(levelConfig.pandas);
@@ -328,8 +301,7 @@ class GameScene extends Phaser.Scene {
     this.walls = [];
     const wallThickness = 20;
     const gameWidth = 1200;
-    const gameHeight = 700;
-    const playAreaBottom = gameHeight - 70; // Above UI (menu bar starts at y=650)
+    const gameHeight = 650; // Reduced height - no UI panel at bottom anymore
 
     // Create invisible physics walls
     // Top
@@ -338,41 +310,44 @@ class GameScene extends Phaser.Scene {
     this.walls.push(topWall);
 
     // Bottom
-    const bottomWall = this.add.rectangle(gameWidth / 2, playAreaBottom + wallThickness / 2, gameWidth, wallThickness, 0x000000, 0);
+    const bottomWall = this.add.rectangle(gameWidth / 2, gameHeight - wallThickness / 2, gameWidth, wallThickness, 0x000000, 0);
     this.physics.add.existing(bottomWall, true);
     this.walls.push(bottomWall);
 
     // Left
-    const leftWall = this.add.rectangle(wallThickness / 2, (playAreaBottom + wallThickness) / 2, wallThickness, playAreaBottom + wallThickness, 0x000000, 0);
+    const leftWall = this.add.rectangle(wallThickness / 2, gameHeight / 2, wallThickness, gameHeight, 0x000000, 0);
     this.physics.add.existing(leftWall, true);
     this.walls.push(leftWall);
 
     // Right
-    const rightWall = this.add.rectangle(gameWidth - wallThickness / 2, (playAreaBottom + wallThickness) / 2, wallThickness, playAreaBottom + wallThickness, 0x000000, 0);
+    const rightWall = this.add.rectangle(gameWidth - wallThickness / 2, gameHeight / 2, wallThickness, gameHeight, 0x000000, 0);
     this.physics.add.existing(rightWall, true);
     this.walls.push(rightWall);
 
-    // Bamboo frame - image is 3932x269
-    // Use uniform scale to maintain bamboo look
-    const frameScale = 0.075; // Makes bamboo about 20px thick (269 * 0.075 = ~20)
+    // Bamboo frame - bamboo image is 3390x70 (tightly cropped, no padding)
+    const bambooThickness = 20;
 
-    // Top bamboo (horizontal)
-    const topBamboo = this.add.image(gameWidth / 2, wallThickness / 2, 'bamboo');
-    topBamboo.setScale(gameWidth / 3932, frameScale);
+    // Top bamboo (horizontal) - use setDisplaySize for exact dimensions
+    const topBamboo = this.add.image(gameWidth / 2, bambooThickness / 2, 'bamboo');
+    topBamboo.setDisplaySize(gameWidth, bambooThickness);
+    topBamboo.setDepth(10);
 
     // Bottom bamboo (horizontal)
-    const bottomBamboo = this.add.image(gameWidth / 2, playAreaBottom + wallThickness / 2, 'bamboo');
-    bottomBamboo.setScale(gameWidth / 3932, frameScale);
+    const bottomBamboo = this.add.image(gameWidth / 2, gameHeight - bambooThickness / 2, 'bamboo');
+    bottomBamboo.setDisplaySize(gameWidth, bambooThickness);
+    bottomBamboo.setDepth(10);
 
-    // Left bamboo (vertical)
-    const leftBamboo = this.add.image(wallThickness / 2, (playAreaBottom + wallThickness) / 2, 'bamboo');
-    leftBamboo.setScale((playAreaBottom + wallThickness) / 3932, frameScale);
+    // Left bamboo (vertical) - use setDisplaySize then rotate
+    const leftBamboo = this.add.image(bambooThickness / 2, gameHeight / 2, 'bamboo');
+    leftBamboo.setDisplaySize(gameHeight, bambooThickness);
     leftBamboo.setAngle(90);
+    leftBamboo.setDepth(5);
 
     // Right bamboo (vertical)
-    const rightBamboo = this.add.image(gameWidth - wallThickness / 2, (playAreaBottom + wallThickness) / 2, 'bamboo');
-    rightBamboo.setScale((playAreaBottom + wallThickness) / 3932, frameScale);
+    const rightBamboo = this.add.image(gameWidth - bambooThickness / 2, gameHeight / 2, 'bamboo');
+    rightBamboo.setDisplaySize(gameHeight, bambooThickness);
     rightBamboo.setAngle(90);
+    rightBamboo.setDepth(5);
   }
 
   adjustColor(color, amount) {
@@ -387,22 +362,32 @@ class GameScene extends Phaser.Scene {
       const angle = obs.angle || 0;
       const angleRad = Phaser.Math.DegToRad(angle);
       const length = Math.max(obs.w, obs.h);
-      const thickness = Math.min(obs.w, obs.h);
 
-      // Draw bamboo obstacle - bamboo image is 3932x269
-      // Scale based on desired length, with bamboo's natural thickness preserved
+      // Bamboo image is 3390x70 (tightly cropped, no transparent padding)
+      const BAMBOO_WIDTH = 3390;
+      const BAMBOO_HEIGHT = 70;
+
+      // Draw bamboo obstacle - scale uniformly based on desired length
       const bamboo = this.add.image(obs.x, obs.y, 'bamboo');
-      const scale = length / 3932;
-      // The bamboo will be ~7% as thick as it is long (269/3932)
-      // For a 200px long bamboo, it will be ~14px thick
+      const scale = length / BAMBOO_WIDTH;
+      // Visual thickness = 70 * scale (e.g., 350px bamboo = 70 * 0.103 = ~7px thick)
+      const visualThickness = BAMBOO_HEIGHT * scale;
       bamboo.setScale(scale);
       // Rotate: if vertical (h > w), rotate 90. Then add any angle offset.
       const baseAngle = obs.h > obs.w ? 90 : 0;
       bamboo.setAngle(baseAngle + angle);
+      // Store reference to prevent any issues
+      this.obstacleImages.push(bamboo);
+
+      // Physics hitbox matches visual exactly (no padding in image anymore)
+      const hitboxThickness = visualThickness;
 
       if (angle === 0) {
         // Simple case: no rotation, single physics body
-        const wall = this.add.rectangle(obs.x, obs.y, obs.w, obs.h, 0x000000, 0);
+        const isVertical = obs.h > obs.w;
+        const hitboxW = isVertical ? hitboxThickness : length;
+        const hitboxH = isVertical ? length : hitboxThickness;
+        const wall = this.add.rectangle(obs.x, obs.y, hitboxW, hitboxH, 0x000000, 0);
         this.physics.add.existing(wall, true);
         this.walls.push(wall);
       } else {
@@ -416,8 +401,8 @@ class GameScene extends Phaser.Scene {
           const segX = obs.x + Math.cos(angleRad) * (t * length);
           const segY = obs.y + Math.sin(angleRad) * (t * length);
 
-          // No overlap - exact segment length
-          const segment = this.add.rectangle(segX, segY, segmentLength, thickness, 0x000000, 0);
+          // Use calculated hitbox thickness
+          const segment = this.add.rectangle(segX, segY, segmentLength, hitboxThickness, 0x000000, 0);
           this.physics.add.existing(segment, true);
           this.walls.push(segment);
         }
@@ -429,18 +414,25 @@ class GameScene extends Phaser.Scene {
     movingObs.forEach(obs => {
       const container = this.add.container(obs.x, obs.y);
 
-      // Physics body
-      const wall = this.add.rectangle(0, 0, obs.w, obs.h, 0x000000, 0);
+      // Bamboo image is 3390x70 (tightly cropped)
+      const BAMBOO_WIDTH = 3390;
+      const BAMBOO_HEIGHT = 70;
+      const length = Math.max(obs.w, obs.h);
+      const scale = length / BAMBOO_WIDTH;
+      const visualThickness = BAMBOO_HEIGHT * scale;
+
+      // Physics body - match the visual bamboo size
+      const isVertical = obs.h > obs.w;
+      const hitboxW = isVertical ? visualThickness : length;
+      const hitboxH = isVertical ? length : visualThickness;
+      const wall = this.add.rectangle(0, 0, hitboxW, hitboxH, 0x000000, 0);
       this.physics.add.existing(wall, true);
 
-      // Visual - bamboo (image is 3932x269)
-      // Use uniform scale to maintain bamboo proportions
-      const length = Math.max(obs.w, obs.h);
+      // Visual - bamboo
       const bamboo = this.add.image(0, 0, 'bamboo');
-      const scale = length / 3932;
       bamboo.setScale(scale);
       // Rotate if vertical
-      bamboo.setAngle(obs.h > obs.w ? 90 : 0);
+      bamboo.setAngle(isVertical ? 90 : 0);
 
       container.add([bamboo, wall]);
 
@@ -536,123 +528,6 @@ class GameScene extends Phaser.Scene {
     }
   }
 
-  createTorches(torchPositions) {
-    this.torches = [];
-
-    torchPositions.forEach(pos => {
-      const torch = this.createTorch(pos.x, pos.y);
-      this.torches.push(torch);
-    });
-  }
-
-  createTorch(x, y) {
-    const container = this.add.container(x, y);
-
-    // Torch bracket (metal)
-    const bracket = this.add.graphics();
-    bracket.fillStyle(0x4A4A4A);
-    bracket.fillRect(-3, 0, 6, 25);
-    bracket.fillStyle(0x3D3D3D);
-    bracket.fillRect(-8, 20, 16, 8);
-
-    // Torch handle (wood)
-    const handle = this.add.graphics();
-    handle.fillStyle(0x5D4037);
-    handle.fillRoundedRect(-4, -20, 8, 40, 2);
-    handle.fillStyle(0x795548, 0.5);
-    handle.fillRect(-2, -18, 2, 36);
-
-    // Flame base
-    const flameBase = this.add.ellipse(0, -25, 14, 8, COLORS.torchOrange, 0.8);
-
-    // Main flame
-    const flame = this.add.graphics();
-    this.drawFlame(flame, 0, -35);
-
-    // Glow effect
-    const glow = this.add.circle(0, -30, 60, COLORS.torchGlow, 0.15);
-
-    container.add([bracket, handle, flameBase, flame, glow]);
-
-    // Animate flame flicker
-    this.tweens.add({
-      targets: [flame, flameBase],
-      scaleX: { from: 0.9, to: 1.1 },
-      scaleY: { from: 0.95, to: 1.05 },
-      duration: 100 + Math.random() * 100,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut'
-    });
-
-    // Animate glow pulse
-    this.tweens.add({
-      targets: glow,
-      alpha: { from: 0.1, to: 0.2 },
-      scale: { from: 0.95, to: 1.05 },
-      duration: 200 + Math.random() * 200,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut'
-    });
-
-    // Spawn ember particles
-    this.time.addEvent({
-      delay: 300 + Math.random() * 500,
-      callback: () => this.spawnEmber(x, y - 40),
-      repeat: -1
-    });
-
-    return container;
-  }
-
-  drawFlame(graphics, x, y) {
-    // Outer flame (orange) - using simple triangle/polygon shape
-    graphics.fillStyle(COLORS.torchOrange);
-    graphics.beginPath();
-    graphics.moveTo(x, y - 20);
-    graphics.lineTo(x - 8, y + 5);
-    graphics.lineTo(x, y + 10);
-    graphics.lineTo(x + 8, y + 5);
-    graphics.closePath();
-    graphics.fillPath();
-
-    // Inner flame (yellow)
-    graphics.fillStyle(COLORS.torchYellow);
-    graphics.beginPath();
-    graphics.moveTo(x, y - 15);
-    graphics.lineTo(x - 5, y + 2);
-    graphics.lineTo(x, y + 5);
-    graphics.lineTo(x + 5, y + 2);
-    graphics.closePath();
-    graphics.fillPath();
-
-    // Core (white/bright) - use fillCircle instead of fillEllipse
-    graphics.fillStyle(0xFFFFCC);
-    graphics.fillCircle(x, y - 5, 3);
-  }
-
-  spawnEmber(x, y) {
-    const ember = this.add.circle(
-      x + Phaser.Math.Between(-5, 5),
-      y,
-      2,
-      Phaser.Math.Between(0, 1) > 0.5 ? COLORS.torchOrange : COLORS.torchYellow,
-      0.8
-    );
-
-    this.tweens.add({
-      targets: ember,
-      y: y - 50 - Math.random() * 30,
-      x: ember.x + Phaser.Math.Between(-20, 20),
-      alpha: 0,
-      scale: 0.3,
-      duration: 800 + Math.random() * 500,
-      ease: 'Sine.easeOut',
-      onComplete: () => ember.destroy()
-    });
-  }
-
   createAmbientParticles() {
     // Floating dust particles
     this.time.addEvent({
@@ -728,7 +603,7 @@ class GameScene extends Phaser.Scene {
 
   createBunny() {
     const x = 100;
-    const y = 630; // Bottom wall starts at y=630 (700-70), bunny feet should be exactly there
+    const y = 630; // Bottom bamboo starts at y=630 (650-20), bunny feet should be exactly there
 
     this.bunny = this.add.container(x, y);
 
@@ -760,37 +635,11 @@ class GameScene extends Phaser.Scene {
   }
 
   createUI() {
-    // Parchment-style UI panel at bottom
-    const uiPanel = this.add.graphics();
-    uiPanel.fillStyle(0x2A2520, 0.9);
-    uiPanel.fillRoundedRect(15, 650, 1170, 45, 8);
-    uiPanel.lineStyle(3, 0x5C4A3D);
-    uiPanel.strokeRoundedRect(15, 650, 1170, 45, 8);
+    // Level and Score are now in HTML sidebar - update them
+    document.getElementById('level-display').textContent = `LEVEL ${this.level}`;
+    document.getElementById('score-display').textContent = `Score: ${this.score}`;
 
-    // Decorative corners
-    const cornerSize = 12;
-    [[20, 655], [1175, 655], [20, 685], [1175, 685]].forEach(([cx, cy]) => {
-      uiPanel.fillStyle(0x8B7355);
-      uiPanel.fillCircle(cx, cy, 5);
-    });
-
-    // Level and Score display (top left)
-    this.add.text(40, 30, `LEVEL ${this.level}`, {
-      fontSize: '14px',
-      fontFamily: 'Georgia, serif',
-      color: '#888',
-      stroke: '#000',
-      strokeThickness: 2
-    });
-    this.scoreText = this.add.text(40, 48, 'Score: 0', {
-      fontSize: '24px',
-      fontFamily: 'Georgia, serif',
-      color: '#FFD700',
-      stroke: '#000',
-      strokeThickness: 3
-    });
-
-    // Pandas remaining (top right)
+    // Pandas remaining (top right, inside game area)
     this.pandasText = this.add.text(1160, 35, `🐼 ${this.pandas.length}`, {
       fontSize: '24px',
       fontFamily: 'Georgia, serif',
@@ -819,108 +668,51 @@ class GameScene extends Phaser.Scene {
 
     this.comboContainer.add([comboBg, this.comboStreakText]);
 
-    // Ammo label
-    this.add.text(30, 660, 'AMMO:', {
-      fontSize: '16px',
-      fontFamily: 'Georgia, serif',
-      color: '#C9A86C',
-      stroke: '#000',
-      strokeThickness: 2
-    });
-
-    // Ricochet display - must be created before createAmmoUI() since updateAmmoUI uses it
-    this.ricochetText = this.add.text(600, 663, `Ricochets: ${this.selectedAmmo}`, {
-      fontSize: '18px',
-      fontFamily: 'Georgia, serif',
-      color: '#00FFFF',
-      stroke: '#000',
-      strokeThickness: 3
-    }).setOrigin(0.5, 0);
-
     this.createAmmoUI();
-
-    // Instructions
-    this.add.text(1170, 663, '[1-5] Select | [R] Restart', {
-      fontSize: '12px',
-      fontFamily: 'Georgia, serif',
-      color: '#8B7355',
-      stroke: '#000',
-      strokeThickness: 2
-    }).setOrigin(1, 0);
   }
 
   createAmmoUI() {
-    this.ammoButtons = [];
-    const startX = 120;
-    const spacing = 36;
+    // Create HTML ammo buttons
+    const container = document.getElementById('ammo-buttons');
+    container.innerHTML = '';
 
-    for (let i = 0; i < this.ammoTotal; i++) {
-      const btn = this.createAmmoButton(startX + i * spacing, 672, i + 1);
-      this.ammoButtons.push(btn);
+    for (let i = 1; i <= this.ammoTotal; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'ammo-btn';
+      btn.textContent = i;
+      btn.dataset.value = i;
+      btn.addEventListener('click', () => {
+        if (i <= this.ammoRemaining) {
+          this.selectedAmmo = i;
+          this.updateAmmoUI();
+        }
+      });
+      container.appendChild(btn);
     }
 
     this.updateAmmoUI();
   }
 
-  createAmmoButton(x, y, value) {
-    const container = this.add.container(x, y);
-
-    // Medieval coin/token style
-    const bg = this.add.circle(0, 0, 12, 0x8B7355);
-    bg.setStrokeStyle(2, 0xC9A86C);
-
-    const text = this.add.text(0, 0, value.toString(), {
-      fontSize: '14px',
-      fontFamily: 'Georgia, serif',
-      color: '#FFD700',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-
-    container.add([bg, text]);
-    container.bg = bg;
-    container.text = text;
-    container.value = value;
-    container.available = true;
-
-    bg.setInteractive({ useHandCursor: true });
-    bg.on('pointerdown', () => {
-      if (container.available && value <= this.ammoRemaining) {
-        this.selectedAmmo = value;
-        this.updateAmmoUI();
-      }
-    });
-
-    return container;
-  }
-
   updateAmmoUI() {
-    this.ammoButtons.forEach((btn, index) => {
-      const ammoIndex = index + 1;
+    const buttons = document.querySelectorAll('.ammo-btn');
+    buttons.forEach((btn) => {
+      const value = parseInt(btn.dataset.value);
+      btn.classList.remove('selected', 'used');
 
-      if (ammoIndex <= this.ammoRemaining) {
-        btn.available = true;
-        btn.bg.setFillStyle(ammoIndex <= this.selectedAmmo ? 0xC9A86C : 0x5C4A3D);
-        btn.bg.setStrokeStyle(2, ammoIndex <= this.selectedAmmo ? 0xFFD700 : 0x8B7355);
-        btn.text.setColor(ammoIndex <= this.selectedAmmo ? '#FFD700' : '#C9A86C');
-        btn.setAlpha(1);
+      if (value <= this.ammoRemaining) {
+        if (value <= this.selectedAmmo) {
+          btn.classList.add('selected');
+        }
       } else {
-        btn.available = false;
-        btn.bg.setFillStyle(0x333333);
-        btn.bg.setStrokeStyle(2, 0x444444);
-        btn.text.setColor('#555555');
-        btn.setAlpha(0.5);
+        btn.classList.add('used');
       }
     });
-
-    if (this.ricochetText) {
-      this.ricochetText.setText(`Ricochets: ${this.selectedAmmo}`);
-    }
   }
 
   setupInput() {
     // Fire on mouse release - aim while holding, release to shoot
     this.input.on('pointerup', (pointer) => {
-      if (this.bulletFired || this.ammoRemaining <= 0) return;
+      if (this.bulletFired || this.ammoRemaining <= 0 || this.levelEnded) return;
 
       // Check minimum distance for a valid shot
       const dist = Phaser.Math.Distance.Between(
@@ -1547,24 +1339,8 @@ class GameScene extends Phaser.Scene {
     const points = 100 * comboMultiplier;
     this.score += points;
 
-    // Epic screen effects based on combo
-    const shakeIntensity = Math.min(0.02 + this.combo * 0.005, 0.04);
-    this.cameras.main.shake(150, shakeIntensity);
-
-    // Screen flash
+    // Screen flash effect (doesn't affect positions)
     this.cameras.main.flash(100, 255, 200, 100, false);
-
-    // Slow motion effect for epic moments
-    if (this.combo >= 2) {
-      this.triggerSlowMo();
-    }
-
-    // Zoom punch effect
-    this.cameras.main.zoomTo(1.05, 100, 'Sine.easeOut', true, (cam, progress) => {
-      if (progress === 1) {
-        this.cameras.main.zoomTo(1, 200, 'Sine.easeIn');
-      }
-    });
 
     // Combo text popup
     this.showComboText(panda.x, panda.y, comboMultiplier, points);
@@ -1574,17 +1350,7 @@ class GameScene extends Phaser.Scene {
 
     // Update UI
     this.pandasText.setText(`🐼 ${this.pandas.length}`);
-    if (this.scoreText) {
-      this.scoreText.setText(`Score: ${this.score}`);
-
-      // Pulse score on update
-      this.tweens.add({
-        targets: this.scoreText,
-        scale: 1.3,
-        duration: 100,
-        yoyo: true
-      });
-    }
+    document.getElementById('score-display').textContent = `Score: ${this.score}`;
 
     // Update combo display
     this.updateComboDisplay();
@@ -1612,9 +1378,9 @@ class GameScene extends Phaser.Scene {
     // Bottom edge
     this.vignette.fillRect(0, 660, 1200, 40);
     // Left edge
-    this.vignette.fillRect(0, 0, 40, 700);
+    this.vignette.fillRect(0, 0, 40, 650);
     // Right edge
-    this.vignette.fillRect(1160, 0, 40, 700);
+    this.vignette.fillRect(1160, 0, 40, 650);
 
     // Fade in vignette
     this.vignette.setAlpha(0);
@@ -1869,7 +1635,7 @@ class GameScene extends Phaser.Scene {
 
     this.levelEnded = true;
 
-    const overlay = this.add.rectangle(600, 350, 1200, 700, 0x000000, 0.85);
+    const overlay = this.add.rectangle(600, 325, 1200, 650, 0x000000, 0.85);
 
     // Victory banner
     const banner = this.add.graphics();
@@ -1933,7 +1699,7 @@ class GameScene extends Phaser.Scene {
   onLevelFailed() {
     this.levelEnded = true;
 
-    const overlay = this.add.rectangle(600, 350, 1200, 700, 0x000000, 0.85);
+    const overlay = this.add.rectangle(600, 325, 1200, 650, 0x000000, 0.85);
 
     const failText = this.add.text(600, 240, 'THE SHADOWS REMAIN...', {
       fontSize: '38px',
@@ -2108,7 +1874,7 @@ class GameScene extends Phaser.Scene {
 const config = {
   type: Phaser.AUTO,
   width: 1200,
-  height: 700,
+  height: 650,
   parent: 'game-container',
   backgroundColor: 0x1A1A1F,
   physics: {

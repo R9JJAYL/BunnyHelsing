@@ -21,51 +21,103 @@
       font-family: 'Cinzel', 'Times New Roman', serif;
       overflow: hidden;
     }
-    h1 {
-      color: #C9A227;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(201, 162, 39, 0.3);
-      font-size: 2.2rem;
-      margin-bottom: 8px;
-      letter-spacing: 0.15em;
-      font-weight: 700;
-    }
-    .subtitle {
-      color: #8B6914;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-      font-size: 0.85rem;
-      margin-bottom: 20px;
-      letter-spacing: 0.3em;
-      font-weight: 400;
-    }
     #game-container {
-      border: 2px solid #3A3A35;
-      border-radius: 4px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.3);
+      /* No border - bamboo frame provides the border */
     }
-    .instructions {
-      color: #6B6B6B;
-      margin-top: 20px;
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar img {
+      height: 80px;
+    }
+    .level-score {
       text-align: center;
-      font-size: 0.8rem;
+    }
+    .level-text {
+      color: #888;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+    }
+    .score-text {
+      color: #FFD700;
+      font-size: 1.2rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+    .bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 1200px;
+      margin-top: 10px;
+      padding: 0 10px;
+      margin-left: 100px;
+    }
+    .ammo-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ammo-label {
+      color: #C9A86C;
+      font-size: 0.9rem;
       letter-spacing: 0.05em;
     }
-    .instructions span {
-      color: #C9A227;
-      font-weight: 700;
+    .ammo-buttons {
+      display: flex;
+      gap: 6px;
+    }
+    .ammo-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #8B7355;
+      background: #2A2520;
+      color: #C9A86C;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ammo-btn.selected {
+      background: #FFD700;
+      color: #2A2520;
+      border-color: #FFD700;
+    }
+    .ammo-btn.used {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .controls-text {
+      color: #8B7355;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
     }
   </style>
 </head>
 <body>
   <div style="display: flex; align-items: flex-start; gap: 20px;">
-    <img src="/assets/logo.png" alt="Bunny Helsing" style="height: 80px; margin-top: 10px;">
+    <div class="sidebar">
+      <img src="/assets/logo.png" alt="Bunny Helsing">
+      <div class="level-score">
+        <div class="level-text" id="level-display">LEVEL 1</div>
+        <div class="score-text" id="score-display">Score: 0</div>
+      </div>
+    </div>
     <div id="game-container"></div>
   </div>
-  <p class="instructions">
-    <span>[1-5]</span> or <span>scroll</span> to select ricochets |
-    <span>Aim & release</span> to fire |
-    <span>R</span> restart |
-    <span>N</span> skip level
-  </p>
+  <div class="bottom-bar">
+    <div class="ammo-section">
+      <span class="ammo-label">AMMO:</span>
+      <div class="ammo-buttons" id="ammo-buttons">
+        <!-- Ammo buttons will be created by JS -->
+      </div>
+    </div>
+    <div class="controls-text">
+      Click to shoot  |  [1-5] Select ammo  |  [R] Restart
+    </div>
+  </div>
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
