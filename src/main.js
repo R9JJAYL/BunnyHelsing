@@ -1808,21 +1808,22 @@ class GameScene extends Phaser.Scene {
     // Instructions
     const instructions = [
       '🎯  Aim with your mouse',
+      '🔢  Press 1-9 to select ammo amount',
       '🖱️  Click to shoot',
       '🐼  Free the pandas from their curse!',
       '💡  Bullets bounce off walls'
     ];
 
     const instructionTexts = instructions.map((text, i) => {
-      return this.add.text(0, -50 + i * 40, text, {
-        fontSize: '18px',
+      return this.add.text(0, -60 + i * 35, text, {
+        fontSize: '16px',
         fontFamily: 'Cinzel, Georgia, serif',
         color: '#CCCCCC'
       }).setOrigin(0.5);
     });
 
     // Click to start text
-    const startText = this.add.text(0, 120, 'Click anywhere to start', {
+    const startText = this.add.text(0, 130, 'Click anywhere to start', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#FFD700'
