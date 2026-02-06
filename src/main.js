@@ -1790,67 +1790,140 @@ class GameScene extends Phaser.Scene {
   }
 
   showTutorial() {
-    // Tutorial container
-    const tutorialContainer = this.add.container(600, 325);
-    tutorialContainer.setDepth(100);
+    this.tutorialStep = 0;
+    this.tutorialActive = true;
 
-    // Semi-transparent background
-    const bg = this.add.rectangle(0, 0, 500, 320, 0x000000, 0.85);
+    // Block shooting during tutorial
+    this.tutorialBlockShoot = true;
+
+    // Tutorial tooltip that follows steps
+    this.tutorialContainer = this.add.container(600, 200);
+    this.tutorialContainer.setDepth(100);
+
+    const bg = this.add.rectangle(0, 0, 450, 120, 0x000000, 0.9);
     bg.setStrokeStyle(2, 0xC9A86C);
 
-    // Title
-    const title = this.add.text(0, -120, 'TUTORIAL', {
-      fontSize: '28px',
+    this.tutorialText = this.add.text(0, -15, '', {
+      fontSize: '20px',
       fontFamily: 'Cinzel, Georgia, serif',
-      color: '#FFD700'
+      color: '#FFD700',
+      align: 'center'
     }).setOrigin(0.5);
 
-    // Instructions
-    const instructions = [
-      '🎯  Aim with your mouse',
-      '🔢  Press 1-3 to choose bounces',
-      '🖱️  Click to shoot',
-      '💡  More ammo = more bounces!',
-      '🐼  Free the pandas from their curse!'
-    ];
-
-    const instructionTexts = instructions.map((text, i) => {
-      return this.add.text(0, -60 + i * 35, text, {
-        fontSize: '16px',
-        fontFamily: 'Cinzel, Georgia, serif',
-        color: '#CCCCCC'
-      }).setOrigin(0.5);
-    });
-
-    // Click to start text
-    const startText = this.add.text(0, 130, 'Click anywhere to start', {
-      fontSize: '16px',
+    this.tutorialSubtext = this.add.text(0, 25, '', {
+      fontSize: '14px',
       fontFamily: 'Cinzel, Georgia, serif',
-      color: '#FFD700'
+      color: '#CCCCCC',
+      align: 'center'
     }).setOrigin(0.5);
 
-    // Pulse animation on start text
-    this.tweens.add({
-      targets: startText,
-      alpha: 0.5,
-      duration: 800,
-      yoyo: true,
-      repeat: -1
-    });
+    this.tutorialContainer.add([bg, this.tutorialText, this.tutorialSubtext]);
 
-    tutorialContainer.add([bg, title, ...instructionTexts, startText]);
+    // Arrow pointer for highlighting
+    this.tutorialArrow = this.add.text(0, 0, '👇', {
+      fontSize: '32px'
+    }).setOrigin(0.5).setDepth(101);
+    this.tutorialArrow.setVisible(false);
 
-    // Click to dismiss and start playing
-    this.input.once('pointerdown', () => {
-      this.tweens.add({
-        targets: tutorialContainer,
-        alpha: 0,
-        duration: 300,
-        onComplete: () => {
-          tutorialContainer.destroy();
-        }
-      });
-    });
+    // Start tutorial sequence
+    this.showTutorialStep(0);
+  }
+
+  showTutorialStep(step) {
+    this.tutorialStep = step;
+
+    // Stop any existing arrow animation
+    this.tweens.killTweensOf(this.tutorialArrow);
+
+    switch(step) {
+      case 0:
+        // Introduction
+        this.tutorialContainer.setPosition(600, 200);
+        this.tutorialText.setText('Welcome, Hunter!');
+        this.tutorialSubtext.setText('Your mission: Free the cursed pandas!\nClick to continue...');
+        this.tutorialArrow.setVisible(false);
+        this.tutorialBlockShoot = true;
+
+        this.input.once('pointerdown', () => {
+          this.showTutorialStep(1);
+        });
+        break;
+
+      case 1:
+        // Point to ammo
+        this.tutorialContainer.setPosition(350, 500);
+        this.tutorialText.setText('Step 1: Choose your bounces');
+        this.tutorialSubtext.setText('Press 1, 2, or 3 to select how many\ntimes your bullet will bounce');
+
+        // Arrow pointing at ammo panel
+        this.tutorialArrow.setVisible(true);
+        this.tutorialArrow.setPosition(120, 620);
+        this.tweens.add({
+          targets: this.tutorialArrow,
+          y: 640,
+          duration: 500,
+          yoyo: true,
+          repeat: -1
+        });
+
+        // Listen for ammo selection
+        const ammoHandler = (event) => {
+          if (['1', '2', '3'].includes(event.key)) {
+            this.input.keyboard.off('keydown', ammoHandler);
+            this.showTutorialStep(2);
+          }
+        };
+        this.input.keyboard.on('keydown', ammoHandler);
+        break;
+
+      case 2:
+        // Point to aim
+        this.tutorialContainer.setPosition(600, 150);
+        this.tutorialText.setText('Step 2: Aim at the panda');
+        this.tutorialSubtext.setText('Move your mouse to aim\nThe line shows your bullet path');
+
+        // Arrow pointing at panda
+        this.tutorialArrow.setVisible(true);
+        this.tutorialArrow.setPosition(900, 250);
+        this.tweens.add({
+          targets: this.tutorialArrow,
+          y: 270,
+          duration: 500,
+          yoyo: true,
+          repeat: -1
+        });
+
+        // Continue after a moment
+        this.time.delayedCall(2000, () => {
+          this.showTutorialStep(3);
+        });
+        break;
+
+      case 3:
+        // Shoot instruction
+        this.tutorialContainer.setPosition(600, 200);
+        this.tutorialText.setText('Step 3: Fire!');
+        this.tutorialSubtext.setText('Click to shoot and free the panda!');
+        this.tutorialArrow.setVisible(false);
+
+        // Allow shooting now
+        this.tutorialBlockShoot = false;
+        this.tutorialActive = false;
+
+        // Fade out tutorial after shot
+        this.time.delayedCall(500, () => {
+          this.tweens.add({
+            targets: [this.tutorialContainer, this.tutorialArrow],
+            alpha: 0,
+            duration: 500,
+            onComplete: () => {
+              this.tutorialContainer.destroy();
+              this.tutorialArrow.destroy();
+            }
+          });
+        });
+        break;
+    }
   }
 
   createAmmoUI() {
@@ -1904,6 +1977,7 @@ class GameScene extends Phaser.Scene {
     // Fire on mouse release - aim while holding, release to shoot
     this.input.on('pointerup', (pointer) => {
       if (this.bulletFired || this.ammoRemaining <= 0 || this.levelEnded || this.settingsOverlay) return;
+      if (this.tutorialBlockShoot) return; // Block during tutorial
 
       // Check minimum distance for a valid shot
       const dist = Phaser.Math.Distance.Between(
