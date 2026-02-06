@@ -1898,7 +1898,7 @@ class GameScene extends Phaser.Scene {
         this.tutorialBlockShoot = true;
         this.tutorialContainer.setPosition(600, 250);
         this.tutorialText.setText('Nice! Your bullet bounced twice!');
-        this.tutorialSubtext.setText('More ammo = more ricochets to reach targets\nClick to continue...');
+        this.tutorialSubtext.setText('More ammo = more ricochets,\nbut also uses more of your bullets!\nClick to continue...');
         this.tutorialArrow.setVisible(false);
 
         this.input.once('pointerdown', () => {
@@ -1909,8 +1909,8 @@ class GameScene extends Phaser.Scene {
       case 4:
         // Now hit the panda
         this.tutorialContainer.setPosition(600, 150);
-        this.tutorialText.setText('Now hit the panda!');
-        this.tutorialSubtext.setText('Use ricochets to reach tricky targets');
+        this.tutorialText.setText("You've got one bullet left!");
+        this.tutorialSubtext.setText('Shoot the panda!');
 
         // Arrow pointing at panda
         this.tutorialArrow.setVisible(true);
