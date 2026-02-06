@@ -4,12 +4,12 @@ import Phaser from 'phaser';
 // BUNNY BASHERS - MEDIEVAL CASTLE THEME
 // ============================================
 
-// Available bunny skins with position offsets to align them
-// offsetY is relative to bottom of sprite (negative = up from ground)
+// Available bunny skins with gun offsets to align aim point
+// gunOffsetX/Y determine where bullets fire from (relative to container at y=630)
 const BUNNY_SKINS = [
-  { id: 'bunny-hero', name: 'Classic', offsetX: 0, offsetY: 0, scale: 0.09 },
-  { id: 'bunny-mobster', name: 'Mobster', offsetX: 0, offsetY: -45, scale: 0.09 },  // Lots of empty space at bottom
-  { id: 'bunny-crimson', name: 'Crimson', offsetX: 0, offsetY: 0, scale: 0.09 }
+  { id: 'bunny-hero', name: 'Classic', offsetX: 0, offsetY: 0, scale: 0.09, gunX: 65, gunY: -75 },
+  { id: 'bunny-mobster', name: 'Mobster', offsetX: 0, offsetY: -45, scale: 0.09, gunX: 65, gunY: -55 },
+  { id: 'bunny-crimson', name: 'Crimson', offsetX: 0, offsetY: 0, scale: 0.09, gunX: 65, gunY: -75 }
 ];
 
 // Current selected skin (persisted in localStorage)
@@ -1328,11 +1328,9 @@ class GameScene extends Phaser.Scene {
     this.bunny.add([shadow, bunnySprite]);
     this.bunny.skinConfig = skinConfig; // Store for reference
 
-    // Store gun offset for bullet firing - at the tip of the gun barrel
-    // The bunny sprite faces right with gun extended
-    // Sprite origin is at bottom center (0.5, 1), so negative Y moves up from feet
-    this.bunny.gunOffsetX = 65;  // At the gun barrel tip (right side)
-    this.bunny.gunOffsetY = -75; // At the gun barrel height (up from feet)
+    // Store gun offset for bullet firing - uses per-skin values
+    this.bunny.gunOffsetX = skinConfig.gunX;
+    this.bunny.gunOffsetY = skinConfig.gunY;
 
     // Subtle idle bob
     this.tweens.add({
@@ -1636,6 +1634,9 @@ class GameScene extends Phaser.Scene {
         bunnySprite.setPosition(skinConfig.offsetX, skinConfig.offsetY);
         bunnySprite.setScale(skinConfig.scale);
         this.bunny.skinConfig = skinConfig;
+        // Update gun offsets for aim line
+        this.bunny.gunOffsetX = skinConfig.gunX;
+        this.bunny.gunOffsetY = skinConfig.gunY;
       }
     }
   }
