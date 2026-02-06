@@ -392,11 +392,11 @@ class GameScene extends Phaser.Scene {
       const angle = obs.angle || 0;
       const angleRad = Phaser.Math.DegToRad(angle);
 
-      // Draw the visual stone (rotated)
-      const graphics = this.add.graphics();
-      graphics.setPosition(obs.x, obs.y);
-      graphics.setRotation(angleRad);
-      this.drawStoneObstacleGraphics(graphics, -obs.w / 2, -obs.h / 2, obs.w, obs.h, obs.w > obs.h);
+      // Draw bamboo obstacle
+      const length = Math.max(obs.w, obs.h);
+      const bamboo = this.add.image(obs.x, obs.y, 'bamboo');
+      bamboo.setScale(length / 400); // Scale based on length
+      bamboo.setAngle(angle + (obs.w > obs.h ? 90 : 0)); // Rotate if horizontal
 
       if (angle === 0) {
         // Simple case: no rotation, single physics body
@@ -407,7 +407,6 @@ class GameScene extends Phaser.Scene {
         // Angled obstacle: create NON-overlapping colliders along the length
         // This approximates the angled shape since Arcade physics doesn't support rotation
         const numSegments = Math.ceil(Math.max(obs.w, obs.h) / 20);
-        const length = Math.max(obs.w, obs.h);
         const thickness = Math.min(obs.w, obs.h);
         const segmentLength = length / numSegments;
 
@@ -433,11 +432,13 @@ class GameScene extends Phaser.Scene {
       const wall = this.add.rectangle(0, 0, obs.w, obs.h, 0x000000, 0);
       this.physics.add.existing(wall, true);
 
-      // Visual
-      const graphics = this.add.graphics();
-      this.drawMovingObstacleGraphics(graphics, -obs.w / 2, -obs.h / 2, obs.w, obs.h);
+      // Visual - bamboo
+      const length = Math.max(obs.w, obs.h);
+      const bamboo = this.add.image(0, 0, 'bamboo');
+      bamboo.setScale(length / 400);
+      bamboo.setAngle(obs.w > obs.h ? 90 : 0);
 
-      container.add([graphics, wall]);
+      container.add([bamboo, wall]);
 
       // Store movement data
       const movingWall = {
