@@ -1850,15 +1850,15 @@ class GameScene extends Phaser.Scene {
         break;
 
       case 1:
-        // Tell them to press 2
+        // Tell them to select 2
         this.tutorialContainer.setPosition(400, 400);
-        this.tutorialText.setText('Press 2 on your keyboard');
-        this.tutorialSubtext.setText('This selects 2 bounces for your bullet');
+        this.tutorialText.setText('Select 2 bounces');
+        this.tutorialSubtext.setText('Press 2 on keyboard or click the 2 button below');
 
-        // Arrow pointing at ammo panel
+        // Arrow pointing at the "2" ammo button
         this.tutorialArrow.setVisible(true);
         this.tutorialArrow.setText('👇');
-        this.tutorialArrow.setPosition(80, 610);
+        this.tutorialArrow.setPosition(95, 610);
         this.tweens.add({
           targets: this.tutorialArrow,
           y: 630,
@@ -1993,12 +1993,17 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    // Ammo selection keys
+    // Ammo selection keys (number row and numpad)
     this.input.keyboard.on('keydown-ONE', () => this.selectAmmo(1));
     this.input.keyboard.on('keydown-TWO', () => this.selectAmmo(2));
     this.input.keyboard.on('keydown-THREE', () => this.selectAmmo(3));
     this.input.keyboard.on('keydown-FOUR', () => this.selectAmmo(4));
     this.input.keyboard.on('keydown-FIVE', () => this.selectAmmo(5));
+    this.input.keyboard.on('keydown-NUMPAD_ONE', () => this.selectAmmo(1));
+    this.input.keyboard.on('keydown-NUMPAD_TWO', () => this.selectAmmo(2));
+    this.input.keyboard.on('keydown-NUMPAD_THREE', () => this.selectAmmo(3));
+    this.input.keyboard.on('keydown-NUMPAD_FOUR', () => this.selectAmmo(4));
+    this.input.keyboard.on('keydown-NUMPAD_FIVE', () => this.selectAmmo(5));
 
     // Scroll wheel ammo selection
     this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY) => {
