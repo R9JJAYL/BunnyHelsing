@@ -324,7 +324,7 @@ class GameScene extends Phaser.Scene {
 
   createBambooWalls() {
     this.walls = [];
-    const wallThickness = 30;
+    const wallThickness = 20;
     const gameWidth = 1200;
     const gameHeight = 700;
     const playAreaBottom = gameHeight - 55; // Above UI
@@ -350,34 +350,24 @@ class GameScene extends Phaser.Scene {
     this.physics.add.existing(rightWall, true);
     this.walls.push(rightWall);
 
-    // Add bamboo sprites along the borders
-    const bambooSpacing = 40;
+    // Single bamboo on each side as a frame
+    // Top bamboo (horizontal)
+    const topBamboo = this.add.image(gameWidth / 2, wallThickness / 2, 'bamboo');
+    topBamboo.setDisplaySize(gameWidth, wallThickness);
+    topBamboo.setAngle(90);
 
-    // Top border
-    for (let x = 0; x < gameWidth; x += bambooSpacing) {
-      const bamboo = this.add.image(x + bambooSpacing / 2, wallThickness / 2, 'bamboo');
-      bamboo.setScale(0.15);
-      bamboo.setAngle(90);
-    }
+    // Bottom bamboo (horizontal)
+    const bottomBamboo = this.add.image(gameWidth / 2, playAreaBottom + wallThickness / 2, 'bamboo');
+    bottomBamboo.setDisplaySize(gameWidth, wallThickness);
+    bottomBamboo.setAngle(90);
 
-    // Bottom border
-    for (let x = 0; x < gameWidth; x += bambooSpacing) {
-      const bamboo = this.add.image(x + bambooSpacing / 2, playAreaBottom + wallThickness / 2, 'bamboo');
-      bamboo.setScale(0.15);
-      bamboo.setAngle(90);
-    }
+    // Left bamboo (vertical)
+    const leftBamboo = this.add.image(wallThickness / 2, playAreaBottom / 2, 'bamboo');
+    leftBamboo.setDisplaySize(playAreaBottom, wallThickness);
 
-    // Left border
-    for (let y = wallThickness; y < playAreaBottom; y += bambooSpacing) {
-      const bamboo = this.add.image(wallThickness / 2, y + bambooSpacing / 2, 'bamboo');
-      bamboo.setScale(0.15);
-    }
-
-    // Right border
-    for (let y = wallThickness; y < playAreaBottom; y += bambooSpacing) {
-      const bamboo = this.add.image(gameWidth - wallThickness / 2, y + bambooSpacing / 2, 'bamboo');
-      bamboo.setScale(0.15);
-    }
+    // Right bamboo (vertical)
+    const rightBamboo = this.add.image(gameWidth - wallThickness / 2, playAreaBottom / 2, 'bamboo');
+    rightBamboo.setDisplaySize(playAreaBottom, wallThickness);
   }
 
   adjustColor(color, amount) {
