@@ -1855,23 +1855,20 @@ class GameScene extends Phaser.Scene {
         this.tutorialText.setText('Select 2 ricochets');
         this.tutorialSubtext.setText('Press 2 or click the 2 button\n2 ammo = 2 wall bounces!');
 
-        // Arrow pointing at the "2" ammo button
-        this.tutorialArrow.setVisible(true);
-        this.tutorialArrow.setText('👇');
-        this.tutorialArrow.setPosition(95, 610);
-        this.tweens.add({
-          targets: this.tutorialArrow,
-          y: 630,
-          duration: 500,
-          yoyo: true,
-          repeat: -1
-        });
+        // Hide Phaser arrow, show HTML arrow pointing at "2" button
+        this.tutorialArrow.setVisible(false);
+        const htmlArrow = document.getElementById('tutorial-ammo-arrow');
+        if (htmlArrow) htmlArrow.classList.add('visible');
 
         // Only accept 2
         this.tutorialWaitingForAmmo = 2;
         break;
 
       case 2:
+        // Hide HTML arrow from step 1
+        const htmlArrowStep2 = document.getElementById('tutorial-ammo-arrow');
+        if (htmlArrowStep2) htmlArrowStep2.classList.remove('visible');
+
         // Now shoot the wall
         this.tutorialContainer.setPosition(600, 150);
         this.tutorialText.setText('Shoot the wall!');
