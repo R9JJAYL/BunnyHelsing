@@ -24,11 +24,19 @@
     #game-container {
       /* No border - bamboo frame provides the border */
     }
-    .sidebar {
+    .game-wrapper {
       display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+    .sidebar {
+      display: none;
       flex-direction: column;
       align-items: center;
       gap: 10px;
+    }
+    .sidebar.visible {
+      display: flex;
     }
     .sidebar img {
       height: 80px;
@@ -47,13 +55,16 @@
       text-shadow: 0 2px 4px rgba(0,0,0,0.8);
     }
     .bottom-bar {
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: space-between;
       width: 1200px;
       margin-top: 10px;
       padding: 0 10px;
       margin-left: 100px;
+    }
+    .bottom-bar.visible {
+      display: flex;
     }
     .ammo-section {
       display: flex;
@@ -97,8 +108,8 @@
   </style>
 </head>
 <body>
-  <div style="display: flex; align-items: flex-start; gap: 20px;">
-    <div class="sidebar">
+  <div class="game-wrapper">
+    <div class="sidebar" id="sidebar">
       <img src="/assets/logo.png" alt="Bunny Helsing">
       <div class="level-score">
         <div class="level-text" id="level-display">LEVEL 1</div>
@@ -107,7 +118,7 @@
     </div>
     <div id="game-container"></div>
   </div>
-  <div class="bottom-bar">
+  <div class="bottom-bar" id="bottom-bar">
     <div class="ammo-section">
       <span class="ammo-label">AMMO:</span>
       <div class="ammo-buttons" id="ammo-buttons">

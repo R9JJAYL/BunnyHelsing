@@ -111,6 +111,286 @@ const LEVELS = [
 ];
 
 // ============================================
+// MAIN MENU SCENE - Supercell-inspired design
+// ============================================
+
+class MainMenuScene extends Phaser.Scene {
+  constructor() {
+    super({ key: 'MainMenuScene' });
+  }
+
+  preload() {
+    this.load.image('logo', '/assets/logo.png');
+    this.load.image('bunny-hero', '/assets/bunny-hero.png');
+    this.load.image('panda-jason', '/assets/panda-jason.png');
+    this.load.image('bamboo', '/assets/bamboo.png');
+  }
+
+  create() {
+    const W = 1200, H = 650;
+    const centerX = W / 2, centerY = H / 2;
+
+    // === BACKGROUND ===
+    // Solid dark background that fills entire canvas
+    const bg = this.add.rectangle(centerX, centerY, W, H, 0x0D0D12);
+
+    // Atmospheric fog particles (slow, dreamy)
+    this.createAtmosphere();
+
+    // === BAMBOO FRAME ===
+    const bambooThickness = 20;
+    [
+      [W / 2, bambooThickness / 2, W, bambooThickness, 0],
+      [W / 2, H - bambooThickness / 2, W, bambooThickness, 0],
+      [bambooThickness / 2, H / 2, H, bambooThickness, 90],
+      [W - bambooThickness / 2, H / 2, H, bambooThickness, 90]
+    ].forEach(([x, y, w, h, angle]) => {
+      const bamboo = this.add.image(x, y, 'bamboo');
+      bamboo.setDisplaySize(w, h);
+      if (angle) bamboo.setAngle(angle);
+      bamboo.setDepth(100);
+    });
+
+    // === LOGO WITH GLOW ===
+    // Logo glow effect
+    const logoGlow = this.add.image(centerX, 130, 'logo');
+    logoGlow.setScale(0.18);
+    logoGlow.setTint(0xFFAA00);
+    logoGlow.setAlpha(0.25);
+    logoGlow.setBlendMode(Phaser.BlendModes.ADD);
+
+    // Main logo
+    const logo = this.add.image(centerX, 130, 'logo');
+    logo.setScale(0.17);
+
+    // Subtle logo pulse
+    this.tweens.add({
+      targets: [logoGlow],
+      alpha: 0.12,
+      scale: 0.19,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
+
+    // === CHARACTERS ===
+    // Bunny hero - left side
+    const bunny = this.add.image(220, 330, 'bunny-hero');
+    bunny.setScale(0.10);
+
+    // Bunny breathing animation
+    this.tweens.add({
+      targets: bunny,
+      scaleY: 0.102,
+      scaleX: 0.098,
+      duration: 1200,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
+
+    // Panda villain - right side, same scale
+    const panda = this.add.image(980, 330, 'panda-jason');
+    panda.setScale(0.10);
+
+    // Panda float animation
+    this.tweens.add({
+      targets: panda,
+      y: panda.y - 8,
+      duration: 2000,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
+
+    // === PLAY BUTTON - Supercell style ===
+    const btnY = 330;
+    const playBtn = this.add.container(centerX, btnY);
+
+    // Button shadow (3D effect)
+    const btnShadow = this.add.graphics();
+    btnShadow.fillStyle(0x000000, 0.5);
+    btnShadow.fillRoundedRect(-122, -28, 244, 72, 16);
+
+    // Button base (dark)
+    const btnBase = this.add.graphics();
+    btnBase.fillStyle(0x1A1510, 1);
+    btnBase.fillRoundedRect(-120, -32, 240, 68, 14);
+
+    // Button gradient fill
+    const btnFill = this.add.graphics();
+    btnFill.fillGradientStyle(0xD4A84B, 0xD4A84B, 0xB8860B, 0xB8860B, 1);
+    btnFill.fillRoundedRect(-115, -28, 230, 56, 12);
+
+    // Button highlight (top shine)
+    const btnShine = this.add.graphics();
+    btnShine.fillGradientStyle(0xFFD700, 0xFFD700, 0xD4A84B, 0xD4A84B, 0.8);
+    btnShine.fillRoundedRect(-110, -26, 220, 25, { tl: 10, tr: 10, bl: 0, br: 0 });
+
+    // Button border
+    const btnBorder = this.add.graphics();
+    btnBorder.lineStyle(3, 0xFFE55C);
+    btnBorder.strokeRoundedRect(-115, -28, 230, 56, 12);
+
+    // Button text with shadow
+    const btnTextShadow = this.add.text(2, 2, 'PLAY', {
+      fontSize: '32px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#000000',
+      fontStyle: 'bold'
+    }).setOrigin(0.5).setAlpha(0.5);
+
+    const btnText = this.add.text(0, 0, 'PLAY', {
+      fontSize: '32px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#FFFFFF',
+      fontStyle: 'bold',
+      stroke: '#8B6914',
+      strokeThickness: 2
+    }).setOrigin(0.5);
+
+    playBtn.add([btnShadow, btnBase, btnFill, btnShine, btnBorder, btnTextShadow, btnText]);
+
+    // Hit area
+    const hitArea = this.add.rectangle(0, 0, 240, 70, 0x000000, 0);
+    playBtn.add(hitArea);
+    hitArea.setInteractive({ useHandCursor: true });
+
+    // Hover effects
+    hitArea.on('pointerover', () => {
+      this.tweens.add({
+        targets: playBtn,
+        scale: 1.08,
+        duration: 100,
+        ease: 'Back.easeOut'
+      });
+      btnBorder.clear();
+      btnBorder.lineStyle(4, 0xFFFFAA);
+      btnBorder.strokeRoundedRect(-115, -28, 230, 56, 12);
+    });
+
+    hitArea.on('pointerout', () => {
+      this.tweens.add({
+        targets: playBtn,
+        scale: 1,
+        duration: 100
+      });
+      btnBorder.clear();
+      btnBorder.lineStyle(3, 0xFFE55C);
+      btnBorder.strokeRoundedRect(-115, -28, 230, 56, 12);
+    });
+
+    hitArea.on('pointerdown', () => {
+      // Press effect
+      this.tweens.add({
+        targets: playBtn,
+        scale: 0.95,
+        duration: 50,
+        yoyo: true,
+        onComplete: () => {
+          this.cameras.main.flash(150, 255, 215, 0);
+          this.time.delayedCall(150, () => {
+            this.scene.start('GameScene');
+          });
+        }
+      });
+    });
+
+    // Subtle button glow pulse
+    this.tweens.add({
+      targets: playBtn,
+      y: btnY - 3,
+      duration: 1500,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
+
+    // === INFO PANEL ===
+    // Frosted glass panel for game description
+    const infoPanel = this.add.graphics();
+    infoPanel.fillStyle(0x000000, 0.4);
+    infoPanel.fillRoundedRect(centerX - 240, 430, 480, 75, 10);
+    infoPanel.lineStyle(1, 0x4A4A45, 0.5);
+    infoPanel.strokeRoundedRect(centerX - 240, 430, 480, 75, 10);
+
+    // Game description
+    this.add.text(centerX, 455, 'The vampire pandas have risen. Only one bunny can stop them.', {
+      fontSize: '13px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#CCCCCC'
+    }).setOrigin(0.5);
+
+    this.add.text(centerX, 480, 'Master the art of the ricochet shot across 6 deadly levels.', {
+      fontSize: '11px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#888888'
+    }).setOrigin(0.5);
+
+    // === ENTRANCE ANIMATION ===
+    this.cameras.main.fadeIn(500);
+
+    // Stagger entrance for elements
+    [bunny, panda, logo, logoGlow, playBtn].forEach((obj, i) => {
+      obj.setAlpha(0);
+      obj.y += 30;
+      this.tweens.add({
+        targets: obj,
+        alpha: 1,
+        y: obj.y - 30,
+        duration: 400,
+        delay: 200 + i * 100,
+        ease: 'Back.easeOut'
+      });
+    });
+  }
+
+  createAtmosphere() {
+    // Slow floating dust particles
+    this.time.addEvent({
+      delay: 400,
+      callback: () => {
+        const particle = this.add.circle(
+          Phaser.Math.Between(50, 1150),
+          Phaser.Math.Between(100, 550),
+          Phaser.Math.Between(1, 3),
+          0xFFFFFF,
+          Phaser.Math.FloatBetween(0.05, 0.15)
+        );
+        particle.setDepth(50);
+
+        this.tweens.add({
+          targets: particle,
+          y: particle.y - Phaser.Math.Between(40, 80),
+          x: particle.x + Phaser.Math.Between(-30, 30),
+          alpha: 0,
+          duration: Phaser.Math.Between(3000, 5000),
+          onComplete: () => particle.destroy()
+        });
+      },
+      repeat: -1
+    });
+  }
+
+  createCornerFlourish(x, y, dir) {
+    const g = this.add.graphics();
+    g.lineStyle(1, 0x4A4A45, 0.4);
+
+    // Simple corner lines
+    g.beginPath();
+    g.moveTo(x, y + dir * 20);
+    g.lineTo(x, y);
+    g.lineTo(x + dir * 20, y);
+    g.strokePath();
+
+    // Small diamond
+    g.fillStyle(0xC9A86C, 0.3);
+    g.fillCircle(x, y, 3);
+  }
+}
+
+// ============================================
 // MAIN GAME SCENE
 // ============================================
 
@@ -181,6 +461,10 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
+    // Show UI elements when game starts
+    document.getElementById('sidebar').classList.add('visible');
+    document.getElementById('bottom-bar').classList.add('visible');
+
     // Reset time scale in case slow-mo was active
     this.time.timeScale = 1;
     this.physics.world.timeScale = 1;
@@ -1884,7 +2168,7 @@ const config = {
       gravity: { y: 0 }
     }
   },
-  scene: GameScene
+  scene: [MainMenuScene, GameScene]
 };
 
 const game = new Phaser.Game(config);
