@@ -1934,16 +1934,24 @@ class GameScene extends Phaser.Scene {
         break;
 
       case 5:
-        // Tutorial complete - hide it
-        this.tutorialActive = false;
-        this.tweens.add({
-          targets: [this.tutorialContainer, this.tutorialArrow],
-          alpha: 0,
-          duration: 500,
-          onComplete: () => {
-            if (this.tutorialContainer) this.tutorialContainer.destroy();
-            if (this.tutorialArrow) this.tutorialArrow.destroy();
-          }
+        // Tutorial complete - show congrats then fade out
+        this.tutorialBlockShoot = true;
+        this.tutorialArrow.setVisible(false);
+        this.tutorialContainer.setPosition(600, 300);
+        this.tutorialText.setText('🎉 Nice work, Hunter!');
+        this.tutorialSubtext.setText('You\'re ready to free some souls.\nGood luck!\n\nClick to continue...');
+
+        this.input.once('pointerdown', () => {
+          this.tutorialActive = false;
+          this.tweens.add({
+            targets: [this.tutorialContainer, this.tutorialArrow],
+            alpha: 0,
+            duration: 500,
+            onComplete: () => {
+              if (this.tutorialContainer) this.tutorialContainer.destroy();
+              if (this.tutorialArrow) this.tutorialArrow.destroy();
+            }
+          });
         });
         break;
     }
