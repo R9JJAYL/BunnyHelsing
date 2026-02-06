@@ -1459,7 +1459,7 @@ class GameScene extends Phaser.Scene {
       { key: 'CLICK', action: 'Shoot' },
       { key: '1-9', action: 'Select ammo' },
       { key: 'R', action: 'Restart level' },
-      { key: 'N', action: 'Skip level' }
+      { key: 'S', action: 'Skip level' }
     ];
 
     const controlTexts = [];
@@ -1729,8 +1729,8 @@ class GameScene extends Phaser.Scene {
       this.scene.restart({ level: this.level });
     });
 
-    // Skip to next level (N)
-    this.input.keyboard.on('keydown-N', () => {
+    // Skip to next level (S)
+    this.input.keyboard.on('keydown-S', () => {
       const nextLevel = Math.min(this.level + 1, LEVELS.length);
       this.scene.restart({ level: nextLevel });
     });
@@ -2697,8 +2697,8 @@ class GameScene extends Phaser.Scene {
       this.scene.restart({ level: nextLevel });
     });
 
-    // Also allow N key for next level (R is handled by main input handler)
-    this.input.keyboard.once('keydown-N', () => {
+    // Also allow S key for next level (R is handled by main input handler)
+    this.input.keyboard.once('keydown-S', () => {
       const nextLevel = Math.min(this.level + 1, LEVELS.length);
       this.scene.restart({ level: nextLevel });
     });
@@ -2738,8 +2738,8 @@ class GameScene extends Phaser.Scene {
       this.scene.restart({ level: this.level });
     });
 
-    // N key for next/skip level (R is handled by main input handler)
-    this.input.keyboard.once('keydown-N', () => {
+    // S key for next/skip level (R is handled by main input handler)
+    this.input.keyboard.once('keydown-S', () => {
       const nextLevel = Math.min(this.level + 1, LEVELS.length);
       this.scene.restart({ level: nextLevel });
     });
