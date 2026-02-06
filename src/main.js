@@ -851,29 +851,23 @@ class GameScene extends Phaser.Scene {
       uiPanel.fillCircle(cx, cy, 5);
     });
 
-    // Level indicator (medieval banner style)
-    const banner = this.add.graphics();
-    banner.fillStyle(0x8B0000);
-    banner.beginPath();
-    banner.moveTo(370, 25);
-    banner.lineTo(430, 25);
-    banner.lineTo(430, 55);
-    banner.lineTo(400, 45);
-    banner.lineTo(370, 55);
-    banner.closePath();
-    banner.fillPath();
-    banner.lineStyle(2, 0xFFD700);
-    banner.strokePath();
-
-    this.levelText = this.add.text(400, 38, `${this.level}`, {
-      fontSize: '22px',
+    // Level and Score display (top left)
+    this.add.text(40, 30, `LEVEL ${this.level}`, {
+      fontSize: '14px',
+      fontFamily: 'Georgia, serif',
+      color: '#888',
+      stroke: '#000',
+      strokeThickness: 2
+    });
+    this.scoreText = this.add.text(40, 48, 'Score: 0', {
+      fontSize: '24px',
       fontFamily: 'Georgia, serif',
       color: '#FFD700',
       stroke: '#000',
-      strokeThickness: 2
-    }).setOrigin(0.5);
+      strokeThickness: 3
+    });
 
-    // Pandas remaining
+    // Pandas remaining (top right)
     this.pandasText = this.add.text(1160, 30, `🐼 ${this.pandas.length}`, {
       fontSize: '24px',
       fontFamily: 'Georgia, serif',
@@ -881,22 +875,6 @@ class GameScene extends Phaser.Scene {
       stroke: '#000',
       strokeThickness: 3
     }).setOrigin(1, 0);
-
-    // Score display
-    this.add.text(40, 30, 'SCORE', {
-      fontSize: '12px',
-      fontFamily: 'Georgia, serif',
-      color: '#888',
-      stroke: '#000',
-      strokeThickness: 2
-    });
-    this.scoreText = this.add.text(40, 45, '0', {
-      fontSize: '28px',
-      fontFamily: 'Georgia, serif',
-      color: '#FFD700',
-      stroke: '#000',
-      strokeThickness: 3
-    });
 
     // Combo streak display (hidden initially)
     this.comboContainer = this.add.container(200, 40);
@@ -1651,7 +1629,7 @@ class GameScene extends Phaser.Scene {
     // Update UI
     this.pandasText.setText(`🐼 ${this.pandas.length}`);
     if (this.scoreText) {
-      this.scoreText.setText(`${this.score}`);
+      this.scoreText.setText(`Score: ${this.score}`);
 
       // Pulse score on update
       this.tweens.add({
