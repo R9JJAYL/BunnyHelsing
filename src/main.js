@@ -791,7 +791,7 @@ class GameScene extends Phaser.Scene {
     });
 
     // Pandas remaining (top right)
-    this.pandasText = this.add.text(1160, 30, `🐼 ${this.pandas.length}`, {
+    this.pandasText = this.add.text(1160, 35, `🐼 ${this.pandas.length}`, {
       fontSize: '24px',
       fontFamily: 'Georgia, serif',
       color: '#FFD700',
