@@ -329,7 +329,7 @@ class GameScene extends Phaser.Scene {
     const wallThickness = 20;
     const gameWidth = 1200;
     const gameHeight = 700;
-    const playAreaBottom = gameHeight - 55; // Above UI
+    const playAreaBottom = gameHeight - 70; // Above UI (menu bar starts at y=650)
 
     // Create invisible physics walls
     // Top
@@ -728,7 +728,7 @@ class GameScene extends Phaser.Scene {
 
   createBunny() {
     const x = 100;
-    const y = 645; // Bottom wall starts at y=645 (700-55), bunny feet should be exactly there
+    const y = 630; // Bottom wall starts at y=630 (700-70), bunny feet should be exactly there
 
     this.bunny = this.add.container(x, y);
 
