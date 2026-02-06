@@ -465,6 +465,9 @@ class GameScene extends Phaser.Scene {
     document.getElementById('sidebar').classList.add('visible');
     document.getElementById('bottom-bar').classList.add('visible');
 
+    // Setup sidebar button handlers
+    this.setupSidebarButtons();
+
     // Reset time scale in case slow-mo was active
     this.time.timeScale = 1;
     this.physics.world.timeScale = 1;
@@ -918,6 +921,99 @@ class GameScene extends Phaser.Scene {
     });
   }
 
+  setupSidebarButtons() {
+    // Home button - return to main menu
+    const homeBtn = document.getElementById('btn-home');
+    homeBtn.onclick = () => {
+      // Hide UI elements
+      document.getElementById('sidebar').classList.remove('visible');
+      document.getElementById('bottom-bar').classList.remove('visible');
+      // Reset game state
+      this.level = 1;
+      this.score = 0;
+      // Go to main menu
+      this.scene.start('MainMenuScene');
+    };
+
+    // Settings button - show settings (placeholder for now)
+    const settingsBtn = document.getElementById('btn-settings');
+    settingsBtn.onclick = () => {
+      this.showSettingsModal();
+    };
+  }
+
+  showSettingsModal() {
+    // Create settings overlay
+    if (this.settingsOverlay) return; // Already open
+
+    this.settingsOverlay = this.add.container(600, 325);
+    this.settingsOverlay.setDepth(2000);
+
+    // Dark background
+    const bg = this.add.rectangle(0, 0, 400, 300, 0x000000, 0.9);
+    bg.setStrokeStyle(2, 0xC9A86C);
+
+    // Title
+    const title = this.add.text(0, -120, 'SETTINGS', {
+      fontSize: '24px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#FFD700'
+    }).setOrigin(0.5);
+
+    // Sound toggle (placeholder)
+    const soundLabel = this.add.text(-80, -40, 'Sound:', {
+      fontSize: '16px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#CCCCCC'
+    }).setOrigin(0, 0.5);
+
+    const soundStatus = this.add.text(80, -40, 'ON', {
+      fontSize: '16px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#88CC88'
+    }).setOrigin(0.5);
+
+    // Music toggle (placeholder)
+    const musicLabel = this.add.text(-80, 10, 'Music:', {
+      fontSize: '16px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#CCCCCC'
+    }).setOrigin(0, 0.5);
+
+    const musicStatus = this.add.text(80, 10, 'ON', {
+      fontSize: '16px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#88CC88'
+    }).setOrigin(0.5);
+
+    // Close button
+    const closeBtn = this.add.container(0, 100);
+    const closeBg = this.add.rectangle(0, 0, 120, 40, 0x2A2520);
+    closeBg.setStrokeStyle(2, 0x8B7355);
+    const closeText = this.add.text(0, 0, 'CLOSE', {
+      fontSize: '16px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#C9A86C'
+    }).setOrigin(0.5);
+    closeBtn.add([closeBg, closeText]);
+
+    closeBg.setInteractive({ useHandCursor: true });
+    closeBg.on('pointerover', () => {
+      closeBg.setFillStyle(0x3A3530);
+      closeText.setColor('#FFD700');
+    });
+    closeBg.on('pointerout', () => {
+      closeBg.setFillStyle(0x2A2520);
+      closeText.setColor('#C9A86C');
+    });
+    closeBg.on('pointerdown', () => {
+      this.settingsOverlay.destroy();
+      this.settingsOverlay = null;
+    });
+
+    this.settingsOverlay.add([bg, title, soundLabel, soundStatus, musicLabel, musicStatus, closeBtn]);
+  }
+
   createUI() {
     // Level and Score are now in HTML sidebar - update them
     document.getElementById('level-display').textContent = `LEVEL ${this.level}`;
@@ -996,7 +1092,7 @@ class GameScene extends Phaser.Scene {
   setupInput() {
     // Fire on mouse release - aim while holding, release to shoot
     this.input.on('pointerup', (pointer) => {
-      if (this.bulletFired || this.ammoRemaining <= 0 || this.levelEnded) return;
+      if (this.bulletFired || this.ammoRemaining <= 0 || this.levelEnded || this.settingsOverlay) return;
 
       // Check minimum distance for a valid shot
       const dist = Phaser.Math.Distance.Between(
@@ -1047,7 +1143,7 @@ class GameScene extends Phaser.Scene {
   }
 
   updateAimLine(pointer) {
-    if (!this.aimLine) return;
+    if (!this.aimLine || this.settingsOverlay) return;
 
     this.aimLine.clear();
 
