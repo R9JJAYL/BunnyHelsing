@@ -1808,10 +1808,10 @@ class GameScene extends Phaser.Scene {
     // Instructions
     const instructions = [
       '🎯  Aim with your mouse',
-      '🔢  Press 1-9 to select ammo amount',
+      '🔢  Press 1-3 to choose bounces',
       '🖱️  Click to shoot',
-      '🐼  Free the pandas from their curse!',
-      '💡  Bullets bounce off walls'
+      '💡  More ammo = more bounces!',
+      '🐼  Free the pandas from their curse!'
     ];
 
     const instructionTexts = instructions.map((text, i) => {
