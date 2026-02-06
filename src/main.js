@@ -1373,6 +1373,12 @@ class GameScene extends Phaser.Scene {
     controlsBtn.onclick = () => {
       this.showControlsModal();
     };
+
+    // Skins button - show skin selection
+    const skinsBtn = document.getElementById('btn-skins');
+    skinsBtn.onclick = () => {
+      this.showSkinsModal();
+    };
   }
 
   showSettingsModal() {
@@ -1457,12 +1463,12 @@ class GameScene extends Phaser.Scene {
     this.settingsOverlay = this.add.container(600, 325);
     this.settingsOverlay.setDepth(2000);
 
-    // Dark background - taller to fit skin selection
-    const bg = this.add.rectangle(0, 0, 400, 420, 0x000000, 0.9);
+    // Dark background
+    const bg = this.add.rectangle(0, 0, 400, 300, 0x000000, 0.9);
     bg.setStrokeStyle(2, 0xC9A86C);
 
     // Title
-    const title = this.add.text(0, -180, 'CONTROLS', {
+    const title = this.add.text(0, -120, 'CONTROLS', {
       fontSize: '24px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#FFD700'
@@ -1478,14 +1484,14 @@ class GameScene extends Phaser.Scene {
 
     const controlTexts = [];
     controls.forEach((ctrl, i) => {
-      const keyText = this.add.text(-80, -110 + i * 35, ctrl.key, {
-        fontSize: '14px',
+      const keyText = this.add.text(-80, -50 + i * 35, ctrl.key, {
+        fontSize: '16px',
         fontFamily: 'Cinzel, Georgia, serif',
         color: '#FFD700'
       }).setOrigin(0, 0.5);
 
-      const actionText = this.add.text(80, -110 + i * 35, ctrl.action, {
-        fontSize: '14px',
+      const actionText = this.add.text(80, -50 + i * 35, ctrl.action, {
+        fontSize: '16px',
         fontFamily: 'Cinzel, Georgia, serif',
         color: '#CCCCCC'
       }).setOrigin(0.5);
@@ -1493,9 +1499,50 @@ class GameScene extends Phaser.Scene {
       controlTexts.push(keyText, actionText);
     });
 
-    // Skin selection section
-    const skinLabel = this.add.text(0, 50, 'SKIN', {
-      fontSize: '18px',
+    // Close button
+    const closeBtn = this.add.container(0, 110);
+    const closeBg = this.add.rectangle(0, 0, 120, 40, 0x2A2520);
+    closeBg.setStrokeStyle(2, 0x8B7355);
+    const closeText = this.add.text(0, 0, 'CLOSE', {
+      fontSize: '16px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#C9A86C'
+    }).setOrigin(0.5);
+    closeBtn.add([closeBg, closeText]);
+
+    closeBg.setInteractive({ useHandCursor: true });
+    closeBg.on('pointerover', () => {
+      closeBg.setFillStyle(0x3A3530);
+      closeText.setColor('#FFD700');
+    });
+    closeBg.on('pointerout', () => {
+      closeBg.setFillStyle(0x2A2520);
+      closeText.setColor('#C9A86C');
+    });
+    closeBg.on('pointerdown', () => {
+      this.settingsOverlay.destroy();
+      this.time.delayedCall(100, () => {
+        this.settingsOverlay = null;
+      });
+    });
+
+    this.settingsOverlay.add([bg, title, ...controlTexts, closeBtn]);
+  }
+
+  showSkinsModal() {
+    // Create skins overlay
+    if (this.settingsOverlay) return; // Already open
+
+    this.settingsOverlay = this.add.container(600, 325);
+    this.settingsOverlay.setDepth(2000);
+
+    // Dark background
+    const bg = this.add.rectangle(0, 0, 400, 250, 0x000000, 0.9);
+    bg.setStrokeStyle(2, 0xC9A86C);
+
+    // Title
+    const title = this.add.text(0, -90, 'SELECT SKIN', {
+      fontSize: '24px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#FFD700'
     }).setOrigin(0.5);
@@ -1507,13 +1554,13 @@ class GameScene extends Phaser.Scene {
 
     BUNNY_SKINS.forEach((skin, i) => {
       const btnX = startX + i * skinSpacing;
-      const btnContainer = this.add.container(btnX, 100);
+      const btnContainer = this.add.container(btnX, -20);
 
-      const btnBg = this.add.rectangle(0, 0, skinBtnWidth, 36, 0x2A2520);
+      const btnBg = this.add.rectangle(0, 0, skinBtnWidth, 40, 0x2A2520);
       btnBg.setStrokeStyle(2, currentSkin === skin.id ? 0xFFD700 : 0x8B7355);
 
       const btnText = this.add.text(0, 0, skin.name, {
-        fontSize: '12px',
+        fontSize: '14px',
         fontFamily: 'Cinzel, Georgia, serif',
         color: currentSkin === skin.id ? '#FFD700' : '#C9A86C'
       }).setOrigin(0.5);
@@ -1547,7 +1594,7 @@ class GameScene extends Phaser.Scene {
     });
 
     // Close button
-    const closeBtn = this.add.container(0, 165);
+    const closeBtn = this.add.container(0, 80);
     const closeBg = this.add.rectangle(0, 0, 120, 40, 0x2A2520);
     closeBg.setStrokeStyle(2, 0x8B7355);
     const closeText = this.add.text(0, 0, 'CLOSE', {
@@ -1573,7 +1620,7 @@ class GameScene extends Phaser.Scene {
       });
     });
 
-    this.settingsOverlay.add([bg, title, ...controlTexts, skinLabel, ...skinButtons.map(sb => sb.container), closeBtn]);
+    this.settingsOverlay.add([bg, title, ...skinButtons.map(sb => sb.container), closeBtn]);
   }
 
   updateBunnySkin() {
