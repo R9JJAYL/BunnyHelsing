@@ -1850,30 +1850,25 @@ class GameScene extends Phaser.Scene {
         break;
 
       case 1:
-        // Point to ammo
-        this.tutorialContainer.setPosition(350, 500);
+        // Point to ammo - bottom bar is below the game canvas
+        this.tutorialContainer.setPosition(400, 400);
         this.tutorialText.setText('Step 1: Choose your bounces');
         this.tutorialSubtext.setText('Press 1, 2, or 3 to select how many\ntimes your bullet will bounce');
 
-        // Arrow pointing at ammo panel
+        // Arrow pointing at ammo panel (bottom left area)
         this.tutorialArrow.setVisible(true);
-        this.tutorialArrow.setPosition(120, 620);
+        this.tutorialArrow.setText('👇');
+        this.tutorialArrow.setPosition(80, 610);
         this.tweens.add({
           targets: this.tutorialArrow,
-          y: 640,
+          y: 630,
           duration: 500,
           yoyo: true,
           repeat: -1
         });
 
-        // Listen for ammo selection
-        const ammoHandler = (event) => {
-          if (['1', '2', '3'].includes(event.key)) {
-            this.input.keyboard.off('keydown', ammoHandler);
-            this.showTutorialStep(2);
-          }
-        };
-        this.input.keyboard.on('keydown', ammoHandler);
+        // Block ammo keys until this step, then listen for ONE key
+        this.tutorialWaitingForAmmo = true;
         break;
 
       case 2:
@@ -2024,6 +2019,12 @@ class GameScene extends Phaser.Scene {
     if (amount <= this.ammoRemaining && amount >= 1) {
       this.selectedAmmo = amount;
       this.updateAmmoUI();
+
+      // If tutorial is waiting for ammo selection, advance
+      if (this.tutorialWaitingForAmmo) {
+        this.tutorialWaitingForAmmo = false;
+        this.showTutorialStep(2);
+      }
     }
   }
 
