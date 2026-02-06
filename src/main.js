@@ -1850,12 +1850,12 @@ class GameScene extends Phaser.Scene {
         break;
 
       case 1:
-        // Point to ammo - bottom bar is below the game canvas
+        // Tell them to press 2
         this.tutorialContainer.setPosition(400, 400);
-        this.tutorialText.setText('Step 1: Choose your bounces');
-        this.tutorialSubtext.setText('Press 1, 2, or 3 to select how many\ntimes your bullet will bounce');
+        this.tutorialText.setText('Press 2 on your keyboard');
+        this.tutorialSubtext.setText('This selects 2 bounces for your bullet');
 
-        // Arrow pointing at ammo panel (bottom left area)
+        // Arrow pointing at ammo panel
         this.tutorialArrow.setVisible(true);
         this.tutorialArrow.setText('👇');
         this.tutorialArrow.setPosition(80, 610);
@@ -1867,55 +1867,65 @@ class GameScene extends Phaser.Scene {
           repeat: -1
         });
 
-        // Block ammo keys until this step, then listen for ONE key
-        this.tutorialWaitingForAmmo = true;
+        // Only accept 2
+        this.tutorialWaitingForAmmo = 2;
         break;
 
       case 2:
-        // Point to aim
+        // Shoot the wall
         this.tutorialContainer.setPosition(600, 150);
-        this.tutorialText.setText('Step 2: Aim at the panda');
-        this.tutorialSubtext.setText('Move your mouse to aim\nThe line shows your bullet path');
+        this.tutorialText.setText('Now shoot the top wall!');
+        this.tutorialSubtext.setText('Click to fire at the wall above\nWatch your bullet bounce!');
 
-        // Arrow pointing at panda
+        // Arrow pointing at top wall
         this.tutorialArrow.setVisible(true);
-        this.tutorialArrow.setPosition(900, 250);
+        this.tutorialArrow.setText('👆');
+        this.tutorialArrow.setPosition(600, 80);
         this.tweens.add({
           targets: this.tutorialArrow,
-          y: 270,
+          y: 60,
           duration: 500,
           yoyo: true,
           repeat: -1
         });
 
-        // Continue after a moment
-        this.time.delayedCall(2000, () => {
-          this.showTutorialStep(3);
-        });
+        // Allow shooting
+        this.tutorialBlockShoot = false;
+        this.tutorialWaitingForBounce = true;
         break;
 
       case 3:
-        // Shoot instruction
-        this.tutorialContainer.setPosition(600, 200);
-        this.tutorialText.setText('Step 3: Fire!');
-        this.tutorialSubtext.setText('Click to shoot and free the panda!');
-        this.tutorialArrow.setVisible(false);
+        // They saw the bounce, now hit the panda
+        this.tutorialContainer.setPosition(600, 150);
+        this.tutorialText.setText('Great! Now hit the panda!');
+        this.tutorialSubtext.setText('Use bounces to reach tricky targets');
 
-        // Allow shooting now
-        this.tutorialBlockShoot = false;
+        // Arrow pointing at panda
+        this.tutorialArrow.setVisible(true);
+        this.tutorialArrow.setText('👇');
+        this.tutorialArrow.setPosition(900, 260);
+        this.tweens.add({
+          targets: this.tutorialArrow,
+          y: 280,
+          duration: 500,
+          yoyo: true,
+          repeat: -1
+        });
+
+        this.tutorialWaitingForBounce = false;
+        break;
+
+      case 4:
+        // Tutorial complete - hide it
         this.tutorialActive = false;
-
-        // Fade out tutorial after shot
-        this.time.delayedCall(500, () => {
-          this.tweens.add({
-            targets: [this.tutorialContainer, this.tutorialArrow],
-            alpha: 0,
-            duration: 500,
-            onComplete: () => {
-              this.tutorialContainer.destroy();
-              this.tutorialArrow.destroy();
-            }
-          });
+        this.tweens.add({
+          targets: [this.tutorialContainer, this.tutorialArrow],
+          alpha: 0,
+          duration: 500,
+          onComplete: () => {
+            if (this.tutorialContainer) this.tutorialContainer.destroy();
+            if (this.tutorialArrow) this.tutorialArrow.destroy();
+          }
         });
         break;
     }
@@ -2020,8 +2030,8 @@ class GameScene extends Phaser.Scene {
       this.selectedAmmo = amount;
       this.updateAmmoUI();
 
-      // If tutorial is waiting for ammo selection, advance
-      if (this.tutorialWaitingForAmmo) {
+      // If tutorial is waiting for specific ammo selection
+      if (this.tutorialWaitingForAmmo && amount === this.tutorialWaitingForAmmo) {
         this.tutorialWaitingForAmmo = false;
         this.showTutorialStep(2);
       }
@@ -2472,6 +2482,14 @@ class GameScene extends Phaser.Scene {
 
     this.bullet.bounceCount++;
 
+    // Tutorial: if waiting for bounce, advance to next step
+    if (this.tutorialWaitingForBounce) {
+      this.tutorialWaitingForBounce = false;
+      this.time.delayedCall(500, () => {
+        this.showTutorialStep(3);
+      });
+    }
+
     // Screen shake - steel hitting stone
     const shakeIntensity = 0.006 - (this.bullet.bounceCount * 0.001);
     this.cameras.main.shake(60, Math.max(0.002, shakeIntensity));
@@ -2620,6 +2638,11 @@ class GameScene extends Phaser.Scene {
 
   onPandaHit(panda) {
     if (!panda.active) return;
+
+    // Tutorial: complete when panda is hit
+    if (this.tutorialActive && this.tutorialStep === 3) {
+      this.showTutorialStep(4);
+    }
 
     const index = this.pandas.indexOf(panda);
     if (index > -1) {
