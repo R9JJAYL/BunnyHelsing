@@ -2655,6 +2655,11 @@ class GameScene extends Phaser.Scene {
   onPandaHit(panda) {
     if (!panda.active) return;
 
+    // Tutorial: ignore panda hits until step 4 (hit the panda)
+    if (this.tutorialActive && this.tutorialStep < 4) {
+      return;
+    }
+
     // Tutorial: complete when panda is hit
     if (this.tutorialActive && this.tutorialStep === 4) {
       this.showTutorialStep(5);
