@@ -324,7 +324,7 @@ class GameScene extends Phaser.Scene {
 
   createBambooWalls() {
     this.walls = [];
-    const wallThickness = 20;
+    const wallThickness = 25;
     const gameWidth = 1200;
     const gameHeight = 700;
     const playAreaBottom = gameHeight - 55; // Above UI
@@ -341,33 +341,33 @@ class GameScene extends Phaser.Scene {
     this.walls.push(bottomWall);
 
     // Left
-    const leftWall = this.add.rectangle(wallThickness / 2, playAreaBottom / 2, wallThickness, playAreaBottom, 0x000000, 0);
+    const leftWall = this.add.rectangle(wallThickness / 2, (playAreaBottom + wallThickness) / 2, wallThickness, playAreaBottom + wallThickness, 0x000000, 0);
     this.physics.add.existing(leftWall, true);
     this.walls.push(leftWall);
 
     // Right
-    const rightWall = this.add.rectangle(gameWidth - wallThickness / 2, playAreaBottom / 2, wallThickness, playAreaBottom, 0x000000, 0);
+    const rightWall = this.add.rectangle(gameWidth - wallThickness / 2, (playAreaBottom + wallThickness) / 2, wallThickness, playAreaBottom + wallThickness, 0x000000, 0);
     this.physics.add.existing(rightWall, true);
     this.walls.push(rightWall);
 
-    // Single bamboo on each side as a frame
-    // Top bamboo (horizontal)
+    // Bamboo frame - the image is naturally horizontal (3932x269)
+    // Top bamboo (horizontal - natural orientation)
     const topBamboo = this.add.image(gameWidth / 2, wallThickness / 2, 'bamboo');
     topBamboo.setDisplaySize(gameWidth, wallThickness);
-    topBamboo.setAngle(90);
 
-    // Bottom bamboo (horizontal)
+    // Bottom bamboo (horizontal - natural orientation)
     const bottomBamboo = this.add.image(gameWidth / 2, playAreaBottom + wallThickness / 2, 'bamboo');
     bottomBamboo.setDisplaySize(gameWidth, wallThickness);
-    bottomBamboo.setAngle(90);
 
-    // Left bamboo (vertical)
-    const leftBamboo = this.add.image(wallThickness / 2, playAreaBottom / 2, 'bamboo');
-    leftBamboo.setDisplaySize(playAreaBottom, wallThickness);
+    // Left bamboo (vertical - rotate 90 degrees)
+    const leftBamboo = this.add.image(wallThickness / 2, (playAreaBottom + wallThickness) / 2, 'bamboo');
+    leftBamboo.setDisplaySize(playAreaBottom + wallThickness, wallThickness);
+    leftBamboo.setAngle(90);
 
-    // Right bamboo (vertical)
-    const rightBamboo = this.add.image(gameWidth - wallThickness / 2, playAreaBottom / 2, 'bamboo');
-    rightBamboo.setDisplaySize(playAreaBottom, wallThickness);
+    // Right bamboo (vertical - rotate 90 degrees)
+    const rightBamboo = this.add.image(gameWidth - wallThickness / 2, (playAreaBottom + wallThickness) / 2, 'bamboo');
+    rightBamboo.setDisplaySize(playAreaBottom + wallThickness, wallThickness);
+    rightBamboo.setAngle(90);
   }
 
   adjustColor(color, amount) {
@@ -381,12 +381,15 @@ class GameScene extends Phaser.Scene {
     obstacles.forEach(obs => {
       const angle = obs.angle || 0;
       const angleRad = Phaser.Math.DegToRad(angle);
-
-      // Draw bamboo obstacle
       const length = Math.max(obs.w, obs.h);
+      const thickness = Math.min(obs.w, obs.h);
+
+      // Draw bamboo obstacle - bamboo image is horizontal (3932x269)
       const bamboo = this.add.image(obs.x, obs.y, 'bamboo');
-      bamboo.setScale(length / 400); // Scale based on length
-      bamboo.setAngle(angle + (obs.w > obs.h ? 90 : 0)); // Rotate if horizontal
+      bamboo.setDisplaySize(length, thickness);
+      // Rotate: if vertical (h > w), rotate 90. Then add any angle offset.
+      const baseAngle = obs.h > obs.w ? 90 : 0;
+      bamboo.setAngle(baseAngle + angle);
 
       if (angle === 0) {
         // Simple case: no rotation, single physics body
@@ -396,8 +399,7 @@ class GameScene extends Phaser.Scene {
       } else {
         // Angled obstacle: create NON-overlapping colliders along the length
         // This approximates the angled shape since Arcade physics doesn't support rotation
-        const numSegments = Math.ceil(Math.max(obs.w, obs.h) / 20);
-        const thickness = Math.min(obs.w, obs.h);
+        const numSegments = Math.ceil(length / 20);
         const segmentLength = length / numSegments;
 
         for (let i = 0; i < numSegments; i++) {
@@ -424,9 +426,11 @@ class GameScene extends Phaser.Scene {
 
       // Visual - bamboo
       const length = Math.max(obs.w, obs.h);
+      const thickness = Math.min(obs.w, obs.h);
       const bamboo = this.add.image(0, 0, 'bamboo');
-      bamboo.setScale(length / 400);
-      bamboo.setAngle(obs.w > obs.h ? 90 : 0);
+      bamboo.setDisplaySize(length, thickness);
+      // Rotate if vertical
+      bamboo.setAngle(obs.h > obs.w ? 90 : 0);
 
       container.add([bamboo, wall]);
 
