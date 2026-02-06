@@ -743,9 +743,10 @@ class GameScene extends Phaser.Scene {
     this.bunny.add([shadow, bunnySprite]);
 
     // Store gun offset for bullet firing - at the tip of the gun barrel
-    // The bunny sprite faces right with gun extended, so offset to the right side
-    this.bunny.gunOffsetX = 55;  // At the gun barrel tip
-    this.bunny.gunOffsetY = -50; // At the gun barrel height
+    // The bunny sprite faces right with gun extended
+    // Sprite origin is at bottom center (0.5, 1), so negative Y moves up from feet
+    this.bunny.gunOffsetX = 65;  // At the gun barrel tip (right side)
+    this.bunny.gunOffsetY = -75; // At the gun barrel height (up from feet)
 
     // Subtle idle bob
     this.tweens.add({
