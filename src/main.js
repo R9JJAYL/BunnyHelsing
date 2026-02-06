@@ -1951,10 +1951,7 @@ class GameScene extends Phaser.Scene {
       btn.textContent = i;
       btn.dataset.value = i;
       btn.addEventListener('click', () => {
-        if (i <= this.ammoRemaining) {
-          this.selectedAmmo = i;
-          this.updateAmmoUI();
-        }
+        this.selectAmmo(i);
       });
       container.appendChild(btn);
     }
