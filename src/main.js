@@ -39,14 +39,16 @@ const COLORS = {
 
 // Level configurations - Much harder with angles and moving parts
 // Game area is now 1200x700 landscape (play area ~645px tall, ~1140px wide)
+// Bamboo obstacles: length determines visual size. Bamboo is ~7% as thick as long.
+// For visible bamboo: 300px length = ~20px thick, 450px = ~30px thick
 const LEVELS = [
   // Level 1: Introduction - angled walls
   {
     ammo: 4,
     pandas: [{ x: 1000, y: 200 }, { x: 900, y: 480 }],
     obstacles: [
-      { x: 500, y: 250, w: 150, h: 20, angle: 15 },
-      { x: 700, y: 380, w: 20, h: 120 },
+      { x: 500, y: 250, w: 350, h: 24, angle: 15 },
+      { x: 720, y: 350, w: 24, h: 300 },
     ],
     movingObstacles: [],
     torches: [{ x: 50, y: 100 }, { x: 1150, y: 100 }, { x: 50, y: 500 }, { x: 1150, y: 500 }]
@@ -56,12 +58,12 @@ const LEVELS = [
     ammo: 5,
     pandas: [{ x: 1050, y: 150 }, { x: 1050, y: 500 }, { x: 600, y: 320 }],
     obstacles: [
-      { x: 750, y: 200, w: 20, h: 120 },
-      { x: 750, y: 450, w: 20, h: 120 },
-      { x: 400, y: 280, w: 100, h: 20, angle: -20 },
+      { x: 750, y: 180, w: 20, h: 280 },
+      { x: 750, y: 480, w: 20, h: 280 },
+      { x: 400, y: 280, w: 300, h: 20, angle: -20 },
     ],
     movingObstacles: [
-      { x: 550, y: 320, w: 80, h: 20, moveX: 0, moveY: 100, speed: 0.8 }
+      { x: 550, y: 320, w: 250, h: 17, moveX: 0, moveY: 100, speed: 0.8 }
     ],
     torches: [{ x: 50, y: 100 }, { x: 1150, y: 100 }, { x: 50, y: 500 }, { x: 1150, y: 500 }]
   },
@@ -70,11 +72,11 @@ const LEVELS = [
     ammo: 5,
     pandas: [{ x: 1100, y: 120 }, { x: 1100, y: 320 }, { x: 1100, y: 520 }],
     obstacles: [
-      { x: 350, y: 180, w: 120, h: 20, angle: 30 },
-      { x: 550, y: 320, w: 120, h: 20, angle: -30 },
-      { x: 350, y: 460, w: 120, h: 20, angle: 30 },
-      { x: 800, y: 200, w: 20, h: 150 },
-      { x: 800, y: 450, w: 20, h: 150 },
+      { x: 350, y: 180, w: 280, h: 19, angle: 30 },
+      { x: 550, y: 320, w: 280, h: 19, angle: -30 },
+      { x: 350, y: 460, w: 280, h: 19, angle: 30 },
+      { x: 820, y: 200, w: 20, h: 320 },
+      { x: 820, y: 480, w: 20, h: 320 },
     ],
     movingObstacles: [],
     torches: [{ x: 50, y: 100 }, { x: 1150, y: 100 }, { x: 50, y: 520 }, { x: 1150, y: 520 }]
@@ -84,13 +86,13 @@ const LEVELS = [
     ammo: 6,
     pandas: [{ x: 1050, y: 150 }, { x: 1050, y: 500 }, { x: 700, y: 320 }],
     obstacles: [
-      { x: 450, y: 200, w: 100, h: 20, angle: 25 },
-      { x: 450, y: 450, w: 100, h: 20, angle: -25 },
+      { x: 450, y: 200, w: 280, h: 19, angle: 25 },
+      { x: 450, y: 450, w: 280, h: 19, angle: -25 },
     ],
     movingObstacles: [
-      { x: 600, y: 150, w: 20, h: 80, moveX: 0, moveY: 80, speed: 1.2 },
-      { x: 600, y: 420, w: 20, h: 80, moveX: 0, moveY: 80, speed: 1.2, offset: 0.5 },
-      { x: 850, y: 300, w: 60, h: 20, moveX: 80, moveY: 0, speed: 0.6 }
+      { x: 600, y: 150, w: 17, h: 220, moveX: 0, moveY: 80, speed: 1.2 },
+      { x: 600, y: 420, w: 17, h: 220, moveX: 0, moveY: 80, speed: 1.2, offset: 0.5 },
+      { x: 850, y: 300, w: 200, h: 14, moveX: 80, moveY: 0, speed: 0.6 }
     ],
     torches: [{ x: 50, y: 100 }, { x: 1150, y: 100 }, { x: 400, y: 50 }, { x: 50, y: 500 }, { x: 1150, y: 500 }]
   },
@@ -99,16 +101,16 @@ const LEVELS = [
     ammo: 7,
     pandas: [{ x: 1100, y: 100 }, { x: 1100, y: 320 }, { x: 1100, y: 540 }, { x: 600, y: 200 }],
     obstacles: [
-      { x: 300, y: 150, w: 20, h: 180 },
-      { x: 500, y: 280, w: 150, h: 20 },
-      { x: 300, y: 430, w: 20, h: 180 },
-      { x: 700, y: 150, w: 20, h: 120 },
-      { x: 700, y: 430, w: 20, h: 120 },
-      { x: 500, y: 500, w: 100, h: 20, angle: 35 },
+      { x: 300, y: 180, w: 22, h: 350 },
+      { x: 500, y: 280, w: 350, h: 24 },
+      { x: 300, y: 460, w: 22, h: 350 },
+      { x: 700, y: 180, w: 20, h: 280 },
+      { x: 700, y: 460, w: 20, h: 280 },
+      { x: 500, y: 520, w: 280, h: 19, angle: 35 },
     ],
     movingObstacles: [
-      { x: 900, y: 200, w: 20, h: 60, moveX: 0, moveY: 60, speed: 1.5 },
-      { x: 900, y: 430, w: 20, h: 60, moveX: 0, moveY: 60, speed: 1.5, offset: 0.5 },
+      { x: 900, y: 200, w: 15, h: 200, moveX: 0, moveY: 60, speed: 1.5 },
+      { x: 900, y: 430, w: 15, h: 200, moveX: 0, moveY: 60, speed: 1.5, offset: 0.5 },
     ],
     torches: [{ x: 50, y: 80 }, { x: 1150, y: 80 }, { x: 600, y: 50 }, { x: 50, y: 540 }, { x: 1150, y: 540 }]
   },
@@ -117,16 +119,16 @@ const LEVELS = [
     ammo: 8,
     pandas: [{ x: 1050, y: 100 }, { x: 1050, y: 320 }, { x: 1050, y: 540 }, { x: 650, y: 200 }, { x: 650, y: 450 }],
     obstacles: [
-      { x: 350, y: 160, w: 80, h: 20, angle: 45 },
-      { x: 350, y: 500, w: 80, h: 20, angle: -45 },
-      { x: 500, y: 320, w: 20, h: 120 },
-      { x: 800, y: 160, w: 80, h: 20, angle: -30 },
-      { x: 800, y: 500, w: 80, h: 20, angle: 30 },
+      { x: 350, y: 160, w: 250, h: 17, angle: 45 },
+      { x: 350, y: 500, w: 250, h: 17, angle: -45 },
+      { x: 500, y: 320, w: 20, h: 300 },
+      { x: 800, y: 160, w: 250, h: 17, angle: -30 },
+      { x: 800, y: 500, w: 250, h: 17, angle: 30 },
     ],
     movingObstacles: [
-      { x: 550, y: 100, w: 60, h: 20, moveX: 100, moveY: 0, speed: 1.0 },
-      { x: 550, y: 540, w: 60, h: 20, moveX: 100, moveY: 0, speed: 1.0, offset: 0.5 },
-      { x: 900, y: 280, w: 20, h: 60, moveX: 0, moveY: 100, speed: 1.3 },
+      { x: 550, y: 100, w: 200, h: 14, moveX: 100, moveY: 0, speed: 1.0 },
+      { x: 550, y: 540, w: 200, h: 14, moveX: 100, moveY: 0, speed: 1.0, offset: 0.5 },
+      { x: 900, y: 280, w: 15, h: 200, moveX: 0, moveY: 100, speed: 1.3 },
     ],
     torches: [{ x: 50, y: 100 }, { x: 1150, y: 100 }, { x: 50, y: 320 }, { x: 1150, y: 320 }, { x: 50, y: 540 }, { x: 1150, y: 540 }]
   },
@@ -324,7 +326,7 @@ class GameScene extends Phaser.Scene {
 
   createBambooWalls() {
     this.walls = [];
-    const wallThickness = 25;
+    const wallThickness = 20;
     const gameWidth = 1200;
     const gameHeight = 700;
     const playAreaBottom = gameHeight - 55; // Above UI
@@ -350,23 +352,26 @@ class GameScene extends Phaser.Scene {
     this.physics.add.existing(rightWall, true);
     this.walls.push(rightWall);
 
-    // Bamboo frame - the image is naturally horizontal (3932x269)
-    // Top bamboo (horizontal - natural orientation)
+    // Bamboo frame - image is 3932x269
+    // Use uniform scale to maintain bamboo look
+    const frameScale = 0.075; // Makes bamboo about 20px thick (269 * 0.075 = ~20)
+
+    // Top bamboo (horizontal)
     const topBamboo = this.add.image(gameWidth / 2, wallThickness / 2, 'bamboo');
-    topBamboo.setDisplaySize(gameWidth, wallThickness);
+    topBamboo.setScale(gameWidth / 3932, frameScale);
 
-    // Bottom bamboo (horizontal - natural orientation)
+    // Bottom bamboo (horizontal)
     const bottomBamboo = this.add.image(gameWidth / 2, playAreaBottom + wallThickness / 2, 'bamboo');
-    bottomBamboo.setDisplaySize(gameWidth, wallThickness);
+    bottomBamboo.setScale(gameWidth / 3932, frameScale);
 
-    // Left bamboo (vertical - rotate 90 degrees)
+    // Left bamboo (vertical)
     const leftBamboo = this.add.image(wallThickness / 2, (playAreaBottom + wallThickness) / 2, 'bamboo');
-    leftBamboo.setDisplaySize(playAreaBottom + wallThickness, wallThickness);
+    leftBamboo.setScale((playAreaBottom + wallThickness) / 3932, frameScale);
     leftBamboo.setAngle(90);
 
-    // Right bamboo (vertical - rotate 90 degrees)
+    // Right bamboo (vertical)
     const rightBamboo = this.add.image(gameWidth - wallThickness / 2, (playAreaBottom + wallThickness) / 2, 'bamboo');
-    rightBamboo.setDisplaySize(playAreaBottom + wallThickness, wallThickness);
+    rightBamboo.setScale((playAreaBottom + wallThickness) / 3932, frameScale);
     rightBamboo.setAngle(90);
   }
 
@@ -384,9 +389,13 @@ class GameScene extends Phaser.Scene {
       const length = Math.max(obs.w, obs.h);
       const thickness = Math.min(obs.w, obs.h);
 
-      // Draw bamboo obstacle - bamboo image is horizontal (3932x269)
+      // Draw bamboo obstacle - bamboo image is 3932x269
+      // Scale based on desired length, with bamboo's natural thickness preserved
       const bamboo = this.add.image(obs.x, obs.y, 'bamboo');
-      bamboo.setDisplaySize(length, thickness);
+      const scale = length / 3932;
+      // The bamboo will be ~7% as thick as it is long (269/3932)
+      // For a 200px long bamboo, it will be ~14px thick
+      bamboo.setScale(scale);
       // Rotate: if vertical (h > w), rotate 90. Then add any angle offset.
       const baseAngle = obs.h > obs.w ? 90 : 0;
       bamboo.setAngle(baseAngle + angle);
@@ -424,11 +433,12 @@ class GameScene extends Phaser.Scene {
       const wall = this.add.rectangle(0, 0, obs.w, obs.h, 0x000000, 0);
       this.physics.add.existing(wall, true);
 
-      // Visual - bamboo
+      // Visual - bamboo (image is 3932x269)
+      // Use uniform scale to maintain bamboo proportions
       const length = Math.max(obs.w, obs.h);
-      const thickness = Math.min(obs.w, obs.h);
       const bamboo = this.add.image(0, 0, 'bamboo');
-      bamboo.setDisplaySize(length, thickness);
+      const scale = length / 3932;
+      bamboo.setScale(scale);
       // Rotate if vertical
       bamboo.setAngle(obs.h > obs.w ? 90 : 0);
 
