@@ -214,14 +214,11 @@ class GameScene extends Phaser.Scene {
     this.gameTime = 0;
     this.movingWalls = [];
 
-    // Dark dungeon background
-    this.cameras.main.setBackgroundColor(COLORS.dungeonBg);
+    // Plain black background
+    this.cameras.main.setBackgroundColor(0x000000);
 
-    // Draw stone floor pattern
-    this.createStoneFloor();
-
-    // Create castle walls
-    this.createCastleWalls();
+    // Create bamboo border walls
+    this.createBambooWalls();
 
     // Create interior obstacles (static)
     this.createObstacles(levelConfig.obstacles);
@@ -325,141 +322,61 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  createStoneFloor() {
-    const graphics = this.add.graphics();
-
-    // Draw floor tiles
-    const tileSize = 50;
-    for (let x = 30; x < 1170; x += tileSize) {
-      for (let y = 30; y < 645; y += tileSize) {
-        // Vary the stone color slightly
-        const colorVariation = Phaser.Math.Between(-15, 15);
-        const r = 0x2A + colorVariation;
-        const g = 0x2A + colorVariation;
-        const b = 0x2F + colorVariation;
-        const color = (r << 16) | (g << 8) | b;
-
-        graphics.fillStyle(color, 0.3);
-        graphics.fillRect(x, y, tileSize - 2, tileSize - 2);
-
-        // Add subtle crack lines
-        if (Math.random() > 0.7) {
-          graphics.lineStyle(1, 0x1A1A1F, 0.5);
-          graphics.beginPath();
-          graphics.moveTo(x + Math.random() * tileSize, y);
-          graphics.lineTo(x + Math.random() * tileSize, y + tileSize);
-          graphics.strokePath();
-        }
-      }
-    }
-  }
-
-  createCastleWalls() {
+  createBambooWalls() {
     this.walls = [];
     const wallThickness = 30;
     const gameWidth = 1200;
     const gameHeight = 700;
+    const playAreaBottom = gameHeight - 55; // Above UI
 
-    // Create walls on all 4 sides
-    this.createStoneWall(0, 0, gameWidth, wallThickness, true); // Top
-    this.createStoneWall(0, gameHeight - wallThickness - 25, gameWidth, wallThickness, true); // Bottom (above UI)
-    this.createStoneWall(0, 0, wallThickness, gameHeight - 25, false); // Left
-    this.createStoneWall(gameWidth - wallThickness, 0, wallThickness, gameHeight - 25, false); // Right
-  }
+    // Create invisible physics walls
+    // Top
+    const topWall = this.add.rectangle(gameWidth / 2, wallThickness / 2, gameWidth, wallThickness, 0x000000, 0);
+    this.physics.add.existing(topWall, true);
+    this.walls.push(topWall);
 
-  createStoneWall(x, y, width, height, isHorizontal) {
-    // Physics body
-    const wallBody = this.add.rectangle(
-      x + width / 2,
-      y + height / 2,
-      width,
-      height,
-      0x000000,
-      0
-    );
-    this.physics.add.existing(wallBody, true);
-    this.walls.push(wallBody);
+    // Bottom
+    const bottomWall = this.add.rectangle(gameWidth / 2, playAreaBottom + wallThickness / 2, gameWidth, wallThickness, 0x000000, 0);
+    this.physics.add.existing(bottomWall, true);
+    this.walls.push(bottomWall);
 
-    // Draw stone texture
-    this.drawStoneWall(x, y, width, height, isHorizontal);
-  }
+    // Left
+    const leftWall = this.add.rectangle(wallThickness / 2, playAreaBottom / 2, wallThickness, playAreaBottom, 0x000000, 0);
+    this.physics.add.existing(leftWall, true);
+    this.walls.push(leftWall);
 
-  drawStoneWall(x, y, width, height, isHorizontal) {
-    const graphics = this.add.graphics();
+    // Right
+    const rightWall = this.add.rectangle(gameWidth - wallThickness / 2, playAreaBottom / 2, wallThickness, playAreaBottom, 0x000000, 0);
+    this.physics.add.existing(rightWall, true);
+    this.walls.push(rightWall);
 
-    // Base wall color
-    graphics.fillStyle(COLORS.stoneDark);
-    graphics.fillRect(x, y, width, height);
+    // Add bamboo sprites along the borders
+    const bambooSpacing = 40;
 
-    if (isHorizontal) {
-      // Draw stone blocks horizontally
-      const blockWidth = 40 + Math.random() * 20;
-      const blockHeight = height - 4;
-      let currentX = x + 2;
-
-      while (currentX < x + width - 10) {
-        const bw = 30 + Math.random() * 25;
-
-        // Stone block
-        const shade = Phaser.Math.Between(-20, 20);
-        const stoneColor = this.adjustColor(COLORS.stoneMid, shade);
-        graphics.fillStyle(stoneColor);
-        graphics.fillRoundedRect(currentX, y + 2, bw, blockHeight, 3);
-
-        // Highlight (top edge)
-        graphics.fillStyle(COLORS.stoneLight, 0.3);
-        graphics.fillRect(currentX + 2, y + 3, bw - 4, 3);
-
-        // Shadow (bottom edge)
-        graphics.fillStyle(COLORS.mortar, 0.5);
-        graphics.fillRect(currentX + 2, y + blockHeight - 2, bw - 4, 2);
-
-        currentX += bw + 3;
-      }
-
-      // Add battlements on top wall
-      if (y < 10) {
-        for (let bx = x; bx < x + width; bx += 50) {
-          graphics.fillStyle(COLORS.stoneDark);
-          graphics.fillRect(bx + 10, y - 15, 30, 20);
-          graphics.fillStyle(COLORS.stoneMid);
-          graphics.fillRoundedRect(bx + 12, y - 13, 26, 16, 2);
-        }
-      }
-    } else {
-      // Draw stone blocks vertically
-      let currentY = y + 2;
-      let row = 0;
-
-      while (currentY < y + height - 10) {
-        const bh = 20 + Math.random() * 15;
-        const offset = (row % 2) * 10; // Stagger rows
-
-        // Stone block
-        const shade = Phaser.Math.Between(-20, 20);
-        const stoneColor = this.adjustColor(COLORS.stoneMid, shade);
-        graphics.fillStyle(stoneColor);
-        graphics.fillRoundedRect(x + 2, currentY, width - 4, bh, 3);
-
-        // Highlight
-        graphics.fillStyle(COLORS.stoneLight, 0.3);
-        graphics.fillRect(x + 4, currentY + 2, 3, bh - 4);
-
-        // Shadow
-        graphics.fillStyle(COLORS.mortar, 0.5);
-        graphics.fillRect(x + width - 6, currentY + 2, 2, bh - 4);
-
-        currentY += bh + 3;
-        row++;
-      }
+    // Top border
+    for (let x = 0; x < gameWidth; x += bambooSpacing) {
+      const bamboo = this.add.image(x + bambooSpacing / 2, wallThickness / 2, 'bamboo');
+      bamboo.setScale(0.15);
+      bamboo.setAngle(90);
     }
 
-    // Add some moss/aging
-    for (let i = 0; i < 5; i++) {
-      const mx = x + Math.random() * width;
-      const my = y + Math.random() * height;
-      graphics.fillStyle(0x3D5C3D, 0.3);
-      graphics.fillCircle(mx, my, 3 + Math.random() * 5);
+    // Bottom border
+    for (let x = 0; x < gameWidth; x += bambooSpacing) {
+      const bamboo = this.add.image(x + bambooSpacing / 2, playAreaBottom + wallThickness / 2, 'bamboo');
+      bamboo.setScale(0.15);
+      bamboo.setAngle(90);
+    }
+
+    // Left border
+    for (let y = wallThickness; y < playAreaBottom; y += bambooSpacing) {
+      const bamboo = this.add.image(wallThickness / 2, y + bambooSpacing / 2, 'bamboo');
+      bamboo.setScale(0.15);
+    }
+
+    // Right border
+    for (let y = wallThickness; y < playAreaBottom; y += bambooSpacing) {
+      const bamboo = this.add.image(gameWidth - wallThickness / 2, y + bambooSpacing / 2, 'bamboo');
+      bamboo.setScale(0.15);
     }
   }
 
@@ -806,7 +723,7 @@ class GameScene extends Phaser.Scene {
 
   createBunny() {
     const x = 100;
-    const y = 645; // Bottom wall starts at y=645, bunny feet should be exactly there
+    const y = 645; // Bottom wall starts at y=645 (700-55), bunny feet should be exactly there
 
     this.bunny = this.add.container(x, y);
 
