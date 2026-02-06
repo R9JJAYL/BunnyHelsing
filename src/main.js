@@ -1907,6 +1907,9 @@ class GameScene extends Phaser.Scene {
         break;
 
       case 4:
+        // Block shooting initially to prevent click-through
+        this.tutorialBlockShoot = true;
+
         // Now hit the panda
         this.tutorialContainer.setPosition(600, 150);
         this.tutorialText.setText("You've got one bullet left!");
@@ -1924,8 +1927,10 @@ class GameScene extends Phaser.Scene {
           repeat: -1
         });
 
-        // Allow shooting
-        this.tutorialBlockShoot = false;
+        // Allow shooting after short delay to prevent click-through
+        this.time.delayedCall(200, () => {
+          this.tutorialBlockShoot = false;
+        });
         break;
 
       case 5:
