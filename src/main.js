@@ -1008,7 +1008,10 @@ class GameScene extends Phaser.Scene {
     });
     closeBg.on('pointerdown', () => {
       this.settingsOverlay.destroy();
-      this.settingsOverlay = null;
+      // Delay clearing the flag so the pointerup doesn't trigger a shot
+      this.time.delayedCall(100, () => {
+        this.settingsOverlay = null;
+      });
     });
 
     this.settingsOverlay.add([bg, title, soundLabel, soundStatus, musicLabel, musicStatus, closeBtn]);
