@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bunny Helsing - Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: linear-gradient(180deg, #0A0A0C 0%, #151518 50%, #1A1A1F 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cinzel', 'Times New Roman', serif;
+      overflow: hidden;
+    }
+    h1 {
+      color: #C9A227;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(201, 162, 39, 0.3);
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      letter-spacing: 0.15em;
+      font-weight: 700;
+    }
+    .subtitle {
+      color: #8B6914;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      letter-spacing: 0.3em;
+      font-weight: 400;
+    }
+    #game-container {
+      border: 2px solid #3A3A35;
+      border-radius: 4px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.3);
+    }
+    .instructions {
+      color: #6B6B6B;
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+    }
+    .instructions span {
+      color: #C9A227;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <img src="/assets/logo.png" alt="Bunny Bashers" style="height: 60px; margin-bottom: 15px;">
+  <div id="game-container"></div>
+  <p class="instructions">
+    <span>[1-5]</span> or <span>scroll</span> to select ricochets |
+    <span>Aim & release</span> to fire |
+    <span>R</span> restart |
+    <span>N</span> skip level
+  </p>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
