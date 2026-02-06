@@ -598,6 +598,11 @@ class GameScene extends Phaser.Scene {
     // Input handling
     this.setupInput();
 
+    // Show tutorial on level 1
+    if (this.level === 1) {
+      this.showTutorial();
+    }
+
     // Add ambient particles (dust/embers)
     this.createAmbientParticles();
 
@@ -1782,6 +1787,69 @@ class GameScene extends Phaser.Scene {
     this.comboContainer.add([comboBg, this.comboStreakText]);
 
     this.createAmmoUI();
+  }
+
+  showTutorial() {
+    // Tutorial container
+    const tutorialContainer = this.add.container(600, 325);
+    tutorialContainer.setDepth(100);
+
+    // Semi-transparent background
+    const bg = this.add.rectangle(0, 0, 500, 320, 0x000000, 0.85);
+    bg.setStrokeStyle(2, 0xC9A86C);
+
+    // Title
+    const title = this.add.text(0, -120, 'TUTORIAL', {
+      fontSize: '28px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#FFD700'
+    }).setOrigin(0.5);
+
+    // Instructions
+    const instructions = [
+      '🎯  Aim with your mouse',
+      '🖱️  Click to shoot',
+      '🐼  Free the pandas from their curse!',
+      '💡  Bullets bounce off walls'
+    ];
+
+    const instructionTexts = instructions.map((text, i) => {
+      return this.add.text(0, -50 + i * 40, text, {
+        fontSize: '18px',
+        fontFamily: 'Cinzel, Georgia, serif',
+        color: '#CCCCCC'
+      }).setOrigin(0.5);
+    });
+
+    // Click to start text
+    const startText = this.add.text(0, 120, 'Click anywhere to start', {
+      fontSize: '16px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#FFD700'
+    }).setOrigin(0.5);
+
+    // Pulse animation on start text
+    this.tweens.add({
+      targets: startText,
+      alpha: 0.5,
+      duration: 800,
+      yoyo: true,
+      repeat: -1
+    });
+
+    tutorialContainer.add([bg, title, ...instructionTexts, startText]);
+
+    // Click to dismiss and start playing
+    this.input.once('pointerdown', () => {
+      this.tweens.add({
+        targets: tutorialContainer,
+        alpha: 0,
+        duration: 300,
+        onComplete: () => {
+          tutorialContainer.destroy();
+        }
+      });
+    });
   }
 
   createAmmoUI() {
