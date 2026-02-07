@@ -272,19 +272,25 @@
       }
     }
 
-    /* Fullscreen mode - maximize viewport to push browser chrome off screen */
+    /* Fullscreen mode - hide UI and maximize game canvas */
     body.fullscreen-mode {
       padding: 0 !important;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      height: 100lvh; /* Use large viewport height to push past browser chrome */
+    }
+    body.fullscreen-mode .sidebar {
+      display: none !important;
+    }
+    body.fullscreen-mode .bottom-bar {
+      display: none !important;
     }
     body.fullscreen-mode .game-wrapper {
+      width: 100vw;
       height: 100vh;
-      height: 100lvh;
+      height: 100dvh;
+    }
+    body.fullscreen-mode #game-container {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
     }
     .exit-fullscreen-btn {
       position: fixed;
@@ -362,17 +368,15 @@
   <script>
     // Fullscreen toggle
     document.getElementById('btn-fullscreen').addEventListener('click', () => {
-      // Try native fullscreen API first (works on Android/Desktop)
+      // Always add fullscreen mode (hides UI, maximizes game)
+      document.body.classList.add('fullscreen-mode');
+
+      // Also try native fullscreen API (works on Android/Desktop, not iOS)
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
         elem.requestFullscreen();
-        document.body.classList.add('fullscreen-mode');
       } else if (elem.webkitRequestFullscreen) {
         elem.webkitRequestFullscreen();
-        document.body.classList.add('fullscreen-mode');
-      } else {
-        // iOS: Show instruction to add to home screen
-        alert('To play fullscreen on iPhone:\\n\\n1. Tap the Share button (square with arrow)\\n2. Tap "Add to Home Screen"\\n3. Open the app from your home screen\\n\\nThis will run the game without browser bars!');
       }
     });
 
