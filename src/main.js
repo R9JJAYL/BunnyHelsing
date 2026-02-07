@@ -545,7 +545,6 @@ class GameScene extends Phaser.Scene {
   create() {
     // Show UI elements when game starts
     document.getElementById('sidebar')?.classList.add('visible');
-    document.getElementById('bottom-bar')?.classList.add('visible');
 
     // Setup nav button handlers
     this.setupNavButtons();
@@ -1743,7 +1742,6 @@ class GameScene extends Phaser.Scene {
       homeBtn.onclick = () => {
         // Hide UI elements
         document.getElementById('sidebar')?.classList.remove('visible');
-        document.getElementById('bottom-bar')?.classList.remove('visible');
         // Reset game state
         this.level = 1;
         this.score = 0;
@@ -2268,28 +2266,25 @@ class GameScene extends Phaser.Scene {
         // First, select ammo 2
         this.tutorialContainer.setPosition(600, 200);
         this.tutorialText.setText('Select 2 ricochets');
-        this.tutorialSubtext.setText('Tap the "2" button below\n2 ammo = 2 wall bounces!');
+        this.tutorialSubtext.setText('Tap AMMO in the sidebar\nthen select 2 for 2 bounces!');
 
-        // Show Phaser arrow pointing down at ammo bar (higher up so it's visible above HTML overlay)
-        this.tutorialArrow.setVisible(true);
-        this.tutorialArrow.setText('👇');
-        this.tutorialArrow.setPosition(600, 480);
-        this.tutorialArrow.setDepth(200);
-        this.tweens.add({
-          targets: this.tutorialArrow,
-          y: 510,
-          duration: 500,
-          yoyo: true,
-          repeat: -1
-        });
+        // Hide arrow, use flash effect on ammo section instead
+        this.tutorialArrow.setVisible(false);
+
+        // Expand and flash the ammo section
+        const ammoSection = document.getElementById('ammo-section');
+        const ammoButtons = document.getElementById('ammo-buttons');
+        if (ammoSection) ammoSection.classList.add('flashing');
+        if (ammoButtons) ammoButtons.classList.add('expanded');
 
         // Only accept 2
         this.tutorialWaitingForAmmo = 2;
         break;
 
       case 2:
-        // Stop the bouncing arrow animation from step 1
-        this.tweens.killTweensOf(this.tutorialArrow);
+        // Stop the flashing from step 1
+        const ammoSectionStep2 = document.getElementById('ammo-section');
+        if (ammoSectionStep2) ammoSectionStep2.classList.remove('flashing');
 
         // Now shoot the wall
         this.tutorialContainer.setPosition(600, 150);
@@ -2424,6 +2419,12 @@ class GameScene extends Phaser.Scene {
         btn.classList.add('used');
       }
     });
+
+    // Update summary display (remaining/ricochet)
+    const remainingEl = document.getElementById('ammo-remaining');
+    const ricochetEl = document.getElementById('ammo-ricochet');
+    if (remainingEl) remainingEl.textContent = this.ammoRemaining;
+    if (ricochetEl) ricochetEl.textContent = this.selectedAmmo;
   }
 
   setupInput() {
@@ -3519,9 +3520,6 @@ class GameScene extends Phaser.Scene {
       });
     });
 
-    // Hide the HTML bottom bar buttons since we have in-game ones now
-    const bottomBar = document.getElementById('bottom-bar');
-    if (bottomBar) bottomBar.classList.remove('visible');
   }
 
 

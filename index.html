@@ -49,6 +49,9 @@
       border-radius: 8px;
       padding: 8px;
     }
+    .sidebar.visible {
+      display: flex;
+    }
     .sidebar-header {
       display: flex;
       align-items: center;
@@ -70,6 +73,76 @@
       font-size: 0.75rem;
       text-shadow: 0 2px 4px rgba(0,0,0,0.8);
     }
+
+    /* Ammo section - collapsible */
+    .ammo-section {
+      width: 100%;
+    }
+    .ammo-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 6px 10px;
+      background: #2A2520;
+      border: 1px solid #5C4A3D;
+      border-radius: 6px;
+      color: #C9A86C;
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 0.55rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ammo-toggle:hover, .ammo-toggle:active {
+      background: #3A3530;
+      border-color: #8B7355;
+    }
+    .ammo-summary {
+      color: #FFD700;
+      font-size: 0.7rem;
+    }
+    .ammo-buttons {
+      display: none;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding-top: 6px;
+      justify-content: center;
+    }
+    .ammo-buttons.expanded {
+      display: flex;
+    }
+    .ammo-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid #8B7355;
+      background: #2A2520;
+      color: #C9A86C;
+      font-size: 0.75rem;
+      font-family: 'Cinzel', serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ammo-btn.selected {
+      background: #FFD700;
+      color: #2A2520;
+      border-color: #FFD700;
+    }
+    .ammo-btn.used {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* Flash animation for tutorial */
+    @keyframes ammo-flash {
+      0%, 100% { border-color: #5C4A3D; }
+      50% { border-color: #FFD700; box-shadow: 0 0 10px #FFD700; }
+    }
+    .ammo-section.flashing .ammo-toggle {
+      animation: ammo-flash 0.8s ease-in-out infinite;
+    }
+
+    /* Menu toggle */
     .menu-toggle {
       display: flex;
       align-items: center;
@@ -137,65 +210,6 @@
       fill: currentColor;
     }
 
-    /* Bottom bar - ammo panel, hidden by default */
-    .bottom-bar {
-      position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: none;
-      align-items: center;
-      z-index: 100;
-    }
-
-    /* Show sidebar and bottom bar when game is active */
-    .sidebar.visible {
-      display: flex;
-    }
-    .bottom-bar.visible {
-      display: flex;
-    }
-    .ammo-panel {
-      padding: 8px 15px;
-      background: rgba(42, 37, 32, 0.95);
-      border: 1px solid #5C4A3D;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .ammo-panel .ammo-label {
-      color: #888;
-      font-size: 0.6rem;
-      letter-spacing: 0.1em;
-    }
-    .ammo-panel .ammo-buttons {
-      display: flex;
-      flex-direction: row;
-      gap: 5px;
-    }
-    .ammo-btn {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      border: 2px solid #8B7355;
-      background: #2A2520;
-      color: #C9A86C;
-      font-size: 0.75rem;
-      font-family: 'Cinzel', serif;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .ammo-btn.selected {
-      background: #FFD700;
-      color: #2A2520;
-      border-color: #FFD700;
-    }
-    .ammo-btn.used {
-      opacity: 0.3;
-      cursor: not-allowed;
-    }
-
     /* Portrait orientation - show rotate message */
     .rotate-message {
       display: none;
@@ -230,7 +244,7 @@
       .rotate-message {
         display: flex;
       }
-      #game-container, .sidebar, .bottom-bar {
+      #game-container, .sidebar {
         display: none;
       }
     }
@@ -255,6 +269,20 @@
         <div class="score-text" id="score-display">Score: 0</div>
       </div>
     </div>
+
+    <!-- Collapsible ammo section -->
+    <div class="ammo-section" id="ammo-section">
+      <button class="ammo-toggle" id="ammo-toggle">
+        <span class="ammo-summary">
+          <span id="ammo-remaining">5</span>/<span id="ammo-ricochet">1</span>⚡
+        </span>
+        AMMO ▼
+      </button>
+      <div class="ammo-buttons" id="ammo-buttons">
+        <!-- Buttons created by JS -->
+      </div>
+    </div>
+
     <button class="menu-toggle" id="menu-toggle">
       <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
       MENU
@@ -279,14 +307,6 @@
     </div>
   </div>
 
-  <!-- Bottom bar - ammo panel -->
-  <div class="bottom-bar" id="bottom-bar">
-    <div class="ammo-panel">
-      <span class="ammo-label">AMMO</span>
-      <div class="ammo-buttons" id="ammo-buttons"></div>
-    </div>
-  </div>
-
   <script type="module" src="/src/main.js"></script>
   <script>
     // Menu toggle
@@ -295,6 +315,11 @@
       const toggle = document.getElementById('menu-toggle');
       buttons.classList.toggle('expanded');
       toggle.classList.toggle('expanded');
+    });
+
+    // Ammo toggle
+    document.getElementById('ammo-toggle').addEventListener('click', () => {
+      document.getElementById('ammo-buttons').classList.toggle('expanded');
     });
 
     // Force resize when orientation changes or window resizes
