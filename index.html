@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=1400, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
@@ -306,7 +306,49 @@
       }
     });
 
-    // No JavaScript scaling needed - viewport width=1400 forces browser to zoom out
+    // Mobile scaling - scale entire UI to fit screen
+    function scaleToFit() {
+      var container = document.querySelector('.scale-container');
+      if (!container) return;
+
+      // Total content size: sidebar(100) + gap(20) + game(1200) = 1320 wide
+      // Height: game(650) + gap(10) + ammo(60) = 720
+      var contentWidth = 1320;
+      var contentHeight = 720;
+
+      var screenWidth = window.innerWidth;
+      var screenHeight = window.innerHeight;
+
+      // Calculate scale to fit both dimensions
+      var scaleX = screenWidth / contentWidth;
+      var scaleY = screenHeight / contentHeight;
+      var scale = Math.min(scaleX, scaleY);
+
+      // Don't upscale on desktop
+      if (scale >= 1) {
+        container.style.transform = '';
+        return;
+      }
+
+      // Center the scaled content
+      var scaledWidth = contentWidth * scale;
+      var scaledHeight = contentHeight * scale;
+      var offsetX = (screenWidth - scaledWidth) / 2;
+      var offsetY = (screenHeight - scaledHeight) / 2;
+
+      container.style.transform = 'translate(' + offsetX + 'px, ' + offsetY + 'px) scale(' + scale + ')';
+    }
+
+    // Run scaling on load and resize
+    window.addEventListener('load', function() {
+      setTimeout(scaleToFit, 100);
+      setTimeout(scaleToFit, 500);
+      setTimeout(scaleToFit, 1000);
+    });
+    window.addEventListener('resize', scaleToFit);
+    window.addEventListener('orientationchange', function() {
+      setTimeout(scaleToFit, 100);
+    });
   </script>
 </body>
 </html>
