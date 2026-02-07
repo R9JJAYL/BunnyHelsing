@@ -664,6 +664,7 @@ const LEVELS = [
   // Level 1: Tutorial - Simple open shot, learn the basics
   {
     ammo: 3,
+    tutorial: true, // Shows tutorial on this level
     pandas: [{ x: 900, y: 300 }],
     obstacles: [],
     movingObstacles: []
@@ -1223,8 +1224,8 @@ class GameScene extends Phaser.Scene {
     // Input handling
     this.setupInput();
 
-    // Show tutorial on level 1
-    if (this.level === 1) {
+    // Show tutorial if this level has tutorial flag
+    if (levelConfig.tutorial) {
       this.showTutorial();
     }
 
