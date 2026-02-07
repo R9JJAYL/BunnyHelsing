@@ -76,7 +76,7 @@ const LEVELS = [
   },
   // Level 3: The Maze - Complex ricochet puzzle
   {
-    ammo: 99,
+    ammo: 20,
     pandas: [
       { x: 135, y: 156 },
       { x: 1045, y: 128 },
@@ -628,7 +628,7 @@ class GameScene extends Phaser.Scene {
     // Set high ammo for practice
     this.ammoTotal = 99;
     this.ammoRemaining = 99;
-    this.selectedAmmo = 10; // 10 ricochets by default
+    this.selectedAmmo = 20; // 20 ricochets by default
 
     // Enable drag input on scene level
     this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
@@ -796,7 +796,7 @@ class GameScene extends Phaser.Scene {
       this.levelEnded = !this.practiceMode;
       this.bulletFired = false;
       this.ammoRemaining = 99;
-      this.selectedAmmo = 10;
+      this.selectedAmmo = 20;
 
       // Destroy existing bullet if any
       if (this.bullet) {
@@ -3059,7 +3059,7 @@ class GameScene extends Phaser.Scene {
       });
     }
 
-    if (this.bullet.bounceCount > this.bullet.maxBounces) {
+    if (this.bullet.bounceCount >= this.bullet.maxBounces) {
       this.destroyBullet();
     }
   }
