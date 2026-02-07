@@ -175,42 +175,94 @@ class SoundManager {
     osc.stop(now + 0.05);
   }
 
-  // Dark ambient background music
+  // Dark ambient background music with variance
   startMusic() {
     if (!this.musicEnabled || !this.audioContext) return;
     if (this.musicOscillators.length > 0) return; // Already playing
 
     const ctx = this.audioContext;
     this.musicGain = ctx.createGain();
-    this.musicGain.gain.value = 0.03; // Very quiet
+    this.musicGain.gain.value = 0.025; // Very quiet
     this.musicGain.connect(ctx.destination);
 
-    // Deep drone
-    const drone1 = ctx.createOscillator();
-    drone1.type = 'sine';
-    drone1.frequency.value = 55; // Low A
+    // Create a filter for warmth
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 400;
+    filter.connect(this.musicGain);
 
-    const drone2 = ctx.createOscillator();
-    drone2.type = 'sine';
-    drone2.frequency.value = 82.5; // E below middle C
+    // Deep bass drone with slow wobble
+    const bass = ctx.createOscillator();
+    bass.type = 'sine';
+    bass.frequency.value = 55; // Low A
 
-    // Subtle LFO for movement
-    const lfo = ctx.createOscillator();
-    lfo.type = 'sine';
-    lfo.frequency.value = 0.1;
+    const bassLfo = ctx.createOscillator();
+    bassLfo.type = 'sine';
+    bassLfo.frequency.value = 0.05; // Very slow
+    const bassLfoGain = ctx.createGain();
+    bassLfoGain.gain.value = 3;
+    bassLfo.connect(bassLfoGain).connect(bass.frequency);
 
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 5;
-    lfo.connect(lfoGain).connect(drone1.frequency);
+    // Mid tone with different wobble rate
+    const mid = ctx.createOscillator();
+    mid.type = 'triangle';
+    mid.frequency.value = 110; // A2
 
-    drone1.connect(this.musicGain);
-    drone2.connect(this.musicGain);
+    const midLfo = ctx.createOscillator();
+    midLfo.type = 'sine';
+    midLfo.frequency.value = 0.08;
+    const midLfoGain = ctx.createGain();
+    midLfoGain.gain.value = 4;
+    midLfo.connect(midLfoGain).connect(mid.frequency);
 
-    drone1.start();
-    drone2.start();
-    lfo.start();
+    // Separate gains for balance
+    const bassGain = ctx.createGain();
+    bassGain.gain.value = 0.6;
+    const midGain = ctx.createGain();
+    midGain.gain.value = 0.3;
 
-    this.musicOscillators = [drone1, drone2, lfo];
+    bass.connect(bassGain).connect(filter);
+    mid.connect(midGain).connect(filter);
+
+    // Start melodic note player for variety
+    this.playMelodyNote(ctx, filter);
+
+    bass.start();
+    bassLfo.start();
+    mid.start();
+    midLfo.start();
+
+    this.musicOscillators = [bass, bassLfo, mid, midLfo];
+    this.musicFilter = filter;
+  }
+
+  // Play occasional subtle melody notes
+  playMelodyNote(ctx, destination) {
+    if (!this.musicEnabled || !ctx) return;
+
+    // Minor key notes for dark feel (A minor pentatonic)
+    const notes = [220, 261, 293, 329, 392, 440]; // A3, C4, D4, E4, G4, A4
+    const note = notes[Math.floor(Math.random() * notes.length)];
+
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = note;
+
+    const gain = ctx.createGain();
+    const now = ctx.currentTime;
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.08, now + 0.5); // Fade in
+    gain.gain.linearRampToValueAtTime(0, now + 3); // Fade out
+
+    osc.connect(gain).connect(destination);
+    osc.start(now);
+    osc.stop(now + 3);
+
+    // Schedule next note randomly between 4-8 seconds
+    const nextDelay = 4000 + Math.random() * 4000;
+    this.melodyTimeout = setTimeout(() => {
+      this.playMelodyNote(ctx, destination);
+    }, nextDelay);
   }
 
   stopMusic() {
@@ -218,6 +270,10 @@ class SoundManager {
       try { osc.stop(); } catch(e) {}
     });
     this.musicOscillators = [];
+    if (this.melodyTimeout) {
+      clearTimeout(this.melodyTimeout);
+      this.melodyTimeout = null;
+    }
   }
 
   toggleSound() {
