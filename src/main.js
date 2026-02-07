@@ -3780,3 +3780,6 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
+
+// Expose game to window for resize handling
+window.game = game;

@@ -296,6 +296,18 @@
       buttons.classList.toggle('expanded');
       toggle.classList.toggle('expanded');
     });
+
+    // Force resize when orientation changes or window resizes
+    function handleResize() {
+      // Small delay to let the browser settle after rotation
+      setTimeout(() => {
+        if (window.game && window.game.scale) {
+          window.game.scale.refresh();
+        }
+      }, 100);
+    }
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
   </script>
 </body>
 </html>
