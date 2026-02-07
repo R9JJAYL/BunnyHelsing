@@ -191,6 +191,8 @@ const LEVELS = [
 class MainMenuScene extends Phaser.Scene {
   constructor() {
     super({ key: 'MainMenuScene' });
+    this.editMode = new URLSearchParams(window.location.search).get('edit') === 'true';
+    this.draggableElements = [];
   }
 
   preload() {
@@ -425,6 +427,71 @@ class MainMenuScene extends Phaser.Scene {
         ease: 'Back.easeOut'
       });
     });
+
+    // Edit mode setup
+    if (this.editMode) {
+      this.setupEditMode(logo, bunny, panda, playBtn);
+    }
+  }
+
+  setupEditMode(logo, bunny, panda, playBtn) {
+    // Coords display
+    this.coordsText = this.add.text(10, 10, 'EDIT MODE - Drag elements', {
+      fontSize: '14px',
+      fontFamily: 'monospace',
+      color: '#00FF00',
+      backgroundColor: '#000000'
+    }).setDepth(1000);
+
+    // Make elements draggable
+    const elements = [
+      { obj: logo, name: 'logo' },
+      { obj: bunny, name: 'bunny' },
+      { obj: panda, name: 'panda' },
+      { obj: playBtn, name: 'playBtn' }
+    ];
+
+    elements.forEach(({ obj, name }) => {
+      obj.setInteractive({ draggable: true, useHandCursor: true });
+
+      // Label for each element
+      const label = this.add.text(obj.x, obj.y - 60, name, {
+        fontSize: '12px',
+        fontFamily: 'monospace',
+        color: '#FFFF00',
+        backgroundColor: '#000000'
+      }).setOrigin(0.5).setDepth(1001);
+
+      obj.on('drag', (pointer, dragX, dragY) => {
+        obj.x = Math.round(dragX);
+        obj.y = Math.round(dragY);
+        label.setPosition(obj.x, obj.y - 60);
+        this.updateCoordsDisplay(elements);
+      });
+    });
+
+    this.updateCoordsDisplay(elements);
+
+    // Copy button
+    const copyBtn = this.add.text(10, 600, '📋 COPY COORDS', {
+      fontSize: '14px',
+      fontFamily: 'monospace',
+      color: '#000000',
+      backgroundColor: '#00FF00',
+      padding: { x: 10, y: 5 }
+    }).setDepth(1000).setInteractive({ useHandCursor: true });
+
+    copyBtn.on('pointerdown', () => {
+      const coords = elements.map(({ obj, name }) => `${name}: { x: ${Math.round(obj.x)}, y: ${Math.round(obj.y)} }`).join('\n');
+      navigator.clipboard.writeText(coords);
+      copyBtn.setText('✅ COPIED!');
+      this.time.delayedCall(1000, () => copyBtn.setText('📋 COPY COORDS'));
+    });
+  }
+
+  updateCoordsDisplay(elements) {
+    const coords = elements.map(({ obj, name }) => `${name}: (${Math.round(obj.x)}, ${Math.round(obj.y)})`).join('  |  ');
+    this.coordsText.setText(`EDIT MODE - ${coords}`);
   }
 
   createAtmosphere() {
