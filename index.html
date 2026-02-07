@@ -28,11 +28,13 @@
     #game-container {
       /* No border - bamboo frame provides the border */
     }
+    .scale-container {
+      transform-origin: 0 0;
+    }
     .game-wrapper {
       display: flex;
       align-items: flex-start;
       gap: 20px;
-      transform-origin: 0 0;
     }
     .sidebar {
       display: none;
@@ -105,7 +107,7 @@
       width: 1200px;
       margin-top: 10px;
       padding: 0 10px;
-      margin-left: 100px;
+      margin-left: 120px;
     }
     .bottom-bar.visible {
       display: flex;
@@ -211,49 +213,51 @@
   </style>
 </head>
 <body>
-  <div class="game-wrapper">
-    <div class="sidebar" id="sidebar">
-      <img src="/assets/logo.png" alt="Bunny Helsing">
-      <div class="level-score">
-        <div class="level-text" id="level-display">LEVEL 1</div>
-        <div class="score-text" id="score-display">Score: 0</div>
+  <div class="scale-container">
+    <div class="game-wrapper">
+      <div class="sidebar" id="sidebar">
+        <img src="/assets/logo.png" alt="Bunny Helsing">
+        <div class="level-score">
+          <div class="level-text" id="level-display">LEVEL 1</div>
+          <div class="score-text" id="score-display">Score: 0</div>
+        </div>
+        <div class="sidebar-buttons">
+          <button class="sidebar-btn" id="btn-home">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            HOME
+          </button>
+          <button class="sidebar-btn" id="btn-levels">
+            <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+            LEVELS
+          </button>
+          <button class="sidebar-btn" id="btn-settings">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            SETTINGS
+          </button>
+          <button class="sidebar-btn" id="btn-controls">
+            <svg viewBox="0 0 24 24"><path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/></svg>
+            CONTROLS
+          </button>
+          <button class="sidebar-btn" id="btn-skins">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9c.83 0 1.5-.67 1.5-1.5S7.83 8 7 8s-1.5.67-1.5 1.5S6.17 11 7 11zm3-4c.83 0 1.5-.67 1.5-1.5S10.83 4 10 4s-1.5.67-1.5 1.5S9.17 7 10 7zm4 0c.83 0 1.5-.67 1.5-1.5S14.83 4 14 4s-1.5.67-1.5 1.5S13.17 7 14 7zm3 4c.83 0 1.5-.67 1.5-1.5S17.83 8 17 8s-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/></svg>
+            SKINS
+          </button>
+          <button class="sidebar-btn" id="btn-fullscreen">
+            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+            FULLSCREEN
+          </button>
+        </div>
       </div>
-      <div class="sidebar-buttons">
-        <button class="sidebar-btn" id="btn-home">
-          <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-          HOME
-        </button>
-        <button class="sidebar-btn" id="btn-levels">
-          <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
-          LEVELS
-        </button>
-        <button class="sidebar-btn" id="btn-settings">
-          <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-          SETTINGS
-        </button>
-        <button class="sidebar-btn" id="btn-controls">
-          <svg viewBox="0 0 24 24"><path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/></svg>
-          CONTROLS
-        </button>
-        <button class="sidebar-btn" id="btn-skins">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9c.83 0 1.5-.67 1.5-1.5S7.83 8 7 8s-1.5.67-1.5 1.5S6.17 11 7 11zm3-4c.83 0 1.5-.67 1.5-1.5S10.83 4 10 4s-1.5.67-1.5 1.5S9.17 7 10 7zm4 0c.83 0 1.5-.67 1.5-1.5S14.83 4 14 4s-1.5.67-1.5 1.5S13.17 7 14 7zm3 4c.83 0 1.5-.67 1.5-1.5S17.83 8 17 8s-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/></svg>
-          SKINS
-        </button>
-        <button class="sidebar-btn" id="btn-fullscreen">
-          <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-          FULLSCREEN
-        </button>
-      </div>
+      <div id="game-container"></div>
     </div>
-    <div id="game-container"></div>
-  </div>
-  <div class="bottom-bar" id="bottom-bar">
-    <div class="ammo-panel">
-      <span class="ammo-label">AMMO</span>
-      <div class="ammo-buttons" id="ammo-buttons">
-        <!-- Ammo buttons will be created by JS -->
+    <div class="bottom-bar" id="bottom-bar">
+      <div class="ammo-panel">
+        <span class="ammo-label">AMMO</span>
+        <div class="ammo-buttons" id="ammo-buttons">
+          <!-- Ammo buttons will be created by JS -->
+        </div>
+        <div id="tutorial-ammo-arrow" class="tutorial-ammo-arrow">👇</div>
       </div>
-      <div id="tutorial-ammo-arrow" class="tutorial-ammo-arrow">👇</div>
     </div>
   </div>
   <button class="exit-fullscreen-btn" id="exit-fullscreen">✕ EXIT FULLSCREEN</button>
@@ -304,29 +308,21 @@
 
     // Mobile scaling - scale entire game to fit screen
     function scaleGameToFit() {
-      var wrapper = document.querySelector('.game-wrapper');
-      if (!wrapper) return;
+      var container = document.querySelector('.scale-container');
+      if (!container) return;
 
       // The game content is approximately 1320px wide (1200 game + 100 sidebar + 20 gap)
-      // and 750px tall (650 game + 100 bottom bar)
+      // and 780px tall (650 game + 130 bottom bar)
       var contentWidth = 1350;
       var contentHeight = 780;
 
       var availableWidth = window.innerWidth;
       var availableHeight = window.innerHeight;
 
-      // Only scale if screen is smaller than content
-      if (availableWidth >= contentWidth && availableHeight >= contentHeight) {
-        wrapper.style.transform = '';
-        document.body.style.justifyContent = 'center';
-        document.body.style.alignItems = 'center';
-        return;
-      }
-
-      // Calculate scale to fit while maintaining aspect ratio
+      // Always apply scaling on mobile (force it)
       var scaleX = availableWidth / contentWidth;
       var scaleY = availableHeight / contentHeight;
-      var scale = Math.min(scaleX, scaleY);
+      var scale = Math.min(scaleX, scaleY, 1); // Cap at 1 so desktop doesn't upscale
 
       // Center the content
       var scaledWidth = contentWidth * scale;
@@ -334,7 +330,7 @@
       var translateX = Math.max(0, (availableWidth - scaledWidth) / 2);
       var translateY = Math.max(0, (availableHeight - scaledHeight) / 2);
 
-      wrapper.style.transform = 'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scale + ')';
+      container.style.transform = 'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scale + ')';
       document.body.style.justifyContent = 'flex-start';
       document.body.style.alignItems = 'flex-start';
     }
