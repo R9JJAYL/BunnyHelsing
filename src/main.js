@@ -2265,8 +2265,8 @@ class GameScene extends Phaser.Scene {
       case 1:
         // First, select ammo 2
         this.tutorialContainer.setPosition(600, 200);
-        this.tutorialText.setText('Select 2 ricochets');
-        this.tutorialSubtext.setText('Tap AMMO in the sidebar\nthen select 2 for 2 bounces!');
+        this.tutorialText.setText('Select 2');
+        this.tutorialSubtext.setText('Tap AMMO in the sidebar\nso your bullet bounces twice!');
 
         // Show arrow pointing left towards sidebar
         this.tutorialArrow.setVisible(true);
@@ -2436,10 +2436,12 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    // Update summary display (remaining/ricochet)
+    // Update summary display (remaining/total and ricochet)
     const remainingEl = document.getElementById('ammo-remaining');
+    const totalEl = document.getElementById('ammo-total');
     const ricochetEl = document.getElementById('ammo-ricochet');
     if (remainingEl) remainingEl.textContent = this.ammoRemaining;
+    if (totalEl) totalEl.textContent = this.ammoTotal;
     if (ricochetEl) ricochetEl.textContent = this.selectedAmmo;
   }
 

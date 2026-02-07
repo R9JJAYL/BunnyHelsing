@@ -80,10 +80,10 @@
     }
     .ammo-toggle {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
+      align-items: flex-start;
       width: 100%;
-      padding: 6px 10px;
+      padding: 8px 12px;
       background: #2A2520;
       border: 1px solid #5C4A3D;
       border-radius: 6px;
@@ -97,9 +97,47 @@
       background: #3A3530;
       border-color: #8B7355;
     }
-    .ammo-summary {
+    .ammo-line {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+    }
+    .ammo-label {
+      color: #C9A86C;
+      font-size: 0.6rem;
+      letter-spacing: 0.05em;
+    }
+    .ammo-value {
       color: #FFD700;
       font-size: 0.7rem;
+      font-weight: bold;
+    }
+    .ricochet-line {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }
+    .ricochet-label {
+      color: #888;
+      font-size: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+    .ricochet-value {
+      color: #C9A86C;
+      font-size: 0.6rem;
+    }
+    .expand-arrow {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #888;
+      font-size: 0.5rem;
+    }
+    .ammo-toggle {
+      position: relative;
     }
     .ammo-buttons {
       display: none;
@@ -276,10 +314,15 @@
     <!-- Collapsible ammo section -->
     <div class="ammo-section" id="ammo-section">
       <button class="ammo-toggle" id="ammo-toggle">
-        <span class="ammo-summary">
-          <span id="ammo-remaining">5</span>/<span id="ammo-ricochet">1</span>⚡
-        </span>
-        AMMO ▼
+        <div class="ammo-line">
+          <span class="ammo-label">AMMO</span>
+          <span class="ammo-value"><span id="ammo-remaining">5</span>/<span id="ammo-total">5</span></span>
+        </div>
+        <div class="ricochet-line">
+          <span class="ricochet-label">Ricochets</span>
+          <span class="ricochet-value" id="ammo-ricochet">1</span>
+        </div>
+        <span class="expand-arrow">▼</span>
       </button>
       <div class="ammo-buttons" id="ammo-buttons">
         <!-- Buttons created by JS -->
