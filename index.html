@@ -183,25 +183,53 @@
       transform: scale(1.02);
     }
 
-    /* Mobile landscape - hide UI, let Phaser fill the screen */
+    /* Mobile landscape - scale down UI to fit */
     @media (max-height: 500px) {
       body {
-        padding: 0;
-      }
-      .sidebar {
-        display: none !important;
-      }
-      .bottom-bar {
-        display: none !important;
+        padding: 3px;
       }
       .game-wrapper {
-        width: 100vw;
-        height: 100vh;
-        gap: 0;
+        gap: 5px;
       }
-      #game-container {
-        width: 100vw;
-        height: 100vh;
+      .sidebar {
+        width: 50px;
+        height: auto;
+        gap: 3px;
+      }
+      .sidebar img {
+        height: 30px;
+      }
+      .level-score {
+        display: none;
+      }
+      .sidebar-buttons {
+        gap: 3px;
+      }
+      .sidebar-btn {
+        min-height: 28px;
+        padding: 3px 2px;
+        font-size: 0.35rem;
+      }
+      .sidebar-btn svg {
+        width: 10px;
+        height: 10px;
+      }
+      .bottom-bar {
+        margin-left: 55px;
+        padding: 3px;
+        margin-top: 3px;
+      }
+      .ammo-panel {
+        padding: 3px 5px;
+        gap: 3px;
+      }
+      .ammo-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 0.55rem;
+      }
+      .ammo-panel .ammo-label {
+        font-size: 0.4rem;
       }
     }
 
