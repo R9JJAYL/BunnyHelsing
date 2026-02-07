@@ -1838,8 +1838,8 @@ class GameScene extends Phaser.Scene {
 
     // Create skin option buttons
     const skinButtons = [];
-    const skinStartX = 20;
-    const skinSpacing = 70;
+    const skinStartX = 30;
+    const skinSpacing = 65;
 
     BUNNY_SKINS.forEach((skin, i) => {
       const btnX = skinStartX + i * skinSpacing;
@@ -1849,7 +1849,7 @@ class GameScene extends Phaser.Scene {
         fontSize: '14px',
         fontFamily: 'Cinzel, Georgia, serif',
         color: isSelected ? '#FFD700' : '#888888'
-      }).setOrigin(0.5);
+      }).setOrigin(0, 0.5);
 
       skinText.setInteractive({ useHandCursor: true });
       skinText.on('pointerover', () => {
