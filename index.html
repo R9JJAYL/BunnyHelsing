@@ -183,21 +183,20 @@
       transform: scale(1.02);
     }
 
-    /* Landscape mobile - just scale everything down proportionally */
+    /* Landscape mobile - use zoom to scale down */
     @media (max-height: 500px) {
       body {
-        padding: 3px;
-        transform-origin: top left;
-        transform: scale(0.7);
-        width: 142.8%;
-        height: 142.8%;
+        zoom: 0.6;
       }
     }
     @media (max-height: 400px) {
       body {
-        transform: scale(0.55);
-        width: 181.8%;
-        height: 181.8%;
+        zoom: 0.5;
+      }
+    }
+    @media (max-height: 350px) {
+      body {
+        zoom: 0.4;
       }
     }
     .exit-fullscreen-btn {
