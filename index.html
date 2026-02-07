@@ -272,14 +272,16 @@
       }
     }
 
-    /* Fullscreen mode - keep UI visible, just maximize viewport */
-    body.fullscreen-mode {
-      padding: 0 !important;
-    }
-    body.fullscreen-mode .game-wrapper {
-      width: 100vw;
-      height: 100vh;
-      height: 100dvh;
+    /* Fullscreen mode - only affects mobile, desktop uses native fullscreen */
+    @media (max-width: 900px), (max-height: 700px) {
+      body.fullscreen-mode {
+        padding: 0 !important;
+      }
+      body.fullscreen-mode .game-wrapper {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+      }
     }
     .exit-fullscreen-btn {
       position: fixed;
@@ -388,6 +390,12 @@
     // Sync with native fullscreen exit
     document.addEventListener('fullscreenchange', () => {
       if (!document.fullscreenElement) {
+        document.body.classList.remove('fullscreen-mode');
+      }
+    });
+    // Also listen for webkit (Safari)
+    document.addEventListener('webkitfullscreenchange', () => {
+      if (!document.webkitFullscreenElement) {
         document.body.classList.remove('fullscreen-mode');
       }
     });
