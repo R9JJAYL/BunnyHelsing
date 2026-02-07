@@ -2,7 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=1500, initial-scale=0.3, minimum-scale=0.3, maximum-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    // Dynamically set viewport for mobile landscape
+    (function() {
+      var desiredWidth = 1400;
+      var screenWidth = window.screen.width;
+      var screenHeight = window.screen.height;
+      // Use the larger dimension (landscape width)
+      var actualWidth = Math.max(screenWidth, screenHeight);
+      if (actualWidth < desiredWidth) {
+        var scale = actualWidth / desiredWidth;
+        document.querySelector('meta[name="viewport"]').setAttribute('content',
+          'width=' + desiredWidth + ', initial-scale=' + scale + ', minimum-scale=' + scale + ', maximum-scale=' + scale + ', user-scalable=no');
+      }
+    })();
+  </script>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
