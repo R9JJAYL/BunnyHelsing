@@ -3067,7 +3067,7 @@ class GameScene extends Phaser.Scene {
       });
     }
 
-    if (this.bullet.bounceCount >= this.bullet.maxBounces) {
+    if (this.bullet.bounceCount > this.bullet.maxBounces) {
       this.destroyBullet();
     }
   }
