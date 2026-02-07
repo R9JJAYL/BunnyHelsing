@@ -3475,9 +3475,13 @@ class GameScene extends Phaser.Scene {
       nextBg.setFillStyle(0x2A2520);
       nextBg.setStrokeStyle(2, 0xC9A86C);
     });
-    nextBg.on('pointerdown', () => {
-      const nextLevel = Math.min(this.level + 1, LEVELS.length);
-      this.scene.restart({ level: nextLevel });
+    nextBg.on('pointerup', (pointer, localX, localY, event) => {
+      event.stopPropagation();
+      // Small delay to prevent click from triggering shot on next level
+      this.time.delayedCall(50, () => {
+        const nextLevel = Math.min(this.level + 1, LEVELS.length);
+        this.scene.restart({ level: nextLevel });
+      });
     });
 
     // Replay button
@@ -3500,8 +3504,12 @@ class GameScene extends Phaser.Scene {
       replayBg.setFillStyle(0x2A2520);
       replayBg.setStrokeStyle(2, 0x5C4A3D);
     });
-    replayBg.on('pointerdown', () => {
-      this.scene.restart({ level: this.level });
+    replayBg.on('pointerup', (pointer, localX, localY, event) => {
+      event.stopPropagation();
+      // Small delay to prevent click from triggering shot on restart
+      this.time.delayedCall(50, () => {
+        this.scene.restart({ level: this.level });
+      });
     });
 
     // Hide the HTML bottom bar buttons since we have in-game ones now
