@@ -352,13 +352,20 @@
   <script>
     // Fullscreen toggle
     document.getElementById('btn-fullscreen').addEventListener('click', () => {
-      document.body.classList.add('fullscreen-mode');
       // Try native fullscreen API
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      } else if (document.documentElement.webkitRequestFullscreen) {
-        document.documentElement.webkitRequestFullscreen();
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.webkitEnterFullscreen) {
+        // iOS video element fallback (won't work for page)
+        elem.webkitEnterFullscreen();
+      } else {
+        // iOS doesn't support fullscreen API - show message
+        alert('For fullscreen on iOS: tap Share → Add to Home Screen. This will launch the game without browser bars.');
       }
+      document.body.classList.add('fullscreen-mode');
     });
 
     document.getElementById('exit-fullscreen').addEventListener('click', () => {
