@@ -267,30 +267,9 @@
       }
     }
 
-    /* Fullscreen mode */
+    /* Fullscreen mode - keep all game UI, just use full viewport */
     body.fullscreen-mode {
-      padding: 0 !important;
-    }
-    body.fullscreen-mode .sidebar {
-      display: none !important;
-    }
-    /* Keep ammo bar visible in fullscreen */
-    body.fullscreen-mode .bottom-bar {
-      position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9998;
-      margin: 0;
-      width: auto;
-    }
-    body.fullscreen-mode .game-wrapper {
-      width: 100vw;
-      height: 100vh;
-    }
-    body.fullscreen-mode #game-container {
-      width: 100vw;
-      height: 100vh;
+      padding: 5px !important;
     }
     .exit-fullscreen-btn {
       position: fixed;
