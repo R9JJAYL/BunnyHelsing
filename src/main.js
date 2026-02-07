@@ -1793,44 +1793,72 @@ class GameScene extends Phaser.Scene {
     this.settingsOverlay.setDepth(2000);
 
     // Dark background
-    const bg = this.add.rectangle(0, 0, 400, 300, 0x000000, 0.9);
+    const bg = this.add.rectangle(0, 0, 400, 320, 0x000000, 0.9);
     bg.setStrokeStyle(2, 0xC9A86C);
 
     // Title
-    const title = this.add.text(0, -120, 'SETTINGS', {
+    const title = this.add.text(0, -130, 'SETTINGS', {
       fontSize: '24px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#FFD700'
     }).setOrigin(0.5);
 
     // Sound toggle (placeholder)
-    const soundLabel = this.add.text(-80, -40, 'Sound:', {
+    const soundLabel = this.add.text(-80, -60, 'Sound:', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#CCCCCC'
     }).setOrigin(0, 0.5);
 
-    const soundStatus = this.add.text(80, -40, 'ON', {
+    const soundStatus = this.add.text(80, -60, 'ON', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#88CC88'
     }).setOrigin(0.5);
 
     // Music toggle (placeholder)
-    const musicLabel = this.add.text(-80, 10, 'Music:', {
+    const musicLabel = this.add.text(-80, -10, 'Music:', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#CCCCCC'
     }).setOrigin(0, 0.5);
 
-    const musicStatus = this.add.text(80, 10, 'ON', {
+    const musicStatus = this.add.text(80, -10, 'ON', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#88CC88'
     }).setOrigin(0.5);
 
+    // Skins button
+    const skinsBtn = this.add.container(0, 50);
+    const skinsBg = this.add.rectangle(0, 0, 150, 40, 0x2A2520);
+    skinsBg.setStrokeStyle(2, 0x8B7355);
+    const skinsText = this.add.text(0, 0, 'SKINS', {
+      fontSize: '16px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#C9A86C'
+    }).setOrigin(0.5);
+    skinsBtn.add([skinsBg, skinsText]);
+
+    skinsBg.setInteractive({ useHandCursor: true });
+    skinsBg.on('pointerover', () => {
+      skinsBg.setFillStyle(0x3A3530);
+      skinsText.setColor('#FFD700');
+    });
+    skinsBg.on('pointerout', () => {
+      skinsBg.setFillStyle(0x2A2520);
+      skinsText.setColor('#C9A86C');
+    });
+    skinsBg.on('pointerdown', () => {
+      this.settingsOverlay.destroy();
+      this.settingsOverlay = null;
+      this.time.delayedCall(50, () => {
+        this.showSkinsModal();
+      });
+    });
+
     // Close button
-    const closeBtn = this.add.container(0, 100);
+    const closeBtn = this.add.container(0, 110);
     const closeBg = this.add.rectangle(0, 0, 120, 40, 0x2A2520);
     closeBg.setStrokeStyle(2, 0x8B7355);
     const closeText = this.add.text(0, 0, 'CLOSE', {
@@ -1857,7 +1885,7 @@ class GameScene extends Phaser.Scene {
       });
     });
 
-    this.settingsOverlay.add([bg, title, soundLabel, soundStatus, musicLabel, musicStatus, closeBtn]);
+    this.settingsOverlay.add([bg, title, soundLabel, soundStatus, musicLabel, musicStatus, skinsBtn, closeBtn]);
   }
 
   showControlsModal() {
