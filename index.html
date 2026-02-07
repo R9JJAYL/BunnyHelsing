@@ -40,35 +40,55 @@
       display: none;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       z-index: 100;
       background: rgba(42, 37, 32, 0.95);
       border: 1px solid #5C4A3D;
       border-radius: 8px;
-      padding: 10px;
+      padding: 8px;
     }
-    .sidebar img {
-      height: 50px;
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .sidebar-header img {
+      height: 35px;
     }
     .level-score {
-      text-align: center;
-      margin-bottom: 5px;
+      text-align: left;
     }
     .level-text {
       color: #888;
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       letter-spacing: 0.1em;
     }
     .score-text {
       color: #FFD700;
-      font-size: 0.9rem;
+      font-size: 0.75rem;
       text-shadow: 0 2px 4px rgba(0,0,0,0.8);
     }
+    .sidebar-toggle {
+      background: none;
+      border: none;
+      color: #C9A86C;
+      font-size: 0.8rem;
+      cursor: pointer;
+      padding: 2px;
+      transition: transform 0.2s;
+    }
+    .sidebar-toggle.expanded {
+      transform: rotate(180deg);
+    }
     .sidebar-buttons {
-      display: flex;
+      display: none;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       width: 100%;
+    }
+    .sidebar-buttons.expanded {
+      display: flex;
     }
     .sidebar-btn {
       display: flex;
@@ -76,8 +96,8 @@
       align-items: center;
       justify-content: center;
       gap: 2px;
-      padding: 8px 6px;
-      min-height: 45px;
+      padding: 6px 8px;
+      min-height: 40px;
       background: #2A2520;
       border: 1px solid #5C4A3D;
       border-radius: 6px;
@@ -93,8 +113,8 @@
       color: #FFD700;
     }
     .sidebar-btn svg {
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       fill: currentColor;
     }
 
@@ -209,12 +229,15 @@
 
   <!-- Sidebar - overlays on left -->
   <div class="sidebar" id="sidebar">
-    <img src="/assets/logo.png" alt="Bunny Helsing">
-    <div class="level-score">
-      <div class="level-text" id="level-display">LEVEL 1</div>
-      <div class="score-text" id="score-display">Score: 0</div>
+    <div class="sidebar-header" id="sidebar-header">
+      <img src="/assets/logo.png" alt="Bunny Helsing">
+      <div class="level-score">
+        <div class="level-text" id="level-display">LEVEL 1</div>
+        <div class="score-text" id="score-display">Score: 0</div>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle">▼</button>
     </div>
-    <div class="sidebar-buttons">
+    <div class="sidebar-buttons" id="sidebar-buttons">
       <button class="sidebar-btn" id="btn-home">
         <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
         HOME
@@ -243,5 +266,14 @@
   </div>
 
   <script type="module" src="/src/main.js"></script>
+  <script>
+    // Sidebar toggle
+    document.getElementById('sidebar-header').addEventListener('click', () => {
+      const buttons = document.getElementById('sidebar-buttons');
+      const toggle = document.getElementById('sidebar-toggle');
+      buttons.classList.toggle('expanded');
+      toggle.classList.toggle('expanded');
+    });
+  </script>
 </body>
 </html>
