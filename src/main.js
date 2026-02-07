@@ -76,11 +76,11 @@ const LEVELS = [
   },
   // Level 3: The Maze - Complex ricochet puzzle
   {
-    ammo: 8,
+    ammo: 99,
     pandas: [
-      { x: 135, y: 171 },
+      { x: 135, y: 164 },
       { x: 1045, y: 135 },
-      { x: 804, y: 337 },
+      { x: 804, y: 336 },
       { x: 1081, y: 518 }
     ],
     obstacles: [
@@ -863,12 +863,10 @@ class GameScene extends Phaser.Scene {
   }
 
   updateBambooVisual(bamboo, data) {
-    // Use setDisplaySize like the frame bamboo does
+    // Fixed thickness matching the frame bamboo (like createObstacles)
+    const BAMBOO_THICKNESS = 20;
     const length = Math.max(data.w, data.h);
-    const thickness = Math.min(data.w, data.h);
-
-    // Set display size (length x thickness)
-    bamboo.setDisplaySize(length, thickness);
+    bamboo.setDisplaySize(length, BAMBOO_THICKNESS);
 
     // Update rotation
     const baseAngle = data.h > data.w ? 90 : 0;
@@ -1183,26 +1181,24 @@ class GameScene extends Phaser.Scene {
   }
 
   createObstacles(obstacles) {
+    // Fixed thickness matching the frame bamboo
+    const BAMBOO_THICKNESS = 20;
+
     obstacles.forEach((obs, index) => {
       const angle = obs.angle || 0;
       const angleRad = Phaser.Math.DegToRad(angle);
       const length = Math.max(obs.w, obs.h);
 
-      // Bamboo image is 3390x70 (tightly cropped, no transparent padding)
-      const BAMBOO_WIDTH = 3390;
-      const BAMBOO_HEIGHT = 70;
-
-      // Draw bamboo obstacle - scale uniformly based on desired length
+      // Draw bamboo obstacle - use setDisplaySize for fixed thickness (like frame)
       const bamboo = this.add.image(obs.x, obs.y, 'bamboo');
-      const scale = length / BAMBOO_WIDTH;
-      // Visual thickness = 70 * scale (e.g., 350px bamboo = 70 * 0.103 = ~7px thick)
-      const visualThickness = BAMBOO_HEIGHT * scale;
-      bamboo.setScale(scale);
+      bamboo.setDisplaySize(length, BAMBOO_THICKNESS);
       // Rotate: if vertical (h > w), rotate 90. Then add any angle offset.
       const baseAngle = obs.h > obs.w ? 90 : 0;
       bamboo.setAngle(baseAngle + angle);
       // Store reference to prevent any issues
       this.obstacleImages.push(bamboo);
+
+      const visualThickness = BAMBOO_THICKNESS;
 
       // Store for edit mode
       if (this.editMode) {
