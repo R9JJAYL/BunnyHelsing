@@ -3656,13 +3656,13 @@ class GameScene extends Phaser.Scene {
 
 const config = {
   type: Phaser.AUTO,
-  width: 1200,
-  height: 650,
   parent: 'game-container',
   backgroundColor: 0x1A1A1F,
   scale: {
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: 1200,
+    height: 650
   },
   physics: {
     default: 'arcade',

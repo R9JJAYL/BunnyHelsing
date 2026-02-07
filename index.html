@@ -181,14 +181,22 @@
 
     /* Mobile responsive styles */
     @media (max-width: 768px) {
+      html, body {
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+      }
       body {
         justify-content: flex-start;
-        padding-top: 10px;
+        padding: 5px;
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
       }
       .game-wrapper {
         flex-direction: column;
-        gap: 10px;
+        gap: 5px;
         width: 100%;
+        max-width: 100vw;
         align-items: center;
       }
       .sidebar {
@@ -197,33 +205,61 @@
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 8px;
-        padding: 10px;
+        gap: 5px;
+        padding: 5px;
+        order: -1; /* Move sidebar above game on mobile */
       }
       .sidebar-btn {
-        min-height: 48px;
-        min-width: 48px;
-        padding: 8px 12px;
-        font-size: 0.8rem;
+        min-height: 44px;
+        min-width: 44px;
+        padding: 6px 10px;
+        font-size: 0.7rem;
       }
       .bottom-bar {
         width: 100%;
         margin-left: 0;
-        padding: 10px;
+        padding: 5px;
         justify-content: center;
       }
       .ammo-btn {
-        width: 44px;
-        height: 44px;
+        width: 40px;
+        height: 40px;
         font-size: 1rem;
       }
       #game-container {
         width: 100%;
         max-width: 100vw;
+        overflow: hidden;
       }
       #game-container canvas {
-        width: 100% !important;
+        max-width: 100% !important;
         height: auto !important;
+        display: block;
+      }
+      .level-score {
+        margin-bottom: 5px;
+      }
+      .sidebar img {
+        height: 50px;
+      }
+    }
+
+    /* Extra small screens */
+    @media (max-width: 480px) {
+      .sidebar-btn {
+        min-height: 40px;
+        min-width: 40px;
+        padding: 4px 8px;
+        font-size: 0.6rem;
+      }
+      .sidebar-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+      .ammo-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
       }
     }
 
