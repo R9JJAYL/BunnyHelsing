@@ -340,13 +340,24 @@
     }
 
     // Run on load and resize
-    window.addEventListener('load', scaleGameToFit);
+    window.addEventListener('load', function() {
+      scaleGameToFit();
+      // Run again after Phaser initializes
+      setTimeout(scaleGameToFit, 500);
+      setTimeout(scaleGameToFit, 1000);
+      setTimeout(scaleGameToFit, 2000);
+    });
     window.addEventListener('resize', scaleGameToFit);
     window.addEventListener('orientationchange', function() {
       setTimeout(scaleGameToFit, 100);
+      setTimeout(scaleGameToFit, 500);
     });
-    // Also run immediately
-    scaleGameToFit();
+    // Run after DOM is ready
+    if (document.readyState === 'complete') {
+      scaleGameToFit();
+    } else {
+      document.addEventListener('DOMContentLoaded', scaleGameToFit);
+    }
   </script>
 </body>
 </html>
