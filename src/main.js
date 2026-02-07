@@ -123,62 +123,26 @@ const LEVELS = [
       { x: 600, y: 150, w: 200, h: 16, moveX: 60, moveY: 0, speed: 0.6 },
     ]
   },
-  // Level 7: The Maze - Complex ricochet puzzle (from design doc)
-  // Game area: 1200x650, playable area ~1160x610 (20px bamboo border)
-  // Grid reference: ~24 cols x 12 rows, each cell ~48x50px
+  // Level 7: The Maze - Complex ricochet puzzle
   {
     ammo: 8,
     pandas: [
-      // Panda 1: Behind left vertical bar - moved left to avoid top-left bamboo (x=400)
-      // Panda hitbox ~45px radius, need 60px+ clearance
-      { x: 320, y: 180 },
-      // Panda 2: Top right area - clear of right upper bamboo (x=920)
-      { x: 1050, y: 150 },
-      // Panda 3: Center - moved up to avoid lower-center horizontal (y=430)
-      { x: 640, y: 340 },
-      // Panda 4: Bottom right - clear of obstacles
-      { x: 1050, y: 530 }
+      { x: 216, y: 179 },
+      { x: 1045, y: 147 },
+      { x: 809, y: 340 },
+      { x: 1081, y: 524 }
     ],
     obstacles: [
-      // 1. Left vertical bamboo - connects to left wall, ~col 5, rows 3-9
-      // Position: x=240, y=325 (center), height ~300px
-      { x: 240, y: 325, w: 20, h: 300 },
-
-      // 2. Top-left vertical bamboo - ~col 8, rows 1-4
-      // Position: x=385, y=130, height ~180px
-      { x: 400, y: 140, w: 20, h: 200 },
-
-      // 3. Top-center vertical bamboo - ~col 12, rows 1-4
-      // Position: x=575, y=130, height ~180px
-      { x: 590, y: 140, w: 20, h: 200 },
-
-      // 4. Center-right vertical bamboo - ~col 15, rows 3-7
-      // Position: x=720, y=260, height ~200px
+      { x: 162, y: 328, w: 20, h: 300, angle: 90 },
+      { x: 383, y: 227, w: 20, h: 200 },
+      { x: 641, y: 242, w: 20, h: 200 },
       { x: 740, y: 280, w: 20, h: 220 },
-
-      // 5. Middle-left horizontal bamboo - ~cols 5-8, row 6
-      // Position: x=290, y=325, width ~150px (connects to left vertical)
       { x: 310, y: 325, w: 150, h: 20 },
-
-      // 6. Center vertical bamboo (small) - ~col 11, rows 7-9
-      // Position: x=530, y=420, height ~140px
-      { x: 545, y: 430, w: 20, h: 160 },
-
-      // 7. Lower-center horizontal bamboo - ~cols 10-14, row 8
-      // Position: x=575, y=420, width ~200px
-      { x: 590, y: 430, w: 180, h: 20 },
-
-      // 8. Bottom horizontal bamboo - ~cols 12-16, row 11
-      // Position: x=670, y=560, width ~200px
-      { x: 680, y: 570, w: 200, h: 20 },
-
-      // 9. Right upper vertical bamboo - ~col 19, rows 2-5
-      // Position: x=910, y=180, height ~180px
-      { x: 920, y: 190, w: 20, h: 200 },
-
-      // 10. Right lower vertical bamboo - ~col 19, rows 9-12
-      // Position: x=910, y=500, height ~180px
-      { x: 920, y: 510, w: 20, h: 200 },
+      { x: 419, y: 454, w: 105, h: 90 },
+      { x: 467, y: 505, w: 100, h: 20 },
+      { x: 691, y: 530, w: 200, h: 20, angle: 90 },
+      { x: 907, y: 115, w: 20, h: 200 },
+      { x: 1091, y: 320, w: 20, h: 200, angle: 90 }
     ],
     movingObstacles: []
   },
@@ -556,6 +520,7 @@ class MainMenuScene extends Phaser.Scene {
 class GameScene extends Phaser.Scene {
   constructor() {
     super({ key: 'GameScene' });
+    this.editMode = new URLSearchParams(window.location.search).get('edit') === 'true';
     this.bullet = null;
     this.bunny = null;
     this.pandas = [];
@@ -563,6 +528,7 @@ class GameScene extends Phaser.Scene {
     this.movingWalls = [];
     this.obstacleImages = []; // Store bamboo obstacle images
     this.chandeliers = []; // Store chandelier objects
+    this.editableObstacles = []; // For edit mode
     this.aimLine = null;
     this.trajectoryDots = [];
     this.bulletFired = false;
@@ -605,6 +571,7 @@ class GameScene extends Phaser.Scene {
     this.chandeliers = [];
     this.tutorialActive = false;
     this.tutorialBlockShoot = false;
+    this.editableObstacles = [];
 
     if (data.level) {
       this.level = data.level;
@@ -623,6 +590,7 @@ class GameScene extends Phaser.Scene {
     this.load.image('panda-beetlejuice', '/assets/panda-beetlejuice.png');
     this.load.image('logo', '/assets/logo.png');
     this.load.image('bamboo', '/assets/bamboo.png');
+    this.load.image('test-backdrop', '/assets/test-backdrop.png');
   }
 
   create() {
@@ -647,8 +615,15 @@ class GameScene extends Phaser.Scene {
     // Set background - use level-specific or default to black
     this.cameras.main.setBackgroundColor(0x000000);
 
-    // Create starry sky background
-    this.createStarryBackground();
+    // Create starry sky background or use level backdrop
+    if (levelConfig.backdrop) {
+      const backdrop = this.add.image(600, 325, levelConfig.backdrop);
+      backdrop.setDisplaySize(1200, 650);
+      backdrop.setDepth(-10);
+      backdrop.setAlpha(0.5); // Semi-transparent so you can see elements
+    } else {
+      this.createStarryBackground();
+    }
 
     // Create bamboo border walls
     this.createBambooWalls();
@@ -689,6 +664,346 @@ class GameScene extends Phaser.Scene {
     // Create aim line graphics (always visible)
     this.aimLine = this.add.graphics();
     this.trajectoryDots = [];
+
+    // Setup level editor if in edit mode
+    if (this.editMode) {
+      this.setupLevelEditor();
+    }
+  }
+
+  setupLevelEditor() {
+    // Disable shooting in edit mode
+    this.levelEnded = true;
+
+    // Enable drag input on scene level
+    this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+      gameObject.x = Math.round(dragX);
+      gameObject.y = Math.round(dragY);
+      // Move associated bamboo if dragging a handle
+      if (gameObject.linkedBamboo) {
+        gameObject.linkedBamboo.x = gameObject.x;
+        gameObject.linkedBamboo.y = gameObject.y;
+      }
+      if (gameObject.label) {
+        gameObject.label.setPosition(gameObject.x, gameObject.y - 40);
+        gameObject.label.setText(`${gameObject.editName}\n(${Math.round(gameObject.x)}, ${Math.round(gameObject.y)})`);
+      }
+      this.updateLevelEditorDisplay();
+    });
+
+    // Coords display
+    this.editorText = this.add.text(120, 10, 'EDITOR: Drag=move | ↑↓=length | ←→=rotate | F/T=fat/thin | N=new | Del=remove', {
+      fontSize: '11px',
+      fontFamily: 'monospace',
+      color: '#00FF00',
+      backgroundColor: '#000000'
+    }).setDepth(1000);
+
+    this.selectedObstacle = null;
+
+    // Make obstacles draggable using visible handles
+    this.editableObstacles.forEach((obsData, i) => {
+      const bamboo = obsData.image;
+      bamboo.editName = `bamboo${i + 1}`;
+      bamboo.editData = obsData;
+
+      // Create a visible draggable handle (circle) at bamboo position
+      const handle = this.add.circle(bamboo.x, bamboo.y, 15, 0xffff00, 0.8);
+      handle.setStrokeStyle(2, 0x000000);
+      handle.setDepth(1002);
+      handle.setInteractive({ draggable: true, useHandCursor: true });
+      handle.editName = `bamboo${i + 1}`;
+      handle.editData = obsData;
+      handle.linkedBamboo = bamboo;
+
+      // Label
+      const label = this.add.text(bamboo.x, bamboo.y - 40, `bamboo${i + 1}\n(${Math.round(bamboo.x)}, ${Math.round(bamboo.y)})`, {
+        fontSize: '10px',
+        fontFamily: 'monospace',
+        color: '#FFFF00',
+        backgroundColor: '#000000',
+        align: 'center'
+      }).setOrigin(0.5).setDepth(1001);
+      handle.label = label;
+
+      // Click to select for resizing
+      handle.on('pointerdown', () => {
+        if (this.selectedObstacle && this.selectedObstacle.handle) {
+          this.selectedObstacle.handle.setFillStyle(0xffff00, 0.8);
+        }
+        this.selectedObstacle = { bamboo, handle, data: obsData };
+        handle.setFillStyle(0x00ff00, 1);
+      });
+    });
+
+    // Make pandas draggable
+    this.pandas.forEach((panda, i) => {
+      // Create handle for panda
+      const handle = this.add.circle(panda.x, panda.y, 15, 0xff00ff, 0.8);
+      handle.setStrokeStyle(2, 0x000000);
+      handle.setDepth(1002);
+      handle.setInteractive({ draggable: true, useHandCursor: true });
+      handle.editName = `panda${i + 1}`;
+      handle.linkedPanda = panda;
+
+      const label = this.add.text(panda.x, panda.y - 50, `panda${i + 1}\n(${Math.round(panda.x)}, ${Math.round(panda.y)})`, {
+        fontSize: '10px',
+        fontFamily: 'monospace',
+        color: '#FF00FF',
+        backgroundColor: '#000000',
+        align: 'center'
+      }).setOrigin(0.5).setDepth(1001);
+      handle.label = label;
+
+      // Update drag to move panda too
+      handle.on('drag', (pointer, dragX, dragY) => {
+        panda.x = Math.round(dragX);
+        panda.y = Math.round(dragY);
+      });
+    });
+
+    // Arrow keys for selected obstacle
+    // UP/DOWN = make longer/shorter
+    // LEFT/RIGHT = rotate
+    this.input.keyboard.on('keydown-UP', () => {
+      if (this.selectedObstacle && this.selectedObstacle.data) {
+        const data = this.selectedObstacle.data;
+        // Make longer
+        if (data.h > data.w) {
+          data.h = data.h + 10;
+        } else {
+          data.w = data.w + 10;
+        }
+        // Update bamboo scale
+        const length = Math.max(data.w, data.h);
+        const scale = length / 3390;
+        this.selectedObstacle.bamboo.setScale(scale);
+        this.updateLevelEditorDisplay();
+      }
+    });
+
+    this.input.keyboard.on('keydown-DOWN', () => {
+      if (this.selectedObstacle && this.selectedObstacle.data) {
+        const data = this.selectedObstacle.data;
+        // Make shorter
+        if (data.h > data.w) {
+          data.h = Math.max(50, data.h - 10);
+        } else {
+          data.w = Math.max(50, data.w - 10);
+        }
+        // Update bamboo scale
+        const length = Math.max(data.w, data.h);
+        const scale = length / 3390;
+        this.selectedObstacle.bamboo.setScale(scale);
+        this.updateLevelEditorDisplay();
+      }
+    });
+
+    this.input.keyboard.on('keydown-LEFT', () => {
+      if (this.selectedObstacle && this.selectedObstacle.data) {
+        const data = this.selectedObstacle.data;
+        data.angle = (data.angle || 0) - 5;
+        // Update bamboo rotation
+        const baseAngle = data.h > data.w ? 90 : 0;
+        this.selectedObstacle.bamboo.setAngle(baseAngle + data.angle);
+        this.updateLevelEditorDisplay();
+      }
+    });
+
+    this.input.keyboard.on('keydown-RIGHT', () => {
+      if (this.selectedObstacle && this.selectedObstacle.data) {
+        const data = this.selectedObstacle.data;
+        data.angle = (data.angle || 0) + 5;
+        // Update bamboo rotation
+        const baseAngle = data.h > data.w ? 90 : 0;
+        this.selectedObstacle.bamboo.setAngle(baseAngle + data.angle);
+        this.updateLevelEditorDisplay();
+      }
+    });
+
+    // F = fatter, T = thinner (adjust thickness)
+    this.input.keyboard.on('keydown-F', () => {
+      if (this.selectedObstacle && this.selectedObstacle.data) {
+        const data = this.selectedObstacle.data;
+        // Make fatter (increase the smaller dimension)
+        if (data.h > data.w) {
+          data.w = data.w + 5;
+        } else {
+          data.h = data.h + 5;
+        }
+        this.updateLevelEditorDisplay();
+      }
+    });
+
+    this.input.keyboard.on('keydown-T', () => {
+      if (this.selectedObstacle && this.selectedObstacle.data) {
+        const data = this.selectedObstacle.data;
+        // Make thinner (decrease the smaller dimension)
+        if (data.h > data.w) {
+          data.w = Math.max(10, data.w - 5);
+        } else {
+          data.h = Math.max(10, data.h - 5);
+        }
+        this.updateLevelEditorDisplay();
+      }
+    });
+
+    // N key to spawn new bamboo at center
+    this.input.keyboard.on('keydown-N', () => {
+      this.spawnNewBamboo();
+    });
+
+    // Delete/Backspace to remove selected obstacle
+    this.input.keyboard.on('keydown-BACKSPACE', () => {
+      if (this.selectedObstacle) {
+        this.deleteSelectedObstacle();
+      }
+    });
+
+    // Copy button - position it better
+    const copyBtn = this.add.text(900, 10, '📋 COPY LEVEL CONFIG', {
+      fontSize: '14px',
+      fontFamily: 'monospace',
+      color: '#000000',
+      backgroundColor: '#00FF00',
+      padding: { x: 10, y: 5 }
+    }).setDepth(1000).setInteractive({ useHandCursor: true });
+
+    copyBtn.on('pointerdown', () => {
+      const config = this.generateLevelConfig();
+      navigator.clipboard.writeText(config).then(() => {
+        copyBtn.setText('✅ COPIED!');
+        this.time.delayedCall(1000, () => copyBtn.setText('📋 COPY LEVEL CONFIG'));
+      }).catch(err => {
+        console.log('Level config:', config);
+        copyBtn.setText('📝 SEE CONSOLE');
+        this.time.delayedCall(1000, () => copyBtn.setText('📋 COPY LEVEL CONFIG'));
+      });
+    });
+
+    this.updateLevelEditorDisplay();
+  }
+
+  updateLevelEditorDisplay() {
+    if (!this.editorText) return;
+
+    let info = `LEVEL ${this.level} EDITOR\n`;
+
+    info += 'OBSTACLES:\n';
+    this.editableObstacles.forEach((obs, i) => {
+      const bamboo = obs.image;
+      const isSelected = this.selectedObstacle && this.selectedObstacle.bamboo === bamboo;
+      const selected = isSelected ? ' [SELECTED]' : '';
+      info += `  ${i + 1}: (${Math.round(bamboo.x)}, ${Math.round(bamboo.y)}) ${obs.w}x${obs.h}${obs.angle ? ' @' + obs.angle + '°' : ''}${selected}\n`;
+    });
+
+    info += 'PANDAS:\n';
+    this.pandas.forEach((panda, i) => {
+      info += `  ${i + 1}: (${Math.round(panda.x)}, ${Math.round(panda.y)})\n`;
+    });
+
+    this.editorText.setText(info);
+  }
+
+  generateLevelConfig() {
+    const obstacles = this.editableObstacles.map(obs => {
+      const config = {
+        x: Math.round(obs.image.x),
+        y: Math.round(obs.image.y),
+        w: obs.w,
+        h: obs.h
+      };
+      if (obs.angle) config.angle = obs.angle;
+      return config;
+    });
+
+    const pandas = this.pandas.map(p => ({
+      x: Math.round(p.x),
+      y: Math.round(p.y)
+    }));
+
+    const levelConfig = {
+      ammo: this.ammoTotal,
+      pandas: pandas,
+      obstacles: obstacles,
+      movingObstacles: []
+    };
+
+    return JSON.stringify(levelConfig, null, 2);
+  }
+
+  spawnNewBamboo() {
+    const newObs = { x: 600, y: 325, w: 20, h: 200, angle: 0 };
+    const i = this.editableObstacles.length;
+
+    // Create bamboo image
+    const bamboo = this.add.image(newObs.x, newObs.y, 'bamboo');
+    const length = Math.max(newObs.w, newObs.h);
+    const scale = length / 3390;
+    bamboo.setScale(scale);
+    bamboo.setAngle(90); // Vertical
+    bamboo.editName = `bamboo${i + 1}`;
+
+    const obsData = { image: bamboo, index: i, w: newObs.w, h: newObs.h, angle: 0 };
+    bamboo.editData = obsData;
+    this.editableObstacles.push(obsData);
+
+    // Create handle
+    const handle = this.add.circle(bamboo.x, bamboo.y, 15, 0xffff00, 0.8);
+    handle.setStrokeStyle(2, 0x000000);
+    handle.setDepth(1002);
+    handle.setInteractive({ draggable: true, useHandCursor: true });
+    handle.editName = `bamboo${i + 1}`;
+    handle.editData = obsData;
+    handle.linkedBamboo = bamboo;
+
+    // Label
+    const label = this.add.text(bamboo.x, bamboo.y - 40, `bamboo${i + 1}\n(${bamboo.x}, ${bamboo.y})`, {
+      fontSize: '10px',
+      fontFamily: 'monospace',
+      color: '#FFFF00',
+      backgroundColor: '#000000',
+      align: 'center'
+    }).setOrigin(0.5).setDepth(1001);
+    handle.label = label;
+
+    // Click to select
+    handle.on('pointerdown', () => {
+      if (this.selectedObstacle && this.selectedObstacle.handle) {
+        this.selectedObstacle.handle.setFillStyle(0xffff00, 0.8);
+      }
+      this.selectedObstacle = { bamboo, handle, data: obsData };
+      handle.setFillStyle(0x00ff00, 1);
+    });
+
+    // Auto-select the new bamboo
+    if (this.selectedObstacle && this.selectedObstacle.handle) {
+      this.selectedObstacle.handle.setFillStyle(0xffff00, 0.8);
+    }
+    this.selectedObstacle = { bamboo, handle, data: obsData };
+    handle.setFillStyle(0x00ff00, 1);
+
+    this.updateLevelEditorDisplay();
+  }
+
+  deleteSelectedObstacle() {
+    if (!this.selectedObstacle) return;
+
+    const { bamboo, handle, data } = this.selectedObstacle;
+
+    // Remove from editableObstacles array
+    const idx = this.editableObstacles.indexOf(data);
+    if (idx > -1) {
+      this.editableObstacles.splice(idx, 1);
+    }
+
+    // Destroy the visual elements
+    if (handle.label) handle.label.destroy();
+    handle.destroy();
+    bamboo.destroy();
+
+    this.selectedObstacle = null;
+    this.updateLevelEditorDisplay();
   }
 
   update(time, delta) {
@@ -881,7 +1196,7 @@ class GameScene extends Phaser.Scene {
   }
 
   createObstacles(obstacles) {
-    obstacles.forEach(obs => {
+    obstacles.forEach((obs, index) => {
       const angle = obs.angle || 0;
       const angleRad = Phaser.Math.DegToRad(angle);
       const length = Math.max(obs.w, obs.h);
@@ -901,6 +1216,17 @@ class GameScene extends Phaser.Scene {
       bamboo.setAngle(baseAngle + angle);
       // Store reference to prevent any issues
       this.obstacleImages.push(bamboo);
+
+      // Store for edit mode
+      if (this.editMode) {
+        this.editableObstacles.push({
+          image: bamboo,
+          index: index,
+          w: obs.w,
+          h: obs.h,
+          angle: angle
+        });
+      }
 
       // Physics hitbox - minimum 20px thick to prevent bullet tunneling
       const hitboxThickness = Math.max(visualThickness, 20);
