@@ -1456,7 +1456,7 @@ class GameScene extends Phaser.Scene {
     closeBg.on('pointerdown', () => {
       this.settingsOverlay.destroy();
       // Delay clearing the flag so the pointerup doesn't trigger a shot
-      this.time.delayedCall(100, () => {
+      this.time.delayedCall(200, () => {
         this.settingsOverlay = null;
       });
     });
@@ -1529,7 +1529,8 @@ class GameScene extends Phaser.Scene {
     });
     closeBg.on('pointerdown', () => {
       this.settingsOverlay.destroy();
-      this.time.delayedCall(100, () => {
+      // Delay clearing the flag so the pointerup doesn't trigger a shot
+      this.time.delayedCall(200, () => {
         this.settingsOverlay = null;
       });
     });
@@ -1623,7 +1624,8 @@ class GameScene extends Phaser.Scene {
     });
     closeBg.on('pointerdown', () => {
       this.settingsOverlay.destroy();
-      this.time.delayedCall(100, () => {
+      // Delay resetting to null to prevent shot on pointerup
+      this.time.delayedCall(200, () => {
         this.settingsOverlay = null;
       });
     });
