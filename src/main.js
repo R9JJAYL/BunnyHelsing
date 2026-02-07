@@ -681,9 +681,13 @@ const LEVELS = [
       { x: 1000, y: 120 } // Chandelier above the panda - the only way to kill it
     ]
   },
-  // Level 3: The Maze - Complex ricochet puzzle
+  // Level 3: THE ULTIMATE CHALLENGE - One shot, 20 ricochets, 4 pandas
   {
     ammo: 20,
+    lockedAmmo: true, // Forces player to use all 20 ricochets
+    challengeLevel: true, // Shows challenge popup at start
+    challengeTitle: "THE ULTIMATE CHALLENGE",
+    challengeText: "One shot. 20 ricochets. 4 pandas.\nCan you do it?",
     pandas: [
       { x: 135, y: 156 },
       { x: 1045, y: 128 },
@@ -1167,9 +1171,15 @@ class GameScene extends Phaser.Scene {
     const levelConfig = LEVELS[Math.min(this.level - 1, LEVELS.length - 1)];
     this.ammoTotal = levelConfig.ammo;
     this.ammoRemaining = levelConfig.ammo;
-    this.selectedAmmo = 1;
+    this.lockedAmmo = levelConfig.lockedAmmo || false;
+    this.selectedAmmo = this.lockedAmmo ? levelConfig.ammo : 1; // Lock to max if challenge level
     this.gameTime = 0;
     this.movingWalls = [];
+
+    // Show challenge popup if this is a challenge level
+    if (levelConfig.challengeLevel) {
+      this.showChallengePopup(levelConfig.challengeTitle, levelConfig.challengeText);
+    }
 
     // Set background - use level-specific or default to black
     this.cameras.main.setBackgroundColor(0x000000);
@@ -2396,6 +2406,67 @@ class GameScene extends Phaser.Scene {
     if (scoreDisplay) scoreDisplay.textContent = `Score: ${this.score}`;
   }
 
+  showChallengePopup(title, text) {
+    // Create challenge overlay
+    const overlay = this.add.rectangle(600, 325, 1200, 650, 0x000000, 0.85);
+    overlay.setDepth(3000);
+
+    const container = this.add.container(600, 325);
+    container.setDepth(3001);
+
+    // Glowing border box
+    const boxBg = this.add.rectangle(0, 0, 500, 280, 0x1A1714, 0.95);
+    boxBg.setStrokeStyle(3, 0xFFD700);
+
+    // Title with dramatic styling
+    const titleText = this.add.text(0, -80, title, {
+      fontSize: '32px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#FFD700',
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    // Challenge description
+    const descText = this.add.text(0, 0, text, {
+      fontSize: '20px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#CCCCCC',
+      align: 'center',
+      lineSpacing: 8
+    }).setOrigin(0.5);
+
+    // "Tap to begin" prompt
+    const tapText = this.add.text(0, 90, '[ Tap anywhere to begin ]', {
+      fontSize: '14px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#888888'
+    }).setOrigin(0.5);
+
+    // Pulse animation on tap text
+    this.tweens.add({
+      targets: tapText,
+      alpha: 0.4,
+      duration: 800,
+      yoyo: true,
+      repeat: -1
+    });
+
+    container.add([boxBg, titleText, descText, tapText]);
+
+    // Dismiss on tap
+    this.input.once('pointerdown', () => {
+      this.tweens.add({
+        targets: [overlay, container],
+        alpha: 0,
+        duration: 300,
+        onComplete: () => {
+          overlay.destroy();
+          container.destroy();
+        }
+      });
+    });
+  }
+
   showSettingsModal() {
     // Create settings overlay
     if (this.settingsOverlay) return; // Already open
@@ -3113,9 +3184,27 @@ class GameScene extends Phaser.Scene {
     const remainingEl = document.getElementById('ammo-remaining');
     const totalEl = document.getElementById('ammo-total');
     const ricochetEl = document.getElementById('ammo-ricochet');
+    const ricochetLabel = document.querySelector('.ricochet-label');
     if (remainingEl) remainingEl.textContent = this.ammoRemaining;
     if (totalEl) totalEl.textContent = this.ammoTotal;
-    if (ricochetEl) ricochetEl.textContent = this.selectedAmmo;
+    if (ricochetEl) {
+      ricochetEl.textContent = this.selectedAmmo;
+      // Show locked indicator for challenge levels
+      if (this.lockedAmmo) {
+        ricochetEl.style.color = '#FFD700';
+      }
+    }
+    if (ricochetLabel && this.lockedAmmo) {
+      ricochetLabel.textContent = 'LOCKED';
+      ricochetLabel.style.color = '#FFD700';
+    }
+
+    // Hide ammo expand button on locked levels
+    const ammoSection = document.getElementById('ammo-section');
+    if (ammoSection && this.lockedAmmo) {
+      const expandArrow = ammoSection.querySelector('.expand-arrow');
+      if (expandArrow) expandArrow.style.display = 'none';
+    }
   }
 
   setupInput() {
@@ -3171,6 +3260,9 @@ class GameScene extends Phaser.Scene {
   }
 
   selectAmmo(amount) {
+    // Don't allow changing ammo on locked challenge levels
+    if (this.lockedAmmo) return;
+
     if (amount <= this.ammoRemaining && amount >= 1) {
       this.selectedAmmo = amount;
       this.updateAmmoUI();
