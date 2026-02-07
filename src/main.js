@@ -3423,22 +3423,10 @@ class GameScene extends Phaser.Scene {
       color: '#FFD700'
     }).setOrigin(0.5);
 
-    const statsText = this.add.text(600, 270, `Ammo remaining: ${this.ammoRemaining}`, {
+    const statsText = this.add.text(600, 260, `Ammo remaining: ${this.ammoRemaining}`, {
       fontSize: '18px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#C9A86C'
-    }).setOrigin(0.5);
-
-    const nextText = this.add.text(600, 340, 'Click or press S for next level', {
-      fontSize: '16px',
-      fontFamily: 'Cinzel, Georgia, serif',
-      color: '#CCCCCC'
-    }).setOrigin(0.5);
-
-    const restartText = this.add.text(600, 380, 'Press R to replay this level', {
-      fontSize: '14px',
-      fontFamily: 'Cinzel, Georgia, serif',
-      color: '#666666'
     }).setOrigin(0.5);
 
     this.tweens.add({
@@ -3453,37 +3441,74 @@ class GameScene extends Phaser.Scene {
     // Epic celebration - gold confetti and fireworks!
     this.createVictoryCelebration();
 
-    // Transform ammo panel into "NEXT LEVEL" button
-    this.showNextLevelButton();
+    // Create touch-friendly buttons
+    this.createEndLevelButtons(true);
 
-    // Click to go to next level
-    this.input.once('pointerdown', () => {
-      const nextLevel = Math.min(this.level + 1, LEVELS.length);
-      this.scene.restart({ level: nextLevel });
-    });
-
-    // Also allow S key for next level (R is handled by main input handler)
+    // Also allow keyboard shortcuts
     this.input.keyboard.once('keydown-S', () => {
       const nextLevel = Math.min(this.level + 1, LEVELS.length);
       this.scene.restart({ level: nextLevel });
     });
   }
 
-  showNextLevelButton() {
-    const ammoPanel = document.querySelector('.ammo-panel');
-    if (ammoPanel) {
-      ammoPanel.innerHTML = `
-        <button class="next-level-btn" id="next-level-btn">
-          NEXT LEVEL →
-        </button>
-      `;
-      const btn = document.getElementById('next-level-btn');
-      btn.addEventListener('click', () => {
-        const nextLevel = Math.min(this.level + 1, LEVELS.length);
-        this.scene.restart({ level: nextLevel });
-      });
-    }
+  createEndLevelButtons(isVictory) {
+    const buttonY = isVictory ? 340 : 340;
+    const buttonSpacing = 55;
+
+    // Next Level / Skip button
+    const nextBtn = this.add.container(600, buttonY);
+    const nextBg = this.add.rectangle(0, 0, 180, 45, 0x2A2520);
+    nextBg.setStrokeStyle(2, 0xC9A86C);
+    nextBg.setInteractive({ useHandCursor: true });
+    const nextLabel = this.add.text(0, 0, isVictory ? 'NEXT LEVEL →' : 'SKIP LEVEL →', {
+      fontSize: '14px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#FFD700'
+    }).setOrigin(0.5);
+    nextBtn.add([nextBg, nextLabel]);
+
+    nextBg.on('pointerover', () => {
+      nextBg.setFillStyle(0x3A3530);
+      nextBg.setStrokeStyle(2, 0xFFD700);
+    });
+    nextBg.on('pointerout', () => {
+      nextBg.setFillStyle(0x2A2520);
+      nextBg.setStrokeStyle(2, 0xC9A86C);
+    });
+    nextBg.on('pointerdown', () => {
+      const nextLevel = Math.min(this.level + 1, LEVELS.length);
+      this.scene.restart({ level: nextLevel });
+    });
+
+    // Replay button
+    const replayBtn = this.add.container(600, buttonY + buttonSpacing);
+    const replayBg = this.add.rectangle(0, 0, 180, 45, 0x2A2520);
+    replayBg.setStrokeStyle(2, 0x5C4A3D);
+    replayBg.setInteractive({ useHandCursor: true });
+    const replayLabel = this.add.text(0, 0, '↺ REPLAY', {
+      fontSize: '14px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#C9A86C'
+    }).setOrigin(0.5);
+    replayBtn.add([replayBg, replayLabel]);
+
+    replayBg.on('pointerover', () => {
+      replayBg.setFillStyle(0x3A3530);
+      replayBg.setStrokeStyle(2, 0x8B7355);
+    });
+    replayBg.on('pointerout', () => {
+      replayBg.setFillStyle(0x2A2520);
+      replayBg.setStrokeStyle(2, 0x5C4A3D);
+    });
+    replayBg.on('pointerdown', () => {
+      this.scene.restart({ level: this.level });
+    });
+
+    // Hide the HTML bottom bar buttons since we have in-game ones now
+    const bottomBar = document.getElementById('bottom-bar');
+    if (bottomBar) bottomBar.classList.remove('visible');
   }
+
 
   onLevelFailed() {
     this.levelEnded = true;
@@ -3507,28 +3532,14 @@ class GameScene extends Phaser.Scene {
       color: '#8B0000'
     }).setOrigin(0.5);
 
-    const sadPanda = this.add.text(600, 280, '🐼⛓️', {
+    const sadPanda = this.add.text(600, 270, '🐼⛓️', {
       fontSize: '42px'
     }).setOrigin(0.5);
 
-    const retryText = this.add.text(600, 350, 'Press R or click to retry', {
-      fontSize: '16px',
-      fontFamily: 'Cinzel, Georgia, serif',
-      color: '#C9A86C'
-    }).setOrigin(0.5);
+    // Create touch-friendly buttons
+    this.createEndLevelButtons(false);
 
-    const skipText = this.add.text(600, 390, 'Press S to skip level', {
-      fontSize: '14px',
-      fontFamily: 'Cinzel, Georgia, serif',
-      color: '#666666'
-    }).setOrigin(0.5);
-
-    // Click to retry
-    this.input.once('pointerdown', () => {
-      this.scene.restart({ level: this.level });
-    });
-
-    // S key for next/skip level (R is handled by main input handler)
+    // Also allow keyboard shortcuts
     this.input.keyboard.once('keydown-S', () => {
       const nextLevel = Math.min(this.level + 1, LEVELS.length);
       this.scene.restart({ level: nextLevel });
