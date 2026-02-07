@@ -23,7 +23,7 @@
       font-family: 'Cinzel', 'Times New Roman', serif;
     }
 
-    /* Main layout - game fills screen, bottom bar overlays */
+    /* Game fills the screen */
     #game-container {
       width: 100vw;
       height: 100dvh;
@@ -32,7 +32,73 @@
       left: 0;
     }
 
-    /* Bottom bar - always visible, overlays game */
+    /* Sidebar - overlays on left side */
+    .sidebar {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 100;
+      background: rgba(42, 37, 32, 0.95);
+      border: 1px solid #5C4A3D;
+      border-radius: 8px;
+      padding: 10px;
+    }
+    .sidebar img {
+      height: 50px;
+    }
+    .level-score {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    .level-text {
+      color: #888;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+    }
+    .score-text {
+      color: #FFD700;
+      font-size: 0.9rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+    .sidebar-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
+    .sidebar-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 8px 6px;
+      min-height: 45px;
+      background: #2A2520;
+      border: 1px solid #5C4A3D;
+      border-radius: 6px;
+      color: #C9A86C;
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sidebar-btn:hover, .sidebar-btn:active {
+      background: #3A3530;
+      border-color: #8B7355;
+      color: #FFD700;
+    }
+    .sidebar-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* Bottom bar - ammo panel */
     .bottom-bar {
       position: fixed;
       bottom: 10px;
@@ -40,11 +106,8 @@
       transform: translateX(-50%);
       display: flex;
       align-items: center;
-      gap: 10px;
       z-index: 100;
-      padding: 0 10px;
     }
-
     .ammo-panel {
       padding: 8px 15px;
       background: rgba(42, 37, 32, 0.95);
@@ -56,7 +119,7 @@
     }
     .ammo-panel .ammo-label {
       color: #888;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       letter-spacing: 0.1em;
     }
     .ammo-panel .ammo-buttons {
@@ -71,7 +134,7 @@
       border: 2px solid #8B7355;
       background: #2A2520;
       color: #C9A86C;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-family: 'Cinzel', serif;
       cursor: pointer;
       transition: all 0.2s;
@@ -84,31 +147,6 @@
     .ammo-btn.used {
       opacity: 0.3;
       cursor: not-allowed;
-    }
-
-    /* Nav buttons */
-    .nav-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      border: 1px solid #5C4A3D;
-      background: rgba(42, 37, 32, 0.95);
-      color: #C9A86C;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-    .nav-btn:hover, .nav-btn:active {
-      background: #3A3530;
-      border-color: #8B7355;
-      color: #FFD700;
-    }
-    .nav-btn svg {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
     }
 
     /* Portrait orientation - show rotate message */
@@ -145,7 +183,7 @@
       .rotate-message {
         display: flex;
       }
-      #game-container, .bottom-bar {
+      #game-container, .sidebar, .bottom-bar {
         display: none;
       }
     }
@@ -161,24 +199,39 @@
 
   <div id="game-container"></div>
 
-  <!-- Bottom bar with nav and ammo - overlays game -->
+  <!-- Sidebar - overlays on left -->
+  <div class="sidebar" id="sidebar">
+    <img src="/assets/logo.png" alt="Bunny Helsing">
+    <div class="level-score">
+      <div class="level-text" id="level-display">LEVEL 1</div>
+      <div class="score-text" id="score-display">Score: 0</div>
+    </div>
+    <div class="sidebar-buttons">
+      <button class="sidebar-btn" id="btn-home">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        HOME
+      </button>
+      <button class="sidebar-btn" id="btn-levels">
+        <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+        LEVELS
+      </button>
+      <button class="sidebar-btn" id="btn-settings">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+        SETTINGS
+      </button>
+      <button class="sidebar-btn" id="btn-skins">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9c.83 0 1.5-.67 1.5-1.5S7.83 8 7 8s-1.5.67-1.5 1.5S6.17 11 7 11zm3-4c.83 0 1.5-.67 1.5-1.5S10.83 4 10 4s-1.5.67-1.5 1.5S9.17 7 10 7zm4 0c.83 0 1.5-.67 1.5-1.5S14.83 4 14 4s-1.5.67-1.5 1.5S13.17 7 14 7zm3 4c.83 0 1.5-.67 1.5-1.5S17.83 8 17 8s-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/></svg>
+        SKINS
+      </button>
+    </div>
+  </div>
+
+  <!-- Bottom bar - ammo panel -->
   <div class="bottom-bar" id="bottom-bar">
-    <button class="nav-btn" id="btn-home" title="Home">
-      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-    </button>
-    <button class="nav-btn" id="btn-settings" title="Settings">
-      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-    </button>
     <div class="ammo-panel">
       <span class="ammo-label">AMMO</span>
       <div class="ammo-buttons" id="ammo-buttons"></div>
     </div>
-    <button class="nav-btn" id="btn-skins" title="Skins">
-      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9c.83 0 1.5-.67 1.5-1.5S7.83 8 7 8s-1.5.67-1.5 1.5S6.17 11 7 11zm3-4c.83 0 1.5-.67 1.5-1.5S10.83 4 10 4s-1.5.67-1.5 1.5S9.17 7 10 7zm4 0c.83 0 1.5-.67 1.5-1.5S14.83 4 14 4s-1.5.67-1.5 1.5S13.17 7 14 7zm3 4c.83 0 1.5-.67 1.5-1.5S17.83 8 17 8s-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/></svg>
-    </button>
-    <button class="nav-btn" id="btn-levels" title="Levels">
-      <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
-    </button>
   </div>
 
   <script type="module" src="/src/main.js"></script>

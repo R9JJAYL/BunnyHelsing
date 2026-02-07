@@ -1768,6 +1768,16 @@ class GameScene extends Phaser.Scene {
         this.showSkinsModal();
       };
     }
+
+    // Update level/score display
+    this.updateHtmlUI();
+  }
+
+  updateHtmlUI() {
+    const levelDisplay = document.getElementById('level-display');
+    const scoreDisplay = document.getElementById('score-display');
+    if (levelDisplay) levelDisplay.textContent = `LEVEL ${this.level}`;
+    if (scoreDisplay) scoreDisplay.textContent = `Score: ${this.score}`;
   }
 
   showSettingsModal() {
