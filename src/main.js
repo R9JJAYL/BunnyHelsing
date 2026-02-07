@@ -2281,13 +2281,11 @@ class GameScene extends Phaser.Scene {
           repeat: -1
         });
 
-        // Expand and flash the ammo section
+        // Flash the ammo section (don't auto-expand, let user do it)
         const ammoSection = document.getElementById('ammo-section');
-        const ammoButtons = document.getElementById('ammo-buttons');
         if (ammoSection) ammoSection.classList.add('flashing');
-        if (ammoButtons) ammoButtons.classList.add('expanded');
 
-        // Flash the "2" button specifically
+        // Flash the "2" button when it becomes visible
         const btn2 = document.querySelector('.ammo-btn[data-value="2"]');
         if (btn2) btn2.classList.add('flash-target');
 
