@@ -1208,23 +1208,32 @@ class GameScene extends Phaser.Scene {
 
       // Physics hitbox - exact w,h from config, visible in red only in edit mode
       const hitboxAlpha = this.editMode ? 0.3 : 0;
-      if (angle === 0) {
-        // Simple case: no rotation, single physics body matches w,h
-        const wall = this.add.rectangle(obs.x, obs.y, obs.w, obs.h, 0xff0000, hitboxAlpha);
+
+      // Check if angle is axis-aligned (0, 90, 180, 270) - use single rectangle
+      const isAxisAligned = angle % 90 === 0;
+
+      if (isAxisAligned) {
+        // Axis-aligned: single rectangle hitbox
+        // For 90/270 angles, swap width and height
+        const swapDimensions = angle === 90 || angle === 270;
+        const hitboxW = swapDimensions ? obs.h : obs.w;
+        const hitboxH = swapDimensions ? obs.w : obs.h;
+        const wall = this.add.rectangle(obs.x, obs.y, hitboxW, hitboxH, 0xff0000, hitboxAlpha);
         this.physics.add.existing(wall, true);
         this.walls.push(wall);
       } else {
-        // Angled obstacle: create colliders along the rotated length
+        // Non-axis-aligned: create overlapping colliders along the rotated length
         const totalAngle = baseAngle + angle;
         const totalAngleRad = Phaser.Math.DegToRad(totalAngle);
-        const numSegments = Math.ceil(length / 20);
+        const numSegments = Math.ceil(length / 10); // More segments, closer together
 
         for (let i = 0; i < numSegments; i++) {
           const t = (i + 0.5) / numSegments - 0.5; // -0.5 to 0.5
           const segX = obs.x + Math.cos(totalAngleRad) * (t * length);
           const segY = obs.y + Math.sin(totalAngleRad) * (t * length);
 
-          const segment = this.add.rectangle(segX, segY, thickness + 5, thickness + 5, 0xff0000, hitboxAlpha);
+          // Larger overlapping segments to avoid gaps
+          const segment = this.add.rectangle(segX, segY, thickness + 15, thickness + 15, 0xff0000, hitboxAlpha);
           this.physics.add.existing(segment, true);
           this.walls.push(segment);
         }
@@ -2704,6 +2713,10 @@ class GameScene extends Phaser.Scene {
     this.bullet.bounceCount = 0;
     this.bullet.maxBounces = maxBounces;
 
+    // Store initial velocity for bounce correction
+    this.bullet.prevVelX = this.bullet.body.velocity.x;
+    this.bullet.prevVelY = this.bullet.body.velocity.y;
+
     // Use a single collider group to prevent multiple collision callbacks
     // when bullet hits overlapping wall segments of angled obstacles
     const wallGroup = this.physics.add.staticGroup();
@@ -2905,6 +2918,64 @@ class GameScene extends Phaser.Scene {
     if (this.bullet.lastBounceTime && now - this.bullet.lastBounceTime < 100) {
       return;
     }
+
+    // Store previous velocity to detect bad bounces
+    const prevVelX = this.bullet.prevVelX || 0;
+    const prevVelY = this.bullet.prevVelY || 0;
+    const currVelX = this.bullet.body.velocity.x;
+    const currVelY = this.bullet.body.velocity.y;
+
+    // Check if bullet bounced back in roughly the same direction (bad bounce)
+    // Dot product of normalized vectors - if positive, they're going same-ish direction
+    const prevSpeed = Math.sqrt(prevVelX * prevVelX + prevVelY * prevVelY);
+    const currSpeed = Math.sqrt(currVelX * currVelX + currVelY * currVelY);
+
+    if (prevSpeed > 0 && currSpeed > 0) {
+      const dotProduct = (prevVelX * currVelX + prevVelY * currVelY) / (prevSpeed * currSpeed);
+
+      // If dot product > 0.3, the bounce went wrong - fix it by proper reflection
+      if (dotProduct > 0.3) {
+        // Determine which wall was hit based on bullet position
+        const bx = this.bullet.body.x + this.bullet.body.width / 2;
+        const by = this.bullet.body.y + this.bullet.body.height / 2;
+
+        // Check proximity to edges to determine wall normal
+        const nearLeft = bx < 100;
+        const nearRight = bx > 1100;
+        const nearTop = by < 100;
+        const nearBottom = by > 550;
+
+        let newVelX = currVelX;
+        let newVelY = currVelY;
+
+        if (nearLeft || nearRight) {
+          // Vertical wall - reflect X
+          newVelX = -prevVelX;
+          newVelY = prevVelY;
+        } else if (nearTop || nearBottom) {
+          // Horizontal wall - reflect Y
+          newVelX = prevVelX;
+          newVelY = -prevVelY;
+        } else {
+          // Interior obstacle - check velocity change to determine wall orientation
+          const xChanged = Math.abs(currVelX - prevVelX) > Math.abs(currVelY - prevVelY);
+          if (xChanged) {
+            newVelX = -prevVelX;
+            newVelY = prevVelY;
+          } else {
+            newVelX = prevVelX;
+            newVelY = -prevVelY;
+          }
+        }
+
+        this.bullet.body.setVelocity(newVelX, newVelY);
+      }
+    }
+
+    // Store current velocity for next bounce check
+    this.bullet.prevVelX = this.bullet.body.velocity.x;
+    this.bullet.prevVelY = this.bullet.body.velocity.y;
+
     this.bullet.lastBounceTime = now;
 
     this.bullet.bounceCount++;
