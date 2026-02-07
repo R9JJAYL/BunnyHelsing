@@ -78,10 +78,10 @@ const LEVELS = [
   {
     ammo: 99,
     pandas: [
-      { x: 135, y: 164 },
-      { x: 1045, y: 135 },
-      { x: 804, y: 336 },
-      { x: 1081, y: 518 }
+      { x: 135, y: 156 },
+      { x: 1045, y: 128 },
+      { x: 804, y: 331 },
+      { x: 1081, y: 511 }
     ],
     obstacles: [
       { x: 394, y: 452, w: 20, h: 110 },
@@ -1181,20 +1181,13 @@ class GameScene extends Phaser.Scene {
   }
 
   createObstacles(obstacles) {
-    // Fixed thickness matching the frame (20px)
-    const THICKNESS = 20;
-
     obstacles.forEach((obs, index) => {
       const angle = obs.angle || 0;
-      const isVertical = obs.h > obs.w;
-      const length = Math.max(obs.w, obs.h);
 
-      // Draw bamboo obstacle - use setDisplaySize like frame does (fixed 20px thickness)
+      // Draw bamboo - visual matches exact w,h from config
       const bamboo = this.add.image(obs.x, obs.y, 'bamboo');
-      bamboo.setDisplaySize(length, THICKNESS);
-      // Rotate: if vertical (h > w), rotate 90. Then add any angle offset.
-      const baseAngle = isVertical ? 90 : 0;
-      bamboo.setAngle(baseAngle + angle);
+      bamboo.setDisplaySize(obs.w, obs.h);
+      bamboo.setAngle(angle);
       this.obstacleImages.push(bamboo);
 
       // Store for edit mode
@@ -1208,28 +1201,25 @@ class GameScene extends Phaser.Scene {
         });
       }
 
-      // Physics hitbox - 20px thick, matching visual
+      // Physics hitbox - exact w,h from config, visible in red
       if (angle === 0) {
         // Simple case: no rotation, single physics body
-        const hitboxW = isVertical ? THICKNESS : length;
-        const hitboxH = isVertical ? length : THICKNESS;
-        const wall = this.add.rectangle(obs.x, obs.y, hitboxW, hitboxH, 0x000000, 0);
+        const wall = this.add.rectangle(obs.x, obs.y, obs.w, obs.h, 0xff0000, 0.3);
         this.physics.add.existing(wall, true);
         this.walls.push(wall);
       } else {
         // Angled obstacle: create colliders along the length
-        // Calculate total angle (base rotation + custom angle)
-        const totalAngle = baseAngle + angle;
-        const totalAngleRad = Phaser.Math.DegToRad(totalAngle);
+        const angleRad = Phaser.Math.DegToRad(angle);
+        const length = Math.max(obs.w, obs.h);
+        const thickness = Math.min(obs.w, obs.h);
         const numSegments = Math.ceil(length / 20);
-        const segmentLength = length / numSegments;
 
         for (let i = 0; i < numSegments; i++) {
           const t = (i + 0.5) / numSegments - 0.5; // -0.5 to 0.5
-          const segX = obs.x + Math.cos(totalAngleRad) * (t * length);
-          const segY = obs.y + Math.sin(totalAngleRad) * (t * length);
+          const segX = obs.x + Math.cos(angleRad) * (t * length);
+          const segY = obs.y + Math.sin(angleRad) * (t * length);
 
-          const segment = this.add.rectangle(segX, segY, segmentLength, THICKNESS, 0x000000, 0);
+          const segment = this.add.rectangle(segX, segY, thickness + 5, thickness + 5, 0xff0000, 0.3);
           this.physics.add.existing(segment, true);
           this.walls.push(segment);
         }
