@@ -28,7 +28,18 @@
     }
     #game-container {
       width: 100vw;
-      height: 100vh;
+      height: 100dvh; /* dynamic viewport height - accounts for iOS Safari chrome */
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    /* Mobile landscape - leave room for safe areas */
+    @media (max-width: 932px) and (orientation: landscape) {
+      #game-container {
+        width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right));
+        height: 100dvh;
+        margin: 0 auto;
+      }
     }
     .scale-container {
       transform-origin: 0 0;
