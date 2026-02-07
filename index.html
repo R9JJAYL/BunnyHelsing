@@ -33,12 +33,22 @@
       max-height: 100%;
     }
 
-    /* Mobile landscape - account for notch/safe areas */
+    /* Mobile landscape - account for notch/safe areas and hide HTML UI */
     @media (orientation: landscape) and (max-height: 500px) {
       #game-container {
         width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
         height: 100dvh;
         margin-left: env(safe-area-inset-left, 0px);
+      }
+      /* Hide HTML sidebar and bottom bar on mobile - use in-game UI instead */
+      .sidebar, .sidebar.visible {
+        display: none !important;
+      }
+      .bottom-bar, .bottom-bar.visible {
+        display: none !important;
+      }
+      .scale-container, .game-wrapper {
+        display: contents;
       }
     }
 
