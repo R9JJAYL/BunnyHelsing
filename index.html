@@ -183,76 +183,21 @@
       transform: scale(1.02);
     }
 
-    /* Mobile responsive styles - match desktop layout exactly */
-    @media (max-width: 900px), (max-height: 700px) {
-      html, body {
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-      }
+    /* Landscape mobile - just scale everything down proportionally */
+    @media (max-height: 500px) {
       body {
-        padding: 5px;
-      }
-      .game-wrapper {
-        gap: 10px;
-        align-items: flex-start;
-      }
-      /* Sidebar matches game canvas height, scaled down */
-      .sidebar {
-        width: 60px;
-        height: auto;
-        gap: 5px;
-      }
-      .sidebar img {
-        height: 40px;
-      }
-      .level-score {
-        display: none;
-      }
-      .sidebar-buttons {
-        gap: 5px;
-        margin-top: 5px;
-      }
-      .sidebar-btn {
-        min-height: 36px;
-        padding: 5px 3px;
-        font-size: 0.4rem;
-        gap: 2px;
-      }
-      .sidebar-btn svg {
-        width: 12px;
-        height: 12px;
-      }
-      /* Bottom bar matches game width */
-      .bottom-bar {
-        width: auto;
-        margin-left: 70px;
-        padding: 5px;
-        margin-top: 5px;
-      }
-      .ammo-panel {
-        padding: 4px 8px;
-        gap: 4px;
-      }
-      .ammo-btn {
-        width: 24px;
-        height: 24px;
-        font-size: 0.65rem;
-      }
-      .ammo-panel .ammo-label {
-        font-size: 0.5rem;
+        padding: 3px;
+        transform-origin: top left;
+        transform: scale(0.7);
+        width: 142.8%;
+        height: 142.8%;
       }
     }
-
-    /* Fullscreen mode - only affects mobile, desktop uses native fullscreen */
-    @media (max-width: 900px), (max-height: 700px) {
-      body.fullscreen-mode {
-        padding: 0 !important;
-      }
-      body.fullscreen-mode .game-wrapper {
-        width: 100vw;
-        height: 100vh;
-        height: 100dvh;
+    @media (max-height: 400px) {
+      body {
+        transform: scale(0.55);
+        width: 181.8%;
+        height: 181.8%;
       }
     }
     .exit-fullscreen-btn {
