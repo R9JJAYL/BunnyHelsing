@@ -2407,6 +2407,9 @@ class GameScene extends Phaser.Scene {
   }
 
   showChallengePopup(title, text) {
+    // Block shooting while popup is visible
+    this.challengePopupActive = true;
+
     // Create challenge overlay
     const overlay = this.add.rectangle(600, 325, 1200, 650, 0x000000, 0.85);
     overlay.setDepth(3000);
@@ -2453,8 +2456,8 @@ class GameScene extends Phaser.Scene {
 
     container.add([boxBg, titleText, descText, tapText]);
 
-    // Dismiss on tap
-    this.input.once('pointerdown', () => {
+    // Dismiss on tap (use pointerup to prevent immediate shot)
+    this.input.once('pointerup', () => {
       this.tweens.add({
         targets: [overlay, container],
         alpha: 0,
@@ -2462,6 +2465,10 @@ class GameScene extends Phaser.Scene {
         onComplete: () => {
           overlay.destroy();
           container.destroy();
+          // Delay unblocking to prevent accidental shot
+          this.time.delayedCall(100, () => {
+            this.challengePopupActive = false;
+          });
         }
       });
     });
@@ -3212,6 +3219,7 @@ class GameScene extends Phaser.Scene {
     this.input.on('pointerup', (pointer) => {
       if (this.bulletFired || this.ammoRemaining <= 0 || this.levelEnded || this.settingsOverlay) return;
       if (this.tutorialBlockShoot) return; // Block during tutorial
+      if (this.challengePopupActive) return; // Block during challenge popup
 
       // Check minimum distance for a valid shot
       const dist = Phaser.Math.Distance.Between(
