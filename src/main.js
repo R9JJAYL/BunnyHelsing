@@ -1206,10 +1206,11 @@ class GameScene extends Phaser.Scene {
         });
       }
 
-      // Physics hitbox - exact w,h from config, visible in red
+      // Physics hitbox - exact w,h from config, visible in red only in edit mode
+      const hitboxAlpha = this.editMode ? 0.3 : 0;
       if (angle === 0) {
         // Simple case: no rotation, single physics body matches w,h
-        const wall = this.add.rectangle(obs.x, obs.y, obs.w, obs.h, 0xff0000, 0.3);
+        const wall = this.add.rectangle(obs.x, obs.y, obs.w, obs.h, 0xff0000, hitboxAlpha);
         this.physics.add.existing(wall, true);
         this.walls.push(wall);
       } else {
@@ -1223,7 +1224,7 @@ class GameScene extends Phaser.Scene {
           const segX = obs.x + Math.cos(totalAngleRad) * (t * length);
           const segY = obs.y + Math.sin(totalAngleRad) * (t * length);
 
-          const segment = this.add.rectangle(segX, segY, thickness + 5, thickness + 5, 0xff0000, 0.3);
+          const segment = this.add.rectangle(segX, segY, thickness + 5, thickness + 5, 0xff0000, hitboxAlpha);
           this.physics.add.existing(segment, true);
           this.walls.push(segment);
         }
