@@ -210,6 +210,76 @@
       border-color: #FFD700;
       color: #FFD700;
     }
+
+    /* Mobile layout - horizontal nav at top */
+    @media (max-width: 900px) and (orientation: landscape) {
+      body {
+        justify-content: flex-start;
+        padding: 5px;
+      }
+      .scale-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+      .game-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+      }
+      .sidebar.visible {
+        flex-direction: row;
+        height: auto;
+        width: 100%;
+        justify-content: center;
+        gap: 5px;
+        order: -1;
+      }
+      .sidebar img {
+        height: 30px;
+      }
+      .level-score {
+        margin-bottom: 0;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .sidebar-buttons {
+        flex-direction: row;
+        flex: 0;
+        margin-top: 0;
+        gap: 5px;
+      }
+      .sidebar-btn {
+        min-height: 35px;
+        min-width: 50px;
+        padding: 5px;
+        font-size: 0.5rem;
+      }
+      .sidebar-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+      #game-container canvas {
+        max-width: 100vw !important;
+        max-height: 60vh !important;
+        width: auto !important;
+        height: auto !important;
+      }
+      .bottom-bar.visible {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 5px;
+      }
+      .ammo-panel {
+        padding: 8px 15px;
+      }
+      .ammo-btn {
+        width: 35px;
+        height: 35px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -306,49 +376,7 @@
       }
     });
 
-    // Mobile scaling - scale entire UI to fit screen
-    function scaleToFit() {
-      var container = document.querySelector('.scale-container');
-      if (!container) return;
-
-      // Total content size: sidebar(100) + gap(20) + game(1200) = 1320 wide
-      // Height: game(650) + gap(10) + ammo(60) = 720
-      var contentWidth = 1320;
-      var contentHeight = 720;
-
-      var screenWidth = window.innerWidth;
-      var screenHeight = window.innerHeight;
-
-      // Calculate scale to fit both dimensions
-      var scaleX = screenWidth / contentWidth;
-      var scaleY = screenHeight / contentHeight;
-      var scale = Math.min(scaleX, scaleY);
-
-      // Don't upscale on desktop
-      if (scale >= 1) {
-        container.style.transform = '';
-        return;
-      }
-
-      // Center the scaled content
-      var scaledWidth = contentWidth * scale;
-      var scaledHeight = contentHeight * scale;
-      var offsetX = (screenWidth - scaledWidth) / 2;
-      var offsetY = (screenHeight - scaledHeight) / 2;
-
-      container.style.transform = 'translate(' + offsetX + 'px, ' + offsetY + 'px) scale(' + scale + ')';
-    }
-
-    // Run scaling on load and resize
-    window.addEventListener('load', function() {
-      setTimeout(scaleToFit, 100);
-      setTimeout(scaleToFit, 500);
-      setTimeout(scaleToFit, 1000);
-    });
-    window.addEventListener('resize', scaleToFit);
-    window.addEventListener('orientationchange', function() {
-      setTimeout(scaleToFit, 100);
-    });
+    // No JS scaling - using CSS media queries for mobile layout
   </script>
 </body>
 </html>
