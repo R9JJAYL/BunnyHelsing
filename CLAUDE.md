@@ -6,7 +6,7 @@ Bunny Helsing is a Phaser 3 ricochet shooting game where players shoot bullets t
 ## Self-Healing Instructions (READ THIS FIRST)
 
 **AUTO-UPDATE REQUIREMENT:** Whenever a new bug is discovered and fixed, or a new pattern/solution is found, Claude MUST automatically add it to this file:
-- Add new bugs to the "Known Bugs & Fixes" section
+- Add new bugs to the "Known Bugs & Fixes" section with date
 - Add new code patterns to the "Code Patterns to Follow" section
 - Add new tasks to the "Common Tasks" section
 - Update the "Testing Checklist" if new test cases are needed
@@ -14,11 +14,16 @@ Bunny Helsing is a Phaser 3 ricochet shooting game where players shoot bullets t
 **FORMAT FOR NEW BUGS:**
 ```
 ### Bug: [Short description]
+**Date:** YYYY-MM-DD
+**Severity:** Critical / Major / Minor
 **Cause:** [What causes the bug]
 **Fix:** [How to fix it]
+**Status:** Fixed
 ```
 
 **WHEN TO UPDATE:** After fixing any bug that took more than one attempt, or any issue that could happen again.
+
+**MAINTENANCE:** If this file exceeds 300 lines, move old fixed bugs (>3 months) to `CLAUDE-ARCHIVE.md`
 
 ---
 
@@ -38,6 +43,8 @@ Bunny Helsing is a Phaser 3 ricochet shooting game where players shoot bullets t
 - `/src/main.js` - Main game file with all scenes and logic
 - `/public/assets/` - Game assets (images, sounds)
 - `/index.html` - Entry point with UI modals
+
+---
 
 ## Game Architecture
 
@@ -64,6 +71,8 @@ Bunny Helsing is a Phaser 3 ricochet shooting game where players shoot bullets t
 - Non-axis-aligned angles use overlapping segment hitboxes
 - Bullet bounce debounce is 150ms to prevent double-hits
 
+---
+
 ## Common Tasks
 
 ### Adding a new level
@@ -84,36 +93,60 @@ Bunny Helsing is a Phaser 3 ricochet shooting game where players shoot bullets t
 ## Known Bugs & Fixes (Self-Healing Reference)
 
 ### Bug: Bullet bouncing back in same direction
+**Date:** 2025-02-07
+**Severity:** Major
 **Cause:** Multiple hitbox segments on angled bamboo causing edge collisions
 **Fix:** Use single rectangle hitboxes for axis-aligned angles (0, 90, 180, 270). Check `isAxisAligned = angle % 90 === 0`
+**Status:** Fixed
 
 ### Bug: Bullet going through walls
+**Date:** 2025-02-07
+**Severity:** Critical
 **Cause:** Bullet moving too fast (tunneling) or hitbox gaps
 **Fix:** Cap bullet speed (`Math.min(power * 4, 600)`), ensure hitbox thickness is at least 20px
+**Status:** Fixed
 
 ### Bug: Double bounce counting
+**Date:** 2025-02-07
+**Severity:** Major
 **Cause:** Multiple collision callbacks firing for same hit
 **Fix:** Debounce in `onBulletBounce()` - ignore bounces within 150ms of each other
+**Status:** Fixed
 
 ### Bug: Modal closes and shoots
+**Date:** 2025-02-07
+**Severity:** Minor
 **Cause:** Click event propagating through modal to game
 **Fix:** Set `this.settingsOverlay` flag and check it before allowing shots
+**Status:** Fixed
 
 ### Bug: Bamboo visual doesn't match hitbox
+**Date:** 2025-02-07
+**Severity:** Major
 **Cause:** Using `setScale()` instead of `setDisplaySize()` or wrong rotation
 **Fix:** Use `setDisplaySize(length, thickness)` then rotate. For vertical bamboo (h > w), add 90° base rotation
+**Status:** Fixed
 
 ### Bug: Tutorial message appears while bullet still moving
+**Date:** 2025-02-07
+**Severity:** Minor
 **Cause:** Timer-based trigger instead of event-based
 **Fix:** Trigger tutorial steps in `destroyBullet()` not in `onBulletBounce()`
+**Status:** Fixed
 
 ### Bug: Skin positions misaligned
+**Date:** 2025-02-07
+**Severity:** Minor
 **Cause:** Different artwork positions within same-size images
 **Fix:** Adjust `offsetX` and `offsetY` in `BUNNY_SKINS` config for each skin
+**Status:** Fixed
 
 ### Bug: Spawned bamboo looks wrong size
+**Date:** 2025-02-07
+**Severity:** Minor
 **Cause:** Using scale instead of display size
 **Fix:** Use `setDisplaySize(length, thickness)` in `updateBambooVisual()` matching `createObstacles()`
+**Status:** Fixed
 
 ---
 
@@ -161,3 +194,8 @@ Before pushing live, verify:
 - [ ] Skins switch properly and align correctly
 - [ ] No console errors
 - [ ] Modals don't trigger shots when closing
+
+---
+
+## Changelog
+- **2025-02-07:** Initial CLAUDE.md created with 8 known bugs documented
