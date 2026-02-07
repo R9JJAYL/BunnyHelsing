@@ -2713,10 +2713,6 @@ class GameScene extends Phaser.Scene {
     this.bullet.bounceCount = 0;
     this.bullet.maxBounces = maxBounces;
 
-    // Store initial velocity for bounce correction
-    this.bullet.prevVelX = this.bullet.body.velocity.x;
-    this.bullet.prevVelY = this.bullet.body.velocity.y;
-
     // Use a single collider group to prevent multiple collision callbacks
     // when bullet hits overlapping wall segments of angled obstacles
     const wallGroup = this.physics.add.staticGroup();
@@ -2913,69 +2909,10 @@ class GameScene extends Phaser.Scene {
     if (!this.bullet || !this.bullet.body) return;
 
     // Debounce: prevent multiple bounces being counted for the same collision
-    // Use time-based cooldown - ignore bounces within 100ms of each other
     const now = Date.now();
-    if (this.bullet.lastBounceTime && now - this.bullet.lastBounceTime < 100) {
+    if (this.bullet.lastBounceTime && now - this.bullet.lastBounceTime < 150) {
       return;
     }
-
-    // Store previous velocity to detect bad bounces
-    const prevVelX = this.bullet.prevVelX || 0;
-    const prevVelY = this.bullet.prevVelY || 0;
-    const currVelX = this.bullet.body.velocity.x;
-    const currVelY = this.bullet.body.velocity.y;
-
-    // Check if bullet bounced back in roughly the same direction (bad bounce)
-    // Dot product of normalized vectors - if positive, they're going same-ish direction
-    const prevSpeed = Math.sqrt(prevVelX * prevVelX + prevVelY * prevVelY);
-    const currSpeed = Math.sqrt(currVelX * currVelX + currVelY * currVelY);
-
-    if (prevSpeed > 0 && currSpeed > 0) {
-      const dotProduct = (prevVelX * currVelX + prevVelY * currVelY) / (prevSpeed * currSpeed);
-
-      // If dot product > 0.3, the bounce went wrong - fix it by proper reflection
-      if (dotProduct > 0.3) {
-        // Determine which wall was hit based on bullet position
-        const bx = this.bullet.body.x + this.bullet.body.width / 2;
-        const by = this.bullet.body.y + this.bullet.body.height / 2;
-
-        // Check proximity to edges to determine wall normal
-        const nearLeft = bx < 100;
-        const nearRight = bx > 1100;
-        const nearTop = by < 100;
-        const nearBottom = by > 550;
-
-        let newVelX = currVelX;
-        let newVelY = currVelY;
-
-        if (nearLeft || nearRight) {
-          // Vertical wall - reflect X
-          newVelX = -prevVelX;
-          newVelY = prevVelY;
-        } else if (nearTop || nearBottom) {
-          // Horizontal wall - reflect Y
-          newVelX = prevVelX;
-          newVelY = -prevVelY;
-        } else {
-          // Interior obstacle - check velocity change to determine wall orientation
-          const xChanged = Math.abs(currVelX - prevVelX) > Math.abs(currVelY - prevVelY);
-          if (xChanged) {
-            newVelX = -prevVelX;
-            newVelY = prevVelY;
-          } else {
-            newVelX = prevVelX;
-            newVelY = -prevVelY;
-          }
-        }
-
-        this.bullet.body.setVelocity(newVelX, newVelY);
-      }
-    }
-
-    // Store current velocity for next bounce check
-    this.bullet.prevVelX = this.bullet.body.velocity.x;
-    this.bullet.prevVelY = this.bullet.body.velocity.y;
-
     this.bullet.lastBounceTime = now;
 
     this.bullet.bounceCount++;
