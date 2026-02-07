@@ -2277,6 +2277,10 @@ class GameScene extends Phaser.Scene {
         if (ammoSection) ammoSection.classList.add('flashing');
         if (ammoButtons) ammoButtons.classList.add('expanded');
 
+        // Flash the "2" button specifically
+        const btn2 = document.querySelector('.ammo-btn[data-value="2"]');
+        if (btn2) btn2.classList.add('flash-target');
+
         // Only accept 2
         this.tutorialWaitingForAmmo = 2;
         break;
@@ -2285,6 +2289,8 @@ class GameScene extends Phaser.Scene {
         // Stop the flashing from step 1
         const ammoSectionStep2 = document.getElementById('ammo-section');
         if (ammoSectionStep2) ammoSectionStep2.classList.remove('flashing');
+        const btn2Step2 = document.querySelector('.ammo-btn[data-value="2"]');
+        if (btn2Step2) btn2Step2.classList.remove('flash-target');
 
         // Now shoot the wall
         this.tutorialContainer.setPosition(600, 150);
