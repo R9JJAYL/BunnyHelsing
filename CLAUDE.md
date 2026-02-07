@@ -3,6 +3,25 @@
 ## Project Overview
 Bunny Helsing is a Phaser 3 ricochet shooting game where players shoot bullets that bounce off bamboo walls to hit panda enemies.
 
+## Self-Healing Instructions (READ THIS FIRST)
+
+**AUTO-UPDATE REQUIREMENT:** Whenever a new bug is discovered and fixed, or a new pattern/solution is found, Claude MUST automatically add it to this file:
+- Add new bugs to the "Known Bugs & Fixes" section
+- Add new code patterns to the "Code Patterns to Follow" section
+- Add new tasks to the "Common Tasks" section
+- Update the "Testing Checklist" if new test cases are needed
+
+**FORMAT FOR NEW BUGS:**
+```
+### Bug: [Short description]
+**Cause:** [What causes the bug]
+**Fix:** [How to fix it]
+```
+
+**WHEN TO UPDATE:** After fixing any bug that took more than one attempt, or any issue that could happen again.
+
+---
+
 ## Key Rules
 
 ### Deployment
