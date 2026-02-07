@@ -51,7 +51,6 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      cursor: pointer;
     }
     .sidebar-header img {
       height: 35px;
@@ -69,17 +68,35 @@
       font-size: 0.75rem;
       text-shadow: 0 2px 4px rgba(0,0,0,0.8);
     }
-    .sidebar-toggle {
-      background: none;
-      border: none;
+    .menu-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 6px 10px;
+      background: #2A2520;
+      border: 1px solid #5C4A3D;
+      border-radius: 6px;
       color: #C9A86C;
-      font-size: 0.8rem;
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 0.55rem;
+      letter-spacing: 0.1em;
       cursor: pointer;
-      padding: 2px;
-      transition: transform 0.2s;
+      transition: all 0.2s;
     }
-    .sidebar-toggle.expanded {
-      transform: rotate(180deg);
+    .menu-toggle:hover, .menu-toggle:active {
+      background: #3A3530;
+      border-color: #8B7355;
+      color: #FFD700;
+    }
+    .menu-toggle svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+    .menu-toggle.expanded svg {
+      transform: rotate(90deg);
     }
     .sidebar-buttons {
       display: none;
@@ -229,14 +246,17 @@
 
   <!-- Sidebar - overlays on left -->
   <div class="sidebar" id="sidebar">
-    <div class="sidebar-header" id="sidebar-header">
+    <div class="sidebar-header">
       <img src="/assets/logo.png" alt="Bunny Helsing">
       <div class="level-score">
         <div class="level-text" id="level-display">LEVEL 1</div>
         <div class="score-text" id="score-display">Score: 0</div>
       </div>
-      <button class="sidebar-toggle" id="sidebar-toggle">▼</button>
     </div>
+    <button class="menu-toggle" id="menu-toggle">
+      <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+      MENU
+    </button>
     <div class="sidebar-buttons" id="sidebar-buttons">
       <button class="sidebar-btn" id="btn-home">
         <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -267,10 +287,10 @@
 
   <script type="module" src="/src/main.js"></script>
   <script>
-    // Sidebar toggle
-    document.getElementById('sidebar-header').addEventListener('click', () => {
+    // Menu toggle
+    document.getElementById('menu-toggle').addEventListener('click', () => {
       const buttons = document.getElementById('sidebar-buttons');
-      const toggle = document.getElementById('sidebar-toggle');
+      const toggle = document.getElementById('menu-toggle');
       buttons.classList.toggle('expanded');
       toggle.classList.toggle('expanded');
     });
