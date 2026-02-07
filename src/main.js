@@ -1136,6 +1136,7 @@ class GameScene extends Phaser.Scene {
     if (data.level) {
       this.level = data.level;
     }
+    this.isReplay = data.isReplay || false;
   }
 
   preload() {
@@ -1176,8 +1177,8 @@ class GameScene extends Phaser.Scene {
     this.gameTime = 0;
     this.movingWalls = [];
 
-    // Show challenge popup if this is a challenge level
-    if (levelConfig.challengeLevel) {
+    // Show challenge popup if this is a challenge level (but not on replay)
+    if (levelConfig.challengeLevel && !this.isReplay) {
       this.showChallengePopup(levelConfig.challengeTitle, levelConfig.challengeText);
     }
 
@@ -3257,7 +3258,7 @@ class GameScene extends Phaser.Scene {
 
     // Restart key (R) - works during gameplay and after level ends
     this.input.keyboard.on('keydown-R', () => {
-      this.scene.restart({ level: this.level });
+      this.scene.restart({ level: this.level, isReplay: true });
     });
 
     // Skip to next level (S)
@@ -4319,7 +4320,7 @@ class GameScene extends Phaser.Scene {
       event.stopPropagation();
       // Small delay to prevent click from triggering shot on restart
       this.time.delayedCall(50, () => {
-        this.scene.restart({ level: this.level });
+        this.scene.restart({ level: this.level, isReplay: true });
       });
     });
 
@@ -4366,7 +4367,7 @@ class GameScene extends Phaser.Scene {
   }
 
   restartLevel() {
-    this.scene.restart({ level: this.level });
+    this.scene.restart({ level: this.level, isReplay: true });
   }
 
   createVictoryCelebration() {
