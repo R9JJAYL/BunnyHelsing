@@ -543,6 +543,10 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
+    // Show UI elements when game starts
+    document.getElementById('sidebar')?.classList.add('visible');
+    document.getElementById('bottom-bar')?.classList.add('visible');
+
     // Setup nav button handlers
     this.setupNavButtons();
 
@@ -1737,6 +1741,9 @@ class GameScene extends Phaser.Scene {
     const homeBtn = document.getElementById('btn-home');
     if (homeBtn) {
       homeBtn.onclick = () => {
+        // Hide UI elements
+        document.getElementById('sidebar')?.classList.remove('visible');
+        document.getElementById('bottom-bar')?.classList.remove('visible');
         // Reset game state
         this.level = 1;
         this.score = 0;

@@ -32,12 +32,12 @@
       left: 0;
     }
 
-    /* Sidebar - overlays on left side */
+    /* Sidebar - overlays on left side, hidden by default */
     .sidebar {
       position: fixed;
       top: 10px;
       left: 10px;
-      display: flex;
+      display: none;
       flex-direction: column;
       align-items: center;
       gap: 8px;
@@ -98,15 +98,23 @@
       fill: currentColor;
     }
 
-    /* Bottom bar - ammo panel */
+    /* Bottom bar - ammo panel, hidden by default */
     .bottom-bar {
       position: fixed;
       bottom: 10px;
       left: 50%;
       transform: translateX(-50%);
-      display: flex;
+      display: none;
       align-items: center;
       z-index: 100;
+    }
+
+    /* Show sidebar and bottom bar when game is active */
+    .sidebar.visible {
+      display: flex;
+    }
+    .bottom-bar.visible {
+      display: flex;
     }
     .ammo-panel {
       padding: 8px 15px;
