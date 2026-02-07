@@ -209,15 +209,16 @@
         width: 100%;
         height: auto;
         flex-direction: row;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         justify-content: center;
         gap: 3px;
         padding: 3px;
         order: -1;
         flex-shrink: 0;
+        overflow: visible;
       }
       .sidebar img {
-        height: 30px;
+        display: none; /* Hide logo on mobile to save space */
       }
       .level-score {
         display: none; /* Hide score on mobile to save space */
