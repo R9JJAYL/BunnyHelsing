@@ -1793,7 +1793,7 @@ class GameScene extends Phaser.Scene {
     this.settingsOverlay.setDepth(2000);
 
     // Dark background
-    const bg = this.add.rectangle(0, 0, 400, 280, 0x000000, 0.9);
+    const bg = this.add.rectangle(0, 0, 400, 300, 0x000000, 0.9);
     bg.setStrokeStyle(2, 0xC9A86C);
 
     // Title
@@ -1829,27 +1829,28 @@ class GameScene extends Phaser.Scene {
       color: '#88CC88'
     }).setOrigin(0.5);
 
-    // Skin selector row
-    const skinLabel = this.add.text(-80, 40, 'Skin:', {
+    // Skin label centered
+    const skinLabel = this.add.text(0, 35, 'Skin:', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#CCCCCC'
-    }).setOrigin(0, 0.5);
+    }).setOrigin(0.5);
 
-    // Create skin option buttons
+    // Create skin option buttons on line below, centered
     const skinButtons = [];
-    const skinStartX = 30;
-    const skinSpacing = 65;
+    const skinSpacing = 80;
+    const totalWidth = (BUNNY_SKINS.length - 1) * skinSpacing;
+    const skinStartX = -totalWidth / 2;
 
     BUNNY_SKINS.forEach((skin, i) => {
       const btnX = skinStartX + i * skinSpacing;
       const isSelected = currentSkin === skin.id;
 
-      const skinText = this.add.text(btnX, 40, skin.name, {
+      const skinText = this.add.text(btnX, 65, skin.name, {
         fontSize: '14px',
         fontFamily: 'Cinzel, Georgia, serif',
         color: isSelected ? '#FFD700' : '#888888'
-      }).setOrigin(0, 0.5);
+      }).setOrigin(0.5);
 
       skinText.setInteractive({ useHandCursor: true });
       skinText.on('pointerover', () => {
@@ -1872,7 +1873,7 @@ class GameScene extends Phaser.Scene {
     });
 
     // Close button
-    const closeBtn = this.add.container(0, 100);
+    const closeBtn = this.add.container(0, 115);
     const closeBg = this.add.rectangle(0, 0, 120, 40, 0x2A2520);
     closeBg.setStrokeStyle(2, 0x8B7355);
     const closeText = this.add.text(0, 0, 'CLOSE', {
