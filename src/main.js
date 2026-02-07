@@ -1181,21 +1181,30 @@ class GameScene extends Phaser.Scene {
   }
 
   createObstacles(obstacles) {
-    // Fixed thickness matching the frame bamboo
+    // Fixed visual thickness matching the frame bamboo
     const BAMBOO_THICKNESS = 20;
 
     obstacles.forEach((obs, index) => {
       const angle = obs.angle || 0;
-      const length = Math.max(obs.w, obs.h);
       const isVertical = obs.h > obs.w;
+      const length = Math.max(obs.w, obs.h);
 
-      // Draw bamboo obstacle - use setDisplaySize for fixed thickness (like frame)
+      // Draw bamboo obstacle with fixed thickness
       const bamboo = this.add.image(obs.x, obs.y, 'bamboo');
-      bamboo.setDisplaySize(length, BAMBOO_THICKNESS);
-      // Rotate: if vertical (h > w), rotate 90. Then add any angle offset.
-      const baseAngle = isVertical ? 90 : 0;
-      bamboo.setAngle(baseAngle + angle);
-      // Store reference to prevent any issues
+
+      // For vertical bamboo: setDisplaySize(length, thickness) then rotate 90
+      // For horizontal bamboo: setDisplaySize(length, thickness) no rotation needed
+      // The key is that after rotation, visual matches hitbox
+      if (isVertical) {
+        // Vertical: width becomes height after 90 degree rotation
+        bamboo.setDisplaySize(length, BAMBOO_THICKNESS);
+        bamboo.setAngle(90 + angle);
+      } else {
+        // Horizontal: no base rotation needed
+        bamboo.setDisplaySize(length, BAMBOO_THICKNESS);
+        bamboo.setAngle(angle);
+      }
+
       this.obstacleImages.push(bamboo);
 
       // Store for edit mode
@@ -1209,30 +1218,27 @@ class GameScene extends Phaser.Scene {
         });
       }
 
-      // Physics hitbox - calculate total rotation angle
-      const totalAngle = baseAngle + angle;
-      const totalAngleRad = Phaser.Math.DegToRad(totalAngle);
-
+      // Physics hitbox - must match the visual exactly
       if (angle === 0) {
-        // Simple case: no custom rotation, single physics body aligned to axis
+        // Simple axis-aligned case
         const hitboxW = isVertical ? BAMBOO_THICKNESS : length;
         const hitboxH = isVertical ? length : BAMBOO_THICKNESS;
-        const wall = this.add.rectangle(obs.x, obs.y, hitboxW, hitboxH, 0x000000, 0);
+        const wall = this.add.rectangle(obs.x, obs.y, hitboxW, hitboxH, 0xff0000, this.editMode ? 0.3 : 0);
         this.physics.add.existing(wall, true);
         this.walls.push(wall);
       } else {
-        // Angled obstacle: create segments along the rotated length
-        // Arcade physics doesn't support rotation, so we approximate with small rectangles
-        const numSegments = Math.ceil(length / 15); // More segments for better coverage
-        const segmentLength = length / numSegments;
+        // Angled: create chain of small square hitboxes along the bamboo
+        const totalAngle = (isVertical ? 90 : 0) + angle;
+        const totalAngleRad = Phaser.Math.DegToRad(totalAngle);
+        const numSegments = Math.ceil(length / 12);
 
         for (let i = 0; i < numSegments; i++) {
-          const t = (i + 0.5) / numSegments - 0.5; // -0.5 to 0.5
+          const t = (i + 0.5) / numSegments - 0.5;
           const segX = obs.x + Math.cos(totalAngleRad) * (t * length);
           const segY = obs.y + Math.sin(totalAngleRad) * (t * length);
 
-          // Square-ish segments for better collision at angles
-          const segment = this.add.rectangle(segX, segY, segmentLength + 5, BAMBOO_THICKNESS + 5, 0x000000, 0);
+          // Use square segments for consistent collision at any angle
+          const segment = this.add.rectangle(segX, segY, BAMBOO_THICKNESS + 8, BAMBOO_THICKNESS + 8, 0xff0000, this.editMode ? 0.3 : 0);
           this.physics.add.existing(segment, true);
           this.walls.push(segment);
         }
