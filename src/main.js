@@ -2266,23 +2266,29 @@ class GameScene extends Phaser.Scene {
 
       case 1:
         // First, select ammo 2
-        this.tutorialContainer.setPosition(400, 400);
+        this.tutorialContainer.setPosition(600, 250);
         this.tutorialText.setText('Select 2 ricochets');
-        this.tutorialSubtext.setText('Press 2 or click the 2 button\n2 ammo = 2 wall bounces!');
+        this.tutorialSubtext.setText('Tap the "2" button below\n2 ammo = 2 wall bounces!');
 
-        // Hide Phaser arrow, show HTML arrow pointing at "2" button
-        this.tutorialArrow.setVisible(false);
-        const htmlArrow = document.getElementById('tutorial-ammo-arrow');
-        if (htmlArrow) htmlArrow.classList.add('visible');
+        // Show Phaser arrow pointing down at ammo bar
+        this.tutorialArrow.setVisible(true);
+        this.tutorialArrow.setText('👇');
+        this.tutorialArrow.setPosition(600, 550);
+        this.tweens.add({
+          targets: this.tutorialArrow,
+          y: 570,
+          duration: 500,
+          yoyo: true,
+          repeat: -1
+        });
 
         // Only accept 2
         this.tutorialWaitingForAmmo = 2;
         break;
 
       case 2:
-        // Hide HTML arrow from step 1
-        const htmlArrowStep2 = document.getElementById('tutorial-ammo-arrow');
-        if (htmlArrowStep2) htmlArrowStep2.classList.remove('visible');
+        // Stop the bouncing arrow animation from step 1
+        this.tweens.killTweensOf(this.tutorialArrow);
 
         // Now shoot the wall
         this.tutorialContainer.setPosition(600, 150);
