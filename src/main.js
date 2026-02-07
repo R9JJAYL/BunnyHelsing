@@ -7,9 +7,9 @@ import Phaser from 'phaser';
 // Available bunny skins with gun offsets to align aim point
 // gunOffsetX/Y determine where bullets fire from (relative to container at y=630)
 const BUNNY_SKINS = [
-  { id: 'bunny-hero', name: 'Classic', offsetX: 0, offsetY: 0, scale: 0.09, gunX: 65, gunY: -75 },
-  { id: 'bunny-mobster', name: 'Mobster', offsetX: 0, offsetY: -45, scale: 0.09, gunX: 65, gunY: -55 },
-  { id: 'bunny-crimson', name: 'Crimson', offsetX: 0, offsetY: 0, scale: 0.09, gunX: 65, gunY: -75 }
+  { id: 'bunny-hero', name: 'Classic', offsetX: 0, offsetY: 5, scale: 0.09, gunX: 65, gunY: -75 },
+  { id: 'bunny-mobster', name: 'Mobster', offsetX: 15, offsetY: -15, scale: 0.09, gunX: 65, gunY: -55 },
+  { id: 'bunny-crimson', name: 'Crimson', offsetX: 10, offsetY: 5, scale: 0.09, gunX: 65, gunY: -75 }
 ];
 
 // Current selected skin (persisted in localStorage)
