@@ -226,6 +226,46 @@
         height: auto !important;
       }
     }
+
+    /* Fullscreen mode */
+    body.fullscreen-mode {
+      padding: 0 !important;
+    }
+    body.fullscreen-mode .sidebar,
+    body.fullscreen-mode .bottom-bar {
+      display: none !important;
+    }
+    body.fullscreen-mode .game-wrapper {
+      width: 100vw;
+      height: 100vh;
+    }
+    body.fullscreen-mode #game-container {
+      width: 100vw;
+      height: 100vh;
+    }
+    .exit-fullscreen-btn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 9999;
+      background: rgba(0,0,0,0.7);
+      border: 2px solid #C9A86C;
+      border-radius: 8px;
+      color: #C9A86C;
+      padding: 10px 15px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: none;
+    }
+    body.fullscreen-mode .exit-fullscreen-btn {
+      display: block;
+    }
+    .exit-fullscreen-btn:hover {
+      background: rgba(0,0,0,0.9);
+      border-color: #FFD700;
+      color: #FFD700;
+    }
   </style>
 </head>
 <body>
@@ -257,6 +297,10 @@
           <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9c.83 0 1.5-.67 1.5-1.5S7.83 8 7 8s-1.5.67-1.5 1.5S6.17 11 7 11zm3-4c.83 0 1.5-.67 1.5-1.5S10.83 4 10 4s-1.5.67-1.5 1.5S9.17 7 10 7zm4 0c.83 0 1.5-.67 1.5-1.5S14.83 4 14 4s-1.5.67-1.5 1.5S13.17 7 14 7zm3 4c.83 0 1.5-.67 1.5-1.5S17.83 8 17 8s-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/></svg>
           SKINS
         </button>
+        <button class="sidebar-btn" id="btn-fullscreen">
+          <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+          FULLSCREEN
+        </button>
       </div>
     </div>
     <div id="game-container"></div>
@@ -270,6 +314,42 @@
       <div id="tutorial-ammo-arrow" class="tutorial-ammo-arrow">👇</div>
     </div>
   </div>
+  <button class="exit-fullscreen-btn" id="exit-fullscreen">✕ EXIT FULLSCREEN</button>
   <script type="module" src="/src/main.js"></script>
+  <script>
+    // Fullscreen toggle
+    document.getElementById('btn-fullscreen').addEventListener('click', () => {
+      document.body.classList.add('fullscreen-mode');
+      // Try native fullscreen API
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        document.documentElement.webkitRequestFullscreen();
+      }
+    });
+
+    document.getElementById('exit-fullscreen').addEventListener('click', () => {
+      document.body.classList.remove('fullscreen-mode');
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+    });
+
+    // Exit fullscreen mode when pressing Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.body.classList.contains('fullscreen-mode')) {
+        document.body.classList.remove('fullscreen-mode');
+      }
+    });
+
+    // Sync with native fullscreen exit
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        document.body.classList.remove('fullscreen-mode');
+      }
+    });
+  </script>
 </body>
 </html>
