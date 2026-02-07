@@ -235,131 +235,144 @@ class SoundManager {
     osc.stop(now + 0.05);
   }
 
-  // Mysterious castle ambient music
+  // Magical theme tune - Harry Potter inspired
   startMusic() {
     if (!this.musicEnabled || !this.audioContext) return;
     if (this.musicOscillators.length > 0) return; // Already playing
 
     const ctx = this.audioContext;
     this.musicGain = ctx.createGain();
-    this.musicGain.gain.value = 0.02; // Very quiet
+    this.musicGain.gain.value = 0.035; // Quiet but audible
     this.musicGain.connect(ctx.destination);
 
-    // Cathedral-like reverb filter
+    // Soft pad filter
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.value = 350;
-    filter.Q.value = 1;
+    filter.frequency.value = 800;
+    filter.Q.value = 0.5;
     filter.connect(this.musicGain);
 
-    // Deep organ-like drone (D minor - dark key)
-    const drone1 = ctx.createOscillator();
-    drone1.type = 'sine';
-    drone1.frequency.value = 73.4; // D2
+    // Soft string pad (E minor - magical key)
+    const pad1 = ctx.createOscillator();
+    pad1.type = 'sine';
+    pad1.frequency.value = 82.4; // E2
 
-    const drone2 = ctx.createOscillator();
-    drone2.type = 'sine';
-    drone2.frequency.value = 110; // A2 (fifth)
+    const pad2 = ctx.createOscillator();
+    pad2.type = 'sine';
+    pad2.frequency.value = 123.5; // B2
 
-    // Very slow breathing LFO
+    const pad3 = ctx.createOscillator();
+    pad3.type = 'triangle';
+    pad3.frequency.value = 164.8; // E3
+
+    // Gentle shimmer LFO
     const lfo = ctx.createOscillator();
     lfo.type = 'sine';
-    lfo.frequency.value = 0.03; // Very slow breath
+    lfo.frequency.value = 0.15;
     const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 2;
-    lfo.connect(lfoGain).connect(drone1.frequency);
+    lfoGain.gain.value = 1.5;
+    lfo.connect(lfoGain).connect(pad3.frequency);
 
-    // Gains for balance
-    const drone1Gain = ctx.createGain();
-    drone1Gain.gain.value = 0.5;
-    const drone2Gain = ctx.createGain();
-    drone2Gain.gain.value = 0.3;
+    // Pad gains
+    const pad1Gain = ctx.createGain();
+    pad1Gain.gain.value = 0.4;
+    const pad2Gain = ctx.createGain();
+    pad2Gain.gain.value = 0.3;
+    const pad3Gain = ctx.createGain();
+    pad3Gain.gain.value = 0.2;
 
-    drone1.connect(drone1Gain).connect(filter);
-    drone2.connect(drone2Gain).connect(filter);
+    pad1.connect(pad1Gain).connect(filter);
+    pad2.connect(pad2Gain).connect(filter);
+    pad3.connect(pad3Gain).connect(filter);
 
-    // Start atmospheric effects
-    this.playAtmosphere(ctx, filter);
-
-    drone1.start();
-    drone2.start();
+    pad1.start();
+    pad2.start();
+    pad3.start();
     lfo.start();
 
-    this.musicOscillators = [drone1, drone2, lfo];
+    this.musicOscillators = [pad1, pad2, pad3, lfo];
     this.musicFilter = filter;
+    this.audioContext = ctx;
+
+    // Start the melodic theme
+    this.melodyPosition = 0;
+    this.playThemeMelody();
   }
 
-  // Play occasional atmospheric castle sounds
-  playAtmosphere(ctx, destination) {
-    if (!this.musicEnabled || !ctx) return;
+  // Play the main theme melody - magical celesta-like
+  playThemeMelody() {
+    if (!this.musicEnabled || !this.audioContext) return;
 
+    const ctx = this.audioContext;
     const now = ctx.currentTime;
-    const effectType = Math.floor(Math.random() * 3);
 
-    if (effectType === 0) {
-      // Distant wind whistle
-      const bufferSize = ctx.sampleRate * 2;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1);
-      }
+    // Magical melody in E minor (like Hedwig's Theme style)
+    // Pattern: mysterious, twinkling, with that "magical" interval jump
+    const melody = [
+      { note: 329.6, duration: 0.4 },  // E4
+      { note: 392, duration: 0.2 },    // G4
+      { note: 440, duration: 0.3 },    // A4
+      { note: 392, duration: 0.5 },    // G4
+      { note: 493.9, duration: 0.8 },  // B4 (hold)
+      { note: 466.2, duration: 0.6 },  // A#4 (that magical half-step)
+      { note: 392, duration: 0.8 },    // G4 (resolve)
+      { note: 0, duration: 0.4 },      // rest
+      { note: 329.6, duration: 0.4 },  // E4
+      { note: 293.7, duration: 0.3 },  // D4
+      { note: 329.6, duration: 0.5 },  // E4
+      { note: 0, duration: 0.6 },      // rest
+    ];
 
-      const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
+    const noteData = melody[this.melodyPosition];
+    const noteDuration = noteData.duration;
 
-      const windFilter = ctx.createBiquadFilter();
-      windFilter.type = 'bandpass';
-      windFilter.frequency.value = 300 + Math.random() * 200;
-      windFilter.Q.value = 15;
+    if (noteData.note > 0) {
+      // Celesta-like bell tone
+      const osc1 = ctx.createOscillator();
+      osc1.type = 'sine';
+      osc1.frequency.value = noteData.note;
 
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.03, now + 1);
-      gain.gain.linearRampToValueAtTime(0, now + 2);
+      // Add sparkle overtone
+      const osc2 = ctx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.value = noteData.note * 2; // Octave up
 
-      noise.connect(windFilter).connect(gain).connect(destination);
-      noise.start(now);
-      noise.stop(now + 2);
+      const osc3 = ctx.createOscillator();
+      osc3.type = 'sine';
+      osc3.frequency.value = noteData.note * 3; // 5th overtone
 
-    } else if (effectType === 1) {
-      // Mysterious bell-like tone (distant)
-      const notes = [146.8, 174.6, 196, 220]; // D3, F3, G3, A3 (D minor)
-      const note = notes[Math.floor(Math.random() * notes.length)];
+      const gain1 = ctx.createGain();
+      gain1.gain.setValueAtTime(0.12, now);
+      gain1.gain.exponentialRampToValueAtTime(0.01, now + noteDuration * 0.9);
 
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = note;
+      const gain2 = ctx.createGain();
+      gain2.gain.setValueAtTime(0.06, now);
+      gain2.gain.exponentialRampToValueAtTime(0.01, now + noteDuration * 0.7);
 
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.04, now + 0.3);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 3);
+      const gain3 = ctx.createGain();
+      gain3.gain.setValueAtTime(0.02, now);
+      gain3.gain.exponentialRampToValueAtTime(0.01, now + noteDuration * 0.5);
 
-      osc.connect(gain).connect(destination);
-      osc.start(now);
-      osc.stop(now + 3);
+      osc1.connect(gain1).connect(this.musicGain);
+      osc2.connect(gain2).connect(this.musicGain);
+      osc3.connect(gain3).connect(this.musicGain);
 
-    } else {
-      // Low rumble (like distant thunder or castle groan)
-      const rumble = ctx.createOscillator();
-      rumble.type = 'sine';
-      rumble.frequency.value = 40 + Math.random() * 20;
-
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.06, now + 0.5);
-      gain.gain.linearRampToValueAtTime(0, now + 2);
-
-      rumble.connect(gain).connect(destination);
-      rumble.start(now);
-      rumble.stop(now + 2);
+      osc1.start(now);
+      osc2.start(now);
+      osc3.start(now);
+      osc1.stop(now + noteDuration);
+      osc2.stop(now + noteDuration);
+      osc3.stop(now + noteDuration);
     }
 
-    // Schedule next atmospheric effect
-    const nextDelay = 5000 + Math.random() * 7000;
+    // Move to next note
+    this.melodyPosition = (this.melodyPosition + 1) % melody.length;
+
+    // Add a longer pause after the melody completes before repeating
+    const nextDelay = this.melodyPosition === 0 ? 2000 : noteDuration * 1000;
+
     this.melodyTimeout = setTimeout(() => {
-      this.playAtmosphere(ctx, destination);
+      this.playThemeMelody();
     }, nextDelay);
   }
 
