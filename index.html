@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=1400, initial-scale=0.6, shrink-to-fit=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
@@ -32,6 +32,7 @@
       display: flex;
       align-items: flex-start;
       gap: 20px;
+      transform-origin: 0 0;
     }
     .sidebar {
       display: none;
@@ -300,6 +301,52 @@
         document.body.classList.remove('fullscreen-mode');
       }
     });
+
+    // Mobile scaling - scale entire game to fit screen
+    function scaleGameToFit() {
+      var wrapper = document.querySelector('.game-wrapper');
+      if (!wrapper) return;
+
+      // The game content is approximately 1320px wide (1200 game + 100 sidebar + 20 gap)
+      // and 750px tall (650 game + 100 bottom bar)
+      var contentWidth = 1350;
+      var contentHeight = 780;
+
+      var availableWidth = window.innerWidth;
+      var availableHeight = window.innerHeight;
+
+      // Only scale if screen is smaller than content
+      if (availableWidth >= contentWidth && availableHeight >= contentHeight) {
+        wrapper.style.transform = '';
+        document.body.style.justifyContent = 'center';
+        document.body.style.alignItems = 'center';
+        return;
+      }
+
+      // Calculate scale to fit while maintaining aspect ratio
+      var scaleX = availableWidth / contentWidth;
+      var scaleY = availableHeight / contentHeight;
+      var scale = Math.min(scaleX, scaleY);
+
+      // Center the content
+      var scaledWidth = contentWidth * scale;
+      var scaledHeight = contentHeight * scale;
+      var translateX = Math.max(0, (availableWidth - scaledWidth) / 2);
+      var translateY = Math.max(0, (availableHeight - scaledHeight) / 2);
+
+      wrapper.style.transform = 'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scale + ')';
+      document.body.style.justifyContent = 'flex-start';
+      document.body.style.alignItems = 'flex-start';
+    }
+
+    // Run on load and resize
+    window.addEventListener('load', scaleGameToFit);
+    window.addEventListener('resize', scaleGameToFit);
+    window.addEventListener('orientationchange', function() {
+      setTimeout(scaleGameToFit, 100);
+    });
+    // Also run immediately
+    scaleGameToFit();
   </script>
 </body>
 </html>
