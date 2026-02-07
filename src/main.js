@@ -2418,7 +2418,8 @@ class GameScene extends Phaser.Scene {
       btn.classList.remove('selected', 'used');
 
       if (value <= this.ammoRemaining) {
-        if (value <= this.selectedAmmo) {
+        // Only highlight the exact selected number
+        if (value === this.selectedAmmo) {
           btn.classList.add('selected');
         }
       } else {
