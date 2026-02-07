@@ -362,19 +362,17 @@
   <script>
     // Fullscreen toggle
     document.getElementById('btn-fullscreen').addEventListener('click', () => {
-      document.body.classList.add('fullscreen-mode');
-
-      // Try native fullscreen API first
+      // Try native fullscreen API first (works on Android/Desktop)
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
         elem.requestFullscreen();
+        document.body.classList.add('fullscreen-mode');
       } else if (elem.webkitRequestFullscreen) {
         elem.webkitRequestFullscreen();
+        document.body.classList.add('fullscreen-mode');
       } else {
-        // iOS fallback: scroll to hide address bar
-        window.scrollTo(0, 1);
-        // Also try to trigger minimal-ui by focusing
-        setTimeout(() => window.scrollTo(0, 0), 100);
+        // iOS: Show instruction to add to home screen
+        alert('To play fullscreen on iPhone:\\n\\n1. Tap the Share button (square with arrow)\\n2. Tap "Add to Home Screen"\\n3. Open the app from your home screen\\n\\nThis will run the game without browser bars!');
       }
     });
 
