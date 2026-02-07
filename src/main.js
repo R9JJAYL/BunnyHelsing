@@ -1482,6 +1482,19 @@ class GameScene extends Phaser.Scene {
       color: '#FFD700'
     }).setOrigin(0.5);
 
+    // Column headers
+    const buttonHeader = this.add.text(-80, -80, 'BUTTON', {
+      fontSize: '14px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#888888'
+    }).setOrigin(0, 0.5);
+
+    const actionHeader = this.add.text(80, -80, 'ACTION', {
+      fontSize: '14px',
+      fontFamily: 'Cinzel, Georgia, serif',
+      color: '#888888'
+    }).setOrigin(0.5);
+
     // Control instructions
     const controls = [
       { key: 'CLICK', action: 'Shoot' },
@@ -1490,15 +1503,15 @@ class GameScene extends Phaser.Scene {
       { key: 'S', action: 'Skip level' }
     ];
 
-    const controlTexts = [];
+    const controlTexts = [buttonHeader, actionHeader];
     controls.forEach((ctrl, i) => {
-      const keyText = this.add.text(-80, -50 + i * 35, ctrl.key, {
+      const keyText = this.add.text(-80, -45 + i * 35, ctrl.key, {
         fontSize: '16px',
         fontFamily: 'Cinzel, Georgia, serif',
         color: '#FFD700'
       }).setOrigin(0, 0.5);
 
-      const actionText = this.add.text(80, -50 + i * 35, ctrl.action, {
+      const actionText = this.add.text(80, -45 + i * 35, ctrl.action, {
         fontSize: '16px',
         fontFamily: 'Cinzel, Georgia, serif',
         color: '#CCCCCC'
