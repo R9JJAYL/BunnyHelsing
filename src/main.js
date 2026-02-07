@@ -525,6 +525,8 @@ class GameScene extends Phaser.Scene {
     this.trailEvent = null;
     this.vignette = null;
     this.chandeliers = [];
+    this.tutorialActive = false;
+    this.tutorialBlockShoot = false;
 
     if (data.level) {
       this.level = data.level;
