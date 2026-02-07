@@ -2453,6 +2453,9 @@ class GameScene extends Phaser.Scene {
         btn.dataset.value = i;
         btn.addEventListener('click', () => {
           this.selectAmmo(i);
+          // Close ammo menu after selection
+          const ammoButtons = document.getElementById('ammo-buttons');
+          if (ammoButtons) ammoButtons.classList.remove('expanded');
         });
         container.appendChild(btn);
       }
