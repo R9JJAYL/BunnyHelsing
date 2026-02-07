@@ -1793,72 +1793,86 @@ class GameScene extends Phaser.Scene {
     this.settingsOverlay.setDepth(2000);
 
     // Dark background
-    const bg = this.add.rectangle(0, 0, 400, 320, 0x000000, 0.9);
+    const bg = this.add.rectangle(0, 0, 400, 280, 0x000000, 0.9);
     bg.setStrokeStyle(2, 0xC9A86C);
 
     // Title
-    const title = this.add.text(0, -130, 'SETTINGS', {
+    const title = this.add.text(0, -110, 'SETTINGS', {
       fontSize: '24px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#FFD700'
     }).setOrigin(0.5);
 
     // Sound toggle (placeholder)
-    const soundLabel = this.add.text(-80, -60, 'Sound:', {
+    const soundLabel = this.add.text(-80, -50, 'Sound:', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#CCCCCC'
     }).setOrigin(0, 0.5);
 
-    const soundStatus = this.add.text(80, -60, 'ON', {
+    const soundStatus = this.add.text(80, -50, 'ON', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#88CC88'
     }).setOrigin(0.5);
 
     // Music toggle (placeholder)
-    const musicLabel = this.add.text(-80, -10, 'Music:', {
+    const musicLabel = this.add.text(-80, -5, 'Music:', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#CCCCCC'
     }).setOrigin(0, 0.5);
 
-    const musicStatus = this.add.text(80, -10, 'ON', {
+    const musicStatus = this.add.text(80, -5, 'ON', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#88CC88'
     }).setOrigin(0.5);
 
-    // Skins button
-    const skinsBtn = this.add.container(0, 50);
-    const skinsBg = this.add.rectangle(0, 0, 150, 40, 0x2A2520);
-    skinsBg.setStrokeStyle(2, 0x8B7355);
-    const skinsText = this.add.text(0, 0, 'SKINS', {
+    // Skin selector row
+    const skinLabel = this.add.text(-80, 40, 'Skin:', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
-      color: '#C9A86C'
-    }).setOrigin(0.5);
-    skinsBtn.add([skinsBg, skinsText]);
+      color: '#CCCCCC'
+    }).setOrigin(0, 0.5);
 
-    skinsBg.setInteractive({ useHandCursor: true });
-    skinsBg.on('pointerover', () => {
-      skinsBg.setFillStyle(0x3A3530);
-      skinsText.setColor('#FFD700');
-    });
-    skinsBg.on('pointerout', () => {
-      skinsBg.setFillStyle(0x2A2520);
-      skinsText.setColor('#C9A86C');
-    });
-    skinsBg.on('pointerdown', () => {
-      this.settingsOverlay.destroy();
-      this.settingsOverlay = null;
-      this.time.delayedCall(50, () => {
-        this.showSkinsModal();
+    // Create skin option buttons
+    const skinButtons = [];
+    const skinStartX = 20;
+    const skinSpacing = 70;
+
+    BUNNY_SKINS.forEach((skin, i) => {
+      const btnX = skinStartX + i * skinSpacing;
+      const isSelected = currentSkin === skin.id;
+
+      const skinText = this.add.text(btnX, 40, skin.name, {
+        fontSize: '14px',
+        fontFamily: 'Cinzel, Georgia, serif',
+        color: isSelected ? '#FFD700' : '#888888'
+      }).setOrigin(0.5);
+
+      skinText.setInteractive({ useHandCursor: true });
+      skinText.on('pointerover', () => {
+        if (currentSkin !== skin.id) skinText.setColor('#C9A86C');
       });
+      skinText.on('pointerout', () => {
+        skinText.setColor(currentSkin === skin.id ? '#FFD700' : '#888888');
+      });
+      skinText.on('pointerdown', () => {
+        currentSkin = skin.id;
+        localStorage.setItem('bunnySkin', skin.id);
+        // Update all skin button colors
+        skinButtons.forEach((btn, idx) => {
+          btn.setColor(BUNNY_SKINS[idx].id === currentSkin ? '#FFD700' : '#888888');
+        });
+        this.updateBunnySkin();
+      });
+
+      skinButtons.push(skinText);
     });
 
     // Close button
-    const closeBtn = this.add.container(0, 110);
+    const closeBtn = this.add.container(0, 100);
     const closeBg = this.add.rectangle(0, 0, 120, 40, 0x2A2520);
     closeBg.setStrokeStyle(2, 0x8B7355);
     const closeText = this.add.text(0, 0, 'CLOSE', {
@@ -1885,7 +1899,7 @@ class GameScene extends Phaser.Scene {
       });
     });
 
-    this.settingsOverlay.add([bg, title, soundLabel, soundStatus, musicLabel, musicStatus, skinsBtn, closeBtn]);
+    this.settingsOverlay.add([bg, title, soundLabel, soundStatus, musicLabel, musicStatus, skinLabel, ...skinButtons, closeBtn]);
   }
 
   showControlsModal() {
