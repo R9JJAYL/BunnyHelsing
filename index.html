@@ -272,9 +272,19 @@
       }
     }
 
-    /* Fullscreen mode - keep all game UI, just use full viewport */
+    /* Fullscreen mode - maximize viewport to push browser chrome off screen */
     body.fullscreen-mode {
-      padding: 5px !important;
+      padding: 0 !important;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100lvh; /* Use large viewport height to push past browser chrome */
+    }
+    body.fullscreen-mode .game-wrapper {
+      height: 100vh;
+      height: 100lvh;
     }
     .exit-fullscreen-btn {
       position: fixed;
@@ -352,20 +362,20 @@
   <script>
     // Fullscreen toggle
     document.getElementById('btn-fullscreen').addEventListener('click', () => {
-      // Try native fullscreen API
+      document.body.classList.add('fullscreen-mode');
+
+      // Try native fullscreen API first
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
         elem.requestFullscreen();
       } else if (elem.webkitRequestFullscreen) {
         elem.webkitRequestFullscreen();
-      } else if (elem.webkitEnterFullscreen) {
-        // iOS video element fallback (won't work for page)
-        elem.webkitEnterFullscreen();
       } else {
-        // iOS doesn't support fullscreen API - show message
-        alert('For fullscreen on iOS: tap Share → Add to Home Screen. This will launch the game without browser bars.');
+        // iOS fallback: scroll to hide address bar
+        window.scrollTo(0, 1);
+        // Also try to trigger minimal-ui by focusing
+        setTimeout(() => window.scrollTo(0, 0), 100);
       }
-      document.body.classList.add('fullscreen-mode');
     });
 
     document.getElementById('exit-fullscreen').addEventListener('click', () => {
