@@ -2266,17 +2266,18 @@ class GameScene extends Phaser.Scene {
 
       case 1:
         // First, select ammo 2
-        this.tutorialContainer.setPosition(600, 250);
+        this.tutorialContainer.setPosition(600, 200);
         this.tutorialText.setText('Select 2 ricochets');
         this.tutorialSubtext.setText('Tap the "2" button below\n2 ammo = 2 wall bounces!');
 
-        // Show Phaser arrow pointing down at ammo bar
+        // Show Phaser arrow pointing down at ammo bar (higher up so it's visible above HTML overlay)
         this.tutorialArrow.setVisible(true);
         this.tutorialArrow.setText('👇');
-        this.tutorialArrow.setPosition(600, 550);
+        this.tutorialArrow.setPosition(600, 480);
+        this.tutorialArrow.setDepth(200);
         this.tweens.add({
           targets: this.tutorialArrow,
-          y: 570,
+          y: 510,
           duration: 500,
           yoyo: true,
           repeat: -1
