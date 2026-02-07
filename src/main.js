@@ -2399,70 +2399,11 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    // Create in-game Phaser ammo UI (for mobile)
-    this.createInGameAmmoUI();
-
     this.updateAmmoUI();
   }
 
-  createInGameAmmoUI() {
-    // Destroy existing in-game ammo UI if it exists
-    if (this.inGameAmmoContainer) {
-      this.inGameAmmoContainer.destroy();
-    }
-
-    // Create container for in-game ammo buttons (bottom-right corner)
-    this.inGameAmmoContainer = this.add.container(1100, 600);
-    this.inGameAmmoContainer.setDepth(1000);
-    this.inGameAmmoButtons = [];
-
-    // Background panel
-    const panelWidth = Math.min(this.ammoTotal * 45 + 20, 250);
-    const bg = this.add.rectangle(0, 0, panelWidth, 50, 0x2A2520, 0.9);
-    bg.setStrokeStyle(1, 0x5C4A3D);
-    this.inGameAmmoContainer.add(bg);
-
-    // AMMO label
-    const label = this.add.text(-panelWidth/2 + 10, 0, 'AMMO', {
-      fontSize: '10px',
-      fontFamily: 'Cinzel, Georgia, serif',
-      color: '#888888'
-    }).setOrigin(0, 0.5);
-    this.inGameAmmoContainer.add(label);
-
-    // Create ammo buttons
-    const startX = -panelWidth/2 + 60;
-    const buttonSize = 32;
-    const spacing = 38;
-
-    for (let i = 1; i <= Math.min(this.ammoTotal, 5); i++) {
-      const btnX = startX + (i - 1) * spacing;
-
-      // Button background circle
-      const btnBg = this.add.circle(btnX, 0, buttonSize / 2, 0x2A2520);
-      btnBg.setStrokeStyle(2, 0x8B7355);
-      btnBg.setInteractive({ useHandCursor: true });
-
-      // Button text
-      const btnText = this.add.text(btnX, 0, i.toString(), {
-        fontSize: '14px',
-        fontFamily: 'Cinzel, Georgia, serif',
-        color: '#C9A86C'
-      }).setOrigin(0.5);
-
-      // Click handler
-      btnBg.on('pointerdown', (pointer) => {
-        pointer.event.stopPropagation();
-        this.selectAmmo(i);
-      });
-
-      this.inGameAmmoContainer.add([btnBg, btnText]);
-      this.inGameAmmoButtons.push({ bg: btnBg, text: btnText, value: i });
-    }
-  }
-
   updateAmmoUI() {
-    // Update HTML buttons (desktop)
+    // Update HTML buttons
     const buttons = document.querySelectorAll('.ammo-btn');
     buttons.forEach((btn) => {
       const value = parseInt(btn.dataset.value);
@@ -2476,36 +2417,6 @@ class GameScene extends Phaser.Scene {
         btn.classList.add('used');
       }
     });
-
-    // Update in-game Phaser buttons (mobile)
-    if (this.inGameAmmoButtons) {
-      this.inGameAmmoButtons.forEach((btn) => {
-        const value = btn.value;
-
-        if (value <= this.ammoRemaining) {
-          if (value <= this.selectedAmmo) {
-            // Selected state
-            btn.bg.setFillStyle(0xFFD700);
-            btn.bg.setStrokeStyle(2, 0xFFD700);
-            btn.text.setColor('#2A2520');
-          } else {
-            // Available state
-            btn.bg.setFillStyle(0x2A2520);
-            btn.bg.setStrokeStyle(2, 0x8B7355);
-            btn.text.setColor('#C9A86C');
-          }
-          btn.bg.setAlpha(1);
-          btn.text.setAlpha(1);
-        } else {
-          // Used/unavailable state
-          btn.bg.setFillStyle(0x2A2520);
-          btn.bg.setStrokeStyle(2, 0x8B7355);
-          btn.text.setColor('#C9A86C');
-          btn.bg.setAlpha(0.3);
-          btn.text.setAlpha(0.3);
-        }
-      });
-    }
   }
 
   setupInput() {
