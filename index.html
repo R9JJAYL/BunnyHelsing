@@ -183,7 +183,7 @@
       transform: scale(1.02);
     }
 
-    /* Mobile responsive styles - match desktop layout */
+    /* Mobile responsive styles - match desktop layout exactly */
     @media (max-width: 900px), (max-height: 700px) {
       html, body {
         width: 100%;
@@ -192,48 +192,55 @@
       }
       body {
         padding: 5px;
-        min-height: 100vh;
-        min-height: 100dvh;
       }
       .game-wrapper {
-        width: 100%;
-        height: 100vh;
-        height: 100dvh;
+        gap: 10px;
+        align-items: flex-start;
       }
-      /* Keep sidebar vertical like desktop, just smaller */
+      /* Sidebar matches game canvas height, scaled down */
       .sidebar {
-        width: 70px;
-        height: 100%;
+        width: 60px;
+        height: auto;
+        gap: 5px;
       }
       .sidebar img {
-        height: 50px;
+        height: 40px;
       }
       .level-score {
         display: none;
       }
+      .sidebar-buttons {
+        gap: 5px;
+        margin-top: 5px;
+      }
       .sidebar-btn {
-        min-height: 40px;
-        padding: 6px 4px;
-        font-size: 0.45rem;
+        min-height: 36px;
+        padding: 5px 3px;
+        font-size: 0.4rem;
+        gap: 2px;
       }
       .sidebar-btn svg {
-        width: 14px;
-        height: 14px;
+        width: 12px;
+        height: 12px;
       }
-      /* Bottom bar below game */
+      /* Bottom bar matches game width */
       .bottom-bar {
-        width: calc(100% - 80px);
-        margin-left: 80px;
+        width: auto;
+        margin-left: 70px;
         padding: 5px;
+        margin-top: 5px;
+      }
+      .ammo-panel {
+        padding: 4px 8px;
+        gap: 4px;
       }
       .ammo-btn {
-        width: 28px;
-        height: 28px;
-        font-size: 0.75rem;
+        width: 24px;
+        height: 24px;
+        font-size: 0.65rem;
       }
-      #game-container canvas {
-        max-width: 100% !important;
-        max-height: 100% !important;
+      .ammo-panel .ammo-label {
+        font-size: 0.5rem;
       }
     }
 
