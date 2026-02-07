@@ -4,6 +4,243 @@ import Phaser from 'phaser';
 // BUNNY BASHERS - MEDIEVAL CASTLE THEME
 // ============================================
 
+// ============================================
+// SOUND SYSTEM - Web Audio API Generated Sounds
+// ============================================
+class SoundManager {
+  constructor() {
+    this.audioContext = null;
+    this.enabled = localStorage.getItem('soundEnabled') !== 'false';
+    this.musicEnabled = localStorage.getItem('musicEnabled') !== 'false';
+    this.musicGain = null;
+    this.musicOscillators = [];
+  }
+
+  init() {
+    if (this.audioContext) return;
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Resume on user interaction (required by browsers)
+    document.addEventListener('click', () => {
+      if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume();
+      }
+    }, { once: true });
+  }
+
+  // Gunshot - punchy low sound
+  playGunshot() {
+    if (!this.enabled || !this.audioContext) return;
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+
+    // Noise burst for the "crack"
+    const bufferSize = ctx.sampleRate * 0.1;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.1));
+    }
+
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.3, now);
+    noiseGain.gain.exponentialDecayTo = 0.01;
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+
+    // Low thump
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(150, now);
+    osc.frequency.exponentialRampToValueAtTime(30, now + 0.1);
+
+    const oscGain = ctx.createGain();
+    oscGain.gain.setValueAtTime(0.4, now);
+    oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+    noise.connect(noiseGain).connect(ctx.destination);
+    osc.connect(oscGain).connect(ctx.destination);
+
+    noise.start(now);
+    osc.start(now);
+    noise.stop(now + 0.1);
+    osc.stop(now + 0.15);
+  }
+
+  // Ricochet - metallic ping
+  playRicochet() {
+    if (!this.enabled || !this.audioContext) return;
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(2000 + Math.random() * 500, now);
+    osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.15);
+  }
+
+  // Enemy hit - thud with squish
+  playHit() {
+    if (!this.enabled || !this.audioContext) return;
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(200, now);
+    osc.frequency.exponentialRampToValueAtTime(50, now + 0.2);
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.2);
+  }
+
+  // Victory fanfare
+  playVictory() {
+    if (!this.enabled || !this.audioContext) return;
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+
+    const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0, now + i * 0.15);
+      gain.gain.linearRampToValueAtTime(0.2, now + i * 0.15 + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.15 + 0.4);
+
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now + i * 0.15);
+      osc.stop(now + i * 0.15 + 0.4);
+    });
+  }
+
+  // Fail sound - descending tone
+  playFail() {
+    if (!this.enabled || !this.audioContext) return;
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.exponentialRampToValueAtTime(100, now + 0.5);
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 800;
+
+    osc.connect(filter).connect(gain).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.5);
+  }
+
+  // UI Click
+  playClick() {
+    if (!this.enabled || !this.audioContext) return;
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 600;
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.05);
+  }
+
+  // Dark ambient background music
+  startMusic() {
+    if (!this.musicEnabled || !this.audioContext) return;
+    if (this.musicOscillators.length > 0) return; // Already playing
+
+    const ctx = this.audioContext;
+    this.musicGain = ctx.createGain();
+    this.musicGain.gain.value = 0.03; // Very quiet
+    this.musicGain.connect(ctx.destination);
+
+    // Deep drone
+    const drone1 = ctx.createOscillator();
+    drone1.type = 'sine';
+    drone1.frequency.value = 55; // Low A
+
+    const drone2 = ctx.createOscillator();
+    drone2.type = 'sine';
+    drone2.frequency.value = 82.5; // E below middle C
+
+    // Subtle LFO for movement
+    const lfo = ctx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.1;
+
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 5;
+    lfo.connect(lfoGain).connect(drone1.frequency);
+
+    drone1.connect(this.musicGain);
+    drone2.connect(this.musicGain);
+
+    drone1.start();
+    drone2.start();
+    lfo.start();
+
+    this.musicOscillators = [drone1, drone2, lfo];
+  }
+
+  stopMusic() {
+    this.musicOscillators.forEach(osc => {
+      try { osc.stop(); } catch(e) {}
+    });
+    this.musicOscillators = [];
+  }
+
+  toggleSound() {
+    this.enabled = !this.enabled;
+    localStorage.setItem('soundEnabled', this.enabled);
+    return this.enabled;
+  }
+
+  toggleMusic() {
+    this.musicEnabled = !this.musicEnabled;
+    localStorage.setItem('musicEnabled', this.musicEnabled);
+    if (this.musicEnabled) {
+      this.startMusic();
+    } else {
+      this.stopMusic();
+    }
+    return this.musicEnabled;
+  }
+}
+
+// Global sound manager instance
+const soundManager = new SoundManager();
+
 // Available bunny skins with gun offsets to align aim point
 // gunOffsetX/Y determine where bullets fire from (relative to container at y=630)
 const BUNNY_SKINS = [
@@ -543,6 +780,10 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
+    // Initialize sound system
+    soundManager.init();
+    soundManager.startMusic();
+
     // Show UI elements when game starts
     document.getElementById('sidebar')?.classList.add('visible');
 
@@ -1803,31 +2044,47 @@ class GameScene extends Phaser.Scene {
       color: '#FFD700'
     }).setOrigin(0.5);
 
-    // Sound toggle (placeholder)
+    // Sound toggle
     const soundLabel = this.add.text(-80, -50, 'Sound:', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#CCCCCC'
     }).setOrigin(0, 0.5);
 
-    const soundStatus = this.add.text(80, -50, 'ON', {
+    const soundStatus = this.add.text(80, -50, soundManager.enabled ? 'ON' : 'OFF', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
-      color: '#88CC88'
+      color: soundManager.enabled ? '#88CC88' : '#CC8888'
     }).setOrigin(0.5);
 
-    // Music toggle (placeholder)
+    soundStatus.setInteractive({ useHandCursor: true });
+    soundStatus.on('pointerdown', () => {
+      const enabled = soundManager.toggleSound();
+      soundStatus.setText(enabled ? 'ON' : 'OFF');
+      soundStatus.setColor(enabled ? '#88CC88' : '#CC8888');
+      if (enabled) soundManager.playClick();
+    });
+
+    // Music toggle
     const musicLabel = this.add.text(-80, -5, 'Music:', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
       color: '#CCCCCC'
     }).setOrigin(0, 0.5);
 
-    const musicStatus = this.add.text(80, -5, 'ON', {
+    const musicStatus = this.add.text(80, -5, soundManager.musicEnabled ? 'ON' : 'OFF', {
       fontSize: '16px',
       fontFamily: 'Cinzel, Georgia, serif',
-      color: '#88CC88'
+      color: soundManager.musicEnabled ? '#88CC88' : '#CC8888'
     }).setOrigin(0.5);
+
+    musicStatus.setInteractive({ useHandCursor: true });
+    musicStatus.on('pointerdown', () => {
+      const enabled = soundManager.toggleMusic();
+      musicStatus.setText(enabled ? 'ON' : 'OFF');
+      musicStatus.setColor(enabled ? '#88CC88' : '#CC8888');
+      soundManager.playClick();
+    });
 
     // Skin label centered
     const skinLabel = this.add.text(0, 35, 'Skin:', {
@@ -2696,6 +2953,9 @@ class GameScene extends Phaser.Scene {
 
     if (power < 20) return;
 
+    // Play gunshot sound
+    soundManager.playGunshot();
+
     const speed = Math.min(power * 4, 600); // Cap max speed to prevent tunneling
 
     this.ammoRemaining -= this.selectedAmmo;
@@ -3004,6 +3264,9 @@ class GameScene extends Phaser.Scene {
 
     this.bullet.bounceCount++;
 
+    // Play ricochet sound
+    soundManager.playRicochet();
+
     // Screen shake - steel hitting stone
     const shakeIntensity = 0.006 - (this.bullet.bounceCount * 0.001);
     this.cameras.main.shake(60, Math.max(0.002, shakeIntensity));
@@ -3167,6 +3430,9 @@ class GameScene extends Phaser.Scene {
     if (index > -1) {
       this.pandas.splice(index, 1);
     }
+
+    // Play hit sound
+    soundManager.playHit();
 
     // COMBO SYSTEM
     this.combo++;
@@ -3468,6 +3734,9 @@ class GameScene extends Phaser.Scene {
   }
 
   onLevelComplete() {
+    // Play victory sound
+    soundManager.playVictory();
+
     if (this.bullet) {
       if (this.bullet.container) this.bullet.container.destroy();
       this.bullet.destroy();
@@ -3588,6 +3857,9 @@ class GameScene extends Phaser.Scene {
 
 
   onLevelFailed() {
+    // Play fail sound
+    soundManager.playFail();
+
     this.levelEnded = true;
 
     // Hide tutorial if active
