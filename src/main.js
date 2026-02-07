@@ -435,6 +435,16 @@ class MainMenuScene extends Phaser.Scene {
   }
 
   setupEditMode(logo, bunny, panda, playBtn) {
+    // Enable drag input on the scene
+    this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+      gameObject.x = Math.round(dragX);
+      gameObject.y = Math.round(dragY);
+      if (gameObject.label) {
+        gameObject.label.setPosition(gameObject.x, gameObject.y - 60);
+      }
+      this.updateCoordsDisplay(this.editElements);
+    });
+
     // Coords display
     this.coordsText = this.add.text(10, 10, 'EDIT MODE - Drag elements', {
       fontSize: '14px',
@@ -444,15 +454,21 @@ class MainMenuScene extends Phaser.Scene {
     }).setDepth(1000);
 
     // Make elements draggable
-    const elements = [
+    this.editElements = [
       { obj: logo, name: 'logo' },
       { obj: bunny, name: 'bunny' },
       { obj: panda, name: 'panda' },
       { obj: playBtn, name: 'playBtn' }
     ];
 
-    elements.forEach(({ obj, name }) => {
-      obj.setInteractive({ draggable: true, useHandCursor: true });
+    this.editElements.forEach(({ obj, name }) => {
+      // For containers, set interactive with a hit area
+      if (obj.type === 'Container') {
+        obj.setSize(240, 70);
+        obj.setInteractive({ draggable: true, useHandCursor: true });
+      } else {
+        obj.setInteractive({ draggable: true, useHandCursor: true });
+      }
 
       // Label for each element
       const label = this.add.text(obj.x, obj.y - 60, name, {
@@ -462,15 +478,10 @@ class MainMenuScene extends Phaser.Scene {
         backgroundColor: '#000000'
       }).setOrigin(0.5).setDepth(1001);
 
-      obj.on('drag', (pointer, dragX, dragY) => {
-        obj.x = Math.round(dragX);
-        obj.y = Math.round(dragY);
-        label.setPosition(obj.x, obj.y - 60);
-        this.updateCoordsDisplay(elements);
-      });
+      obj.label = label;
     });
 
-    this.updateCoordsDisplay(elements);
+    this.updateCoordsDisplay(this.editElements);
 
     // Copy button
     const copyBtn = this.add.text(10, 600, '📋 COPY COORDS', {
