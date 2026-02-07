@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="viewport" content="width=1400, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
@@ -306,54 +306,7 @@
       }
     });
 
-    // Mobile scaling - scale entire game to fit screen
-    function scaleGameToFit() {
-      var container = document.querySelector('.scale-container');
-      if (!container) return;
-
-      // The game content is approximately 1320px wide (1200 game + 100 sidebar + 20 gap)
-      // and 780px tall (650 game + 130 bottom bar)
-      var contentWidth = 1350;
-      var contentHeight = 780;
-
-      var availableWidth = window.innerWidth;
-      var availableHeight = window.innerHeight;
-
-      // Always apply scaling on mobile (force it)
-      var scaleX = availableWidth / contentWidth;
-      var scaleY = availableHeight / contentHeight;
-      var scale = Math.min(scaleX, scaleY, 1); // Cap at 1 so desktop doesn't upscale
-
-      // Center the content
-      var scaledWidth = contentWidth * scale;
-      var scaledHeight = contentHeight * scale;
-      var translateX = Math.max(0, (availableWidth - scaledWidth) / 2);
-      var translateY = Math.max(0, (availableHeight - scaledHeight) / 2);
-
-      container.style.transform = 'translate(' + translateX + 'px, ' + translateY + 'px) scale(' + scale + ')';
-      document.body.style.justifyContent = 'flex-start';
-      document.body.style.alignItems = 'flex-start';
-    }
-
-    // Run on load and resize
-    window.addEventListener('load', function() {
-      scaleGameToFit();
-      // Run again after Phaser initializes
-      setTimeout(scaleGameToFit, 500);
-      setTimeout(scaleGameToFit, 1000);
-      setTimeout(scaleGameToFit, 2000);
-    });
-    window.addEventListener('resize', scaleGameToFit);
-    window.addEventListener('orientationchange', function() {
-      setTimeout(scaleGameToFit, 100);
-      setTimeout(scaleGameToFit, 500);
-    });
-    // Run after DOM is ready
-    if (document.readyState === 'complete') {
-      scaleGameToFit();
-    } else {
-      document.addEventListener('DOMContentLoaded', scaleGameToFit);
-    }
+    // No JavaScript scaling needed - viewport width=1400 forces browser to zoom out
   </script>
 </body>
 </html>
