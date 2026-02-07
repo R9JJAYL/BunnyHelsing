@@ -543,12 +543,8 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
-    // Show UI elements when game starts
-    document.getElementById('sidebar').classList.add('visible');
-    document.getElementById('bottom-bar').classList.add('visible');
-
-    // Setup sidebar button handlers
-    this.setupSidebarButtons();
+    // Setup nav button handlers
+    this.setupNavButtons();
 
     // Reset time scale in case slow-mo was active
     this.time.timeScale = 1;
@@ -1736,43 +1732,42 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  setupSidebarButtons() {
+  setupNavButtons() {
     // Home button - return to main menu
     const homeBtn = document.getElementById('btn-home');
-    homeBtn.onclick = () => {
-      // Hide UI elements
-      document.getElementById('sidebar').classList.remove('visible');
-      document.getElementById('bottom-bar').classList.remove('visible');
-      // Reset game state
-      this.level = 1;
-      this.score = 0;
-      // Go to main menu
-      this.scene.start('MainMenuScene');
-    };
+    if (homeBtn) {
+      homeBtn.onclick = () => {
+        // Reset game state
+        this.level = 1;
+        this.score = 0;
+        // Go to main menu
+        this.scene.start('MainMenuScene');
+      };
+    }
 
-    // Settings button - show settings (placeholder for now)
+    // Settings button - show settings
     const settingsBtn = document.getElementById('btn-settings');
-    settingsBtn.onclick = () => {
-      this.showSettingsModal();
-    };
+    if (settingsBtn) {
+      settingsBtn.onclick = () => {
+        this.showSettingsModal();
+      };
+    }
 
     // Levels button - show level select
     const levelsBtn = document.getElementById('btn-levels');
-    levelsBtn.onclick = () => {
-      this.showLevelSelectModal();
-    };
-
-    // Controls button - show controls info
-    const controlsBtn = document.getElementById('btn-controls');
-    controlsBtn.onclick = () => {
-      this.showControlsModal();
-    };
+    if (levelsBtn) {
+      levelsBtn.onclick = () => {
+        this.showLevelSelectModal();
+      };
+    }
 
     // Skins button - show skin selection
     const skinsBtn = document.getElementById('btn-skins');
-    skinsBtn.onclick = () => {
-      this.showSkinsModal();
-    };
+    if (skinsBtn) {
+      skinsBtn.onclick = () => {
+        this.showSkinsModal();
+      };
+    }
   }
 
   showSettingsModal() {

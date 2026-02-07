@@ -18,38 +18,97 @@
     html, body {
       width: 100%;
       height: 100%;
-    }
-    body {
-      background: linear-gradient(180deg, #0A0A0C 0%, #151518 50%, #1A1A1F 100%);
-      margin: 0;
-      padding: 0;
-      font-family: 'Cinzel', 'Times New Roman', serif;
+      background: #0A0A0C;
       overflow: hidden;
-    }
-    #game-container {
-      width: 100vw;
-      height: 100dvh; /* dynamic viewport height - accounts for iOS Safari chrome */
-      max-width: 100%;
-      max-height: 100%;
+      font-family: 'Cinzel', 'Times New Roman', serif;
     }
 
-    /* Mobile landscape - account for notch/safe areas and hide HTML UI */
-    @media (orientation: landscape) and (max-height: 500px) {
-      #game-container {
-        width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
-        height: 100dvh;
-        margin-left: env(safe-area-inset-left, 0px);
-      }
-      /* Hide HTML sidebar and bottom bar on mobile - use in-game UI instead */
-      .sidebar, .sidebar.visible {
-        display: none !important;
-      }
-      .bottom-bar, .bottom-bar.visible {
-        display: none !important;
-      }
-      .scale-container, .game-wrapper {
-        display: contents;
-      }
+    /* Main layout - game fills screen, bottom bar overlays */
+    #game-container {
+      width: 100vw;
+      height: 100dvh;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    /* Bottom bar - always visible, overlays game */
+    .bottom-bar {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 100;
+      padding: 0 10px;
+    }
+
+    .ammo-panel {
+      padding: 8px 15px;
+      background: rgba(42, 37, 32, 0.95);
+      border: 1px solid #5C4A3D;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ammo-panel .ammo-label {
+      color: #888;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+    }
+    .ammo-panel .ammo-buttons {
+      display: flex;
+      flex-direction: row;
+      gap: 5px;
+    }
+    .ammo-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid #8B7355;
+      background: #2A2520;
+      color: #C9A86C;
+      font-size: 0.8rem;
+      font-family: 'Cinzel', serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ammo-btn.selected {
+      background: #FFD700;
+      color: #2A2520;
+      border-color: #FFD700;
+    }
+    .ammo-btn.used {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* Nav buttons */
+    .nav-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid #5C4A3D;
+      background: rgba(42, 37, 32, 0.95);
+      color: #C9A86C;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .nav-btn:hover, .nav-btn:active {
+      background: #3A3530;
+      border-color: #8B7355;
+      color: #FFD700;
+    }
+    .nav-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
     }
 
     /* Portrait orientation - show rotate message */
@@ -81,301 +140,47 @@
       0%, 100% { transform: rotate(0deg); }
       50% { transform: rotate(90deg); }
     }
-    @media (orientation: portrait) and (max-width: 932px) {
+    /* Only show rotate message on actual mobile devices in portrait */
+    @media (orientation: portrait) and (max-width: 932px) and (hover: none) {
       .rotate-message {
         display: flex;
       }
-      #game-container {
+      #game-container, .bottom-bar {
         display: none;
       }
     }
-    .scale-container {
-      transform-origin: 0 0;
-    }
-    .game-wrapper {
-      display: flex;
-      align-items: flex-start;
-      gap: 20px;
-    }
-    .sidebar {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      height: 650px;
-    }
-    .sidebar.visible {
-      display: flex;
-    }
-    .sidebar img {
-      height: 80px;
-    }
-    .level-score {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-    .level-text {
-      color: #888;
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-    }
-    .score-text {
-      color: #FFD700;
-      font-size: 1.2rem;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-    }
-    .sidebar-buttons {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      justify-content: flex-start;
-      gap: 10px;
-      width: 100%;
-      margin-top: 10px;
-    }
-    .sidebar-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      padding: 12px 8px;
-      min-height: 60px;
-      background: #2A2520;
-      border: 1px solid #5C4A3D;
-      border-radius: 6px;
-      color: #C9A86C;
-      font-family: 'Cinzel', Georgia, serif;
-      font-size: 0.65rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .sidebar-btn:hover {
-      background: #3A3530;
-      border-color: #8B7355;
-      color: #FFD700;
-    }
-    .sidebar-btn svg {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
-    }
-    .bottom-bar {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      max-width: 1200px;
-      margin-top: 10px;
-      padding: 0 10px;
-      margin-left: 0;
-    }
-    .bottom-bar.visible {
-      display: flex;
-    }
-    .ammo-panel {
-      position: relative;
-      padding: 12px 20px;
-      background: #2A2520;
-      border: 1px solid #5C4A3D;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    .ammo-panel .ammo-label {
-      color: #888;
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-    }
-    .ammo-panel .ammo-buttons {
-      display: flex;
-      flex-direction: row;
-      gap: 6px;
-    }
-    .ammo-btn {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 2px solid #8B7355;
-      background: #2A2520;
-      color: #C9A86C;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .ammo-btn.selected {
-      background: #FFD700;
-      color: #2A2520;
-      border-color: #FFD700;
-    }
-    .ammo-btn.used {
-      opacity: 0.3;
-      cursor: not-allowed;
-    }
-    .tutorial-ammo-arrow {
-      display: none;
-      font-size: 24px;
-      position: absolute;
-      top: -35px;
-      left: 107px;
-      animation: bounce-arrow 0.5s ease-in-out infinite;
-    }
-    .tutorial-ammo-arrow.visible {
-      display: block;
-    }
-    @keyframes bounce-arrow {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
-    .next-level-btn {
-      width: 100%;
-      padding: 12px 20px;
-      background: linear-gradient(180deg, #3A3530 0%, #2A2520 100%);
-      border: 2px solid #C9A86C;
-      border-radius: 6px;
-      color: #FFD700;
-      font-family: 'Cinzel', Georgia, serif;
-      font-size: 0.9rem;
-      letter-spacing: 0.1em;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .next-level-btn:hover {
-      background: linear-gradient(180deg, #4A4540 0%, #3A3530 100%);
-      border-color: #FFD700;
-      transform: scale(1.02);
-    }
-
-
-    .exit-fullscreen-btn {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      z-index: 9999;
-      background: rgba(0,0,0,0.7);
-      border: 2px solid #C9A86C;
-      border-radius: 8px;
-      color: #C9A86C;
-      padding: 10px 15px;
-      font-family: 'Cinzel', serif;
-      font-size: 0.8rem;
-      cursor: pointer;
-      display: none;
-    }
-    body.fullscreen-mode .exit-fullscreen-btn {
-      display: block;
-    }
-    .exit-fullscreen-btn:hover {
-      background: rgba(0,0,0,0.9);
-      border-color: #FFD700;
-      color: #FFD700;
-    }
-
   </style>
 </head>
 <body>
-  <!-- Rotate device message for portrait mode -->
+  <!-- Rotate device message for portrait mode on mobile -->
   <div class="rotate-message">
     <svg viewBox="0 0 24 24"><path d="M16.48 2.52c3.27 1.55 5.61 4.72 5.97 8.48h1.5C23.44 4.84 18.29 0 12 0l-.66.03 3.81 3.81 1.33-1.32zm-6.25-.77c-.59-.59-1.54-.59-2.12 0L1.75 8.11c-.59.59-.59 1.54 0 2.12l12.02 12.02c.59.59 1.54.59 2.12 0l6.36-6.36c-.59.59-1.54.59-2.12 0L10.23 1.75zm4.6 19.44L2.81 9.17l6.36-6.36 12.02 12.02-6.36 6.36zm-7.31.29C4.25 19.94 1.91 16.76 1.55 13H.05C.56 19.16 5.71 24 12 24l.66-.03-3.81-3.81-1.33 1.32z"/></svg>
     <div style="font-size: 1.2rem;">Rotate your device</div>
     <div style="font-size: 0.9rem; color: #888;">This game is best played in landscape mode</div>
   </div>
-  <div class="scale-container">
-    <div class="game-wrapper">
-      <div class="sidebar" id="sidebar">
-        <img src="/assets/logo.png" alt="Bunny Helsing">
-        <div class="level-score">
-          <div class="level-text" id="level-display">LEVEL 1</div>
-          <div class="score-text" id="score-display">Score: 0</div>
-        </div>
-        <div class="sidebar-buttons">
-          <button class="sidebar-btn" id="btn-home">
-            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            HOME
-          </button>
-          <button class="sidebar-btn" id="btn-levels">
-            <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
-            LEVELS
-          </button>
-          <button class="sidebar-btn" id="btn-settings">
-            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-            SETTINGS
-          </button>
-          <button class="sidebar-btn" id="btn-controls">
-            <svg viewBox="0 0 24 24"><path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/></svg>
-            CONTROLS
-          </button>
-          <button class="sidebar-btn" id="btn-skins">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9c.83 0 1.5-.67 1.5-1.5S7.83 8 7 8s-1.5.67-1.5 1.5S6.17 11 7 11zm3-4c.83 0 1.5-.67 1.5-1.5S10.83 4 10 4s-1.5.67-1.5 1.5S9.17 7 10 7zm4 0c.83 0 1.5-.67 1.5-1.5S14.83 4 14 4s-1.5.67-1.5 1.5S13.17 7 14 7zm3 4c.83 0 1.5-.67 1.5-1.5S17.83 8 17 8s-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/></svg>
-            SKINS
-          </button>
-          <button class="sidebar-btn" id="btn-fullscreen">
-            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-            FULLSCREEN
-          </button>
-        </div>
-      </div>
-      <div id="game-container"></div>
+
+  <div id="game-container"></div>
+
+  <!-- Bottom bar with nav and ammo - overlays game -->
+  <div class="bottom-bar" id="bottom-bar">
+    <button class="nav-btn" id="btn-home" title="Home">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    </button>
+    <button class="nav-btn" id="btn-settings" title="Settings">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+    </button>
+    <div class="ammo-panel">
+      <span class="ammo-label">AMMO</span>
+      <div class="ammo-buttons" id="ammo-buttons"></div>
     </div>
-    <div class="bottom-bar" id="bottom-bar">
-      <div class="ammo-panel">
-        <span class="ammo-label">AMMO</span>
-        <div class="ammo-buttons" id="ammo-buttons">
-          <!-- Ammo buttons will be created by JS -->
-        </div>
-        <div id="tutorial-ammo-arrow" class="tutorial-ammo-arrow">👇</div>
-      </div>
-    </div>
+    <button class="nav-btn" id="btn-skins" title="Skins">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9c.83 0 1.5-.67 1.5-1.5S7.83 8 7 8s-1.5.67-1.5 1.5S6.17 11 7 11zm3-4c.83 0 1.5-.67 1.5-1.5S10.83 4 10 4s-1.5.67-1.5 1.5S9.17 7 10 7zm4 0c.83 0 1.5-.67 1.5-1.5S14.83 4 14 4s-1.5.67-1.5 1.5S13.17 7 14 7zm3 4c.83 0 1.5-.67 1.5-1.5S17.83 8 17 8s-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/></svg>
+    </button>
+    <button class="nav-btn" id="btn-levels" title="Levels">
+      <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+    </button>
   </div>
-  <button class="exit-fullscreen-btn" id="exit-fullscreen">✕ EXIT FULLSCREEN</button>
+
   <script type="module" src="/src/main.js"></script>
-  <script>
-    // Fullscreen toggle
-    document.getElementById('btn-fullscreen').addEventListener('click', () => {
-      // Always add fullscreen mode (hides UI, maximizes game)
-      document.body.classList.add('fullscreen-mode');
-
-      // Also try native fullscreen API (works on Android/Desktop, not iOS)
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-      }
-    });
-
-    document.getElementById('exit-fullscreen').addEventListener('click', () => {
-      document.body.classList.remove('fullscreen-mode');
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      }
-    });
-
-    // Exit fullscreen mode when pressing Escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && document.body.classList.contains('fullscreen-mode')) {
-        document.body.classList.remove('fullscreen-mode');
-      }
-    });
-
-    // Sync with native fullscreen exit
-    document.addEventListener('fullscreenchange', () => {
-      if (!document.fullscreenElement) {
-        document.body.classList.remove('fullscreen-mode');
-      }
-    });
-    // Also listen for webkit (Safari)
-    document.addEventListener('webkitfullscreenchange', () => {
-      if (!document.webkitFullscreenElement) {
-        document.body.classList.remove('fullscreen-mode');
-      }
-    });
-
-    // No JS scaling - using CSS media queries for mobile layout
-  </script>
 </body>
 </html>
