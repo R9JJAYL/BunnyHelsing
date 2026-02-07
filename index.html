@@ -183,22 +183,28 @@
       transform: scale(1.02);
     }
 
-    /* Landscape mobile - use zoom to scale down */
+    /* Mobile landscape - hide UI, let Phaser fill the screen */
     @media (max-height: 500px) {
       body {
-        zoom: 0.6;
+        padding: 0;
+      }
+      .sidebar {
+        display: none !important;
+      }
+      .bottom-bar {
+        display: none !important;
+      }
+      .game-wrapper {
+        width: 100vw;
+        height: 100vh;
+        gap: 0;
+      }
+      #game-container {
+        width: 100vw;
+        height: 100vh;
       }
     }
-    @media (max-height: 400px) {
-      body {
-        zoom: 0.5;
-      }
-    }
-    @media (max-height: 350px) {
-      body {
-        zoom: 0.4;
-      }
-    }
+
     .exit-fullscreen-btn {
       position: fixed;
       top: 10px;
