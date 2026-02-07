@@ -74,73 +74,24 @@ const LEVELS = [
       { x: 1000, y: 120 } // Chandelier above the panda - the only way to kill it
     ]
   },
-  // Level 3: Angled bamboo - Learn angle shots
-  {
-    ammo: 5,
-    pandas: [{ x: 1050, y: 150 }, { x: 1050, y: 500 }],
-    obstacles: [
-      { x: 550, y: 280, w: 350, h: 20, angle: 20 }, // Angled bamboo for ricochet practice
-      { x: 800, y: 325, w: 20, h: 250 }, // Vertical blocker
-    ],
-    movingObstacles: []
-  },
-  // Level 4: First moving obstacle
-  {
-    ammo: 5,
-    pandas: [{ x: 1000, y: 200 }, { x: 1000, y: 450 }, { x: 650, y: 325 }],
-    obstacles: [
-      { x: 450, y: 200, w: 300, h: 20, angle: 15 },
-      { x: 450, y: 450, w: 300, h: 20, angle: -15 },
-    ],
-    movingObstacles: [
-      { x: 750, y: 325, w: 20, h: 200, moveX: 0, moveY: 80, speed: 0.7 }
-    ]
-  },
-  // Level 5: The corridor - Timing challenge
-  {
-    ammo: 6,
-    pandas: [{ x: 1050, y: 150 }, { x: 1050, y: 325 }, { x: 1050, y: 500 }],
-    obstacles: [
-      { x: 500, y: 325, w: 20, h: 400 }, // Long vertical bamboo
-      { x: 750, y: 150, w: 20, h: 200 },
-      { x: 750, y: 500, w: 20, h: 200 },
-    ],
-    movingObstacles: [
-      { x: 750, y: 325, w: 250, h: 18, moveX: 0, moveY: 100, speed: 0.8 }
-    ]
-  },
-  // Level 6: The gauntlet - Multiple paths
-  {
-    ammo: 7,
-    pandas: [{ x: 1050, y: 120 }, { x: 1050, y: 325 }, { x: 1050, y: 530 }, { x: 700, y: 220 }],
-    obstacles: [
-      { x: 400, y: 200, w: 300, h: 18, angle: 25 },
-      { x: 400, y: 450, w: 300, h: 18, angle: -25 },
-      { x: 850, y: 325, w: 18, h: 280 },
-    ],
-    movingObstacles: [
-      { x: 600, y: 325, w: 18, h: 180, moveX: 0, moveY: 70, speed: 1.0 },
-      { x: 600, y: 150, w: 200, h: 16, moveX: 60, moveY: 0, speed: 0.6 },
-    ]
-  },
-  // Level 7: The Maze - Complex ricochet puzzle
+  // Level 3: The Maze - Complex ricochet puzzle
   {
     ammo: 8,
     pandas: [
-      { x: 135, y: 174 },
-      { x: 1045, y: 139 },
-      { x: 804, y: 340 },
-      { x: 1081, y: 524 }
+      { x: 135, y: 171 },
+      { x: 1045, y: 135 },
+      { x: 804, y: 337 },
+      { x: 1081, y: 518 }
     ],
     obstacles: [
-      { x: 162, y: 328, w: 20, h: 300, angle: 90 },
-      { x: 313, y: 259, w: 20, h: 150 },
-      { x: 604, y: 202, w: 20, h: 200 },
-      { x: 388, y: 457, w: 105, h: 90, angle: 90 },
-      { x: 439, y: 508, w: 100, h: 20 },
-      { x: 691, y: 530, w: 200, h: 20, angle: 90 },
-      { x: 907, y: 115, w: 20, h: 200 },
-      { x: 1091, y: 320, w: 20, h: 200, angle: 90 }
+      { x: 394, y: 452, w: 20, h: 110 },
+      { x: 696, y: 529, w: 20, h: 210 },
+      { x: 599, y: 223, w: 20, h: 250 },
+      { x: 324, y: 253, w: 20, h: 160 },
+      { x: 167, y: 326, w: 20, h: 300, angle: 90 },
+      { x: 456, y: 501, w: 20, h: 110, angle: 90 },
+      { x: 894, y: 118, w: 20, h: 200 },
+      { x: 1081, y: 315, w: 20, h: 200, angle: 90 }
     ],
     movingObstacles: []
   },
@@ -670,27 +621,24 @@ class GameScene extends Phaser.Scene {
   }
 
   setupLevelEditor() {
-    // Disable shooting in edit mode
+    // Start in edit mode (no shooting)
     this.levelEnded = true;
+    this.practiceMode = false;
+
+    // Set high ammo for practice
+    this.ammoTotal = 99;
+    this.ammoRemaining = 99;
+    this.selectedAmmo = 10; // 10 ricochets by default
 
     // Enable drag input on scene level
     this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
       gameObject.x = Math.round(dragX);
       gameObject.y = Math.round(dragY);
-      // Move associated bamboo if dragging a handle
-      if (gameObject.linkedBamboo) {
-        gameObject.linkedBamboo.x = gameObject.x;
-        gameObject.linkedBamboo.y = gameObject.y;
-      }
-      if (gameObject.label) {
-        gameObject.label.setPosition(gameObject.x, gameObject.y - 40);
-        gameObject.label.setText(`${gameObject.editName}\n(${Math.round(gameObject.x)}, ${Math.round(gameObject.y)})`);
-      }
       this.updateLevelEditorDisplay();
     });
 
     // Coords display
-    this.editorText = this.add.text(120, 10, 'EDITOR: Drag=move | ↑↓=length | ←→=rotate | F/T=fat/thin | N=new | Del=remove', {
+    this.editorText = this.add.text(50, 10, 'EDITOR: Drag=move | ↑↓=length | ←→=rotate | F/T=fat/thin | N=new | Del=remove | P=practice', {
       fontSize: '11px',
       fontFamily: 'monospace',
       color: '#00FF00',
@@ -699,64 +647,52 @@ class GameScene extends Phaser.Scene {
 
     this.selectedObstacle = null;
 
-    // Make obstacles draggable using visible handles
+    // Make obstacles directly draggable (no handles)
     this.editableObstacles.forEach((obsData, i) => {
       const bamboo = obsData.image;
       bamboo.editName = `bamboo${i + 1}`;
       bamboo.editData = obsData;
 
-      // Create a visible draggable handle (circle) at bamboo position
-      const handle = this.add.circle(bamboo.x, bamboo.y, 15, 0xffff00, 0.8);
-      handle.setStrokeStyle(2, 0x000000);
+      // Create invisible drag handle at bamboo position
+      const handle = this.add.circle(bamboo.x, bamboo.y, 25, 0xffff00, 0.3);
       handle.setDepth(1002);
       handle.setInteractive({ draggable: true, useHandCursor: true });
-      handle.editName = `bamboo${i + 1}`;
-      handle.editData = obsData;
       handle.linkedBamboo = bamboo;
+      handle.obsData = obsData;
 
-      // Label
-      const label = this.add.text(bamboo.x, bamboo.y - 40, `bamboo${i + 1}\n(${Math.round(bamboo.x)}, ${Math.round(bamboo.y)})`, {
-        fontSize: '10px',
-        fontFamily: 'monospace',
-        color: '#FFFF00',
-        backgroundColor: '#000000',
-        align: 'center'
-      }).setOrigin(0.5).setDepth(1001);
-      handle.label = label;
+      // Drag moves both handle and bamboo
+      handle.on('drag', (pointer, dragX, dragY) => {
+        handle.x = Math.round(dragX);
+        handle.y = Math.round(dragY);
+        bamboo.x = handle.x;
+        bamboo.y = handle.y;
+        this.updateLevelEditorDisplay();
+      });
 
-      // Click to select for resizing
+      // Click to select
       handle.on('pointerdown', () => {
         if (this.selectedObstacle && this.selectedObstacle.handle) {
-          this.selectedObstacle.handle.setFillStyle(0xffff00, 0.8);
+          this.selectedObstacle.handle.setFillStyle(0xffff00, 0.3);
         }
         this.selectedObstacle = { bamboo, handle, data: obsData };
-        handle.setFillStyle(0x00ff00, 1);
+        handle.setFillStyle(0x00ff00, 0.6);
+        this.updateLevelEditorDisplay();
       });
     });
 
-    // Make pandas draggable
+    // Make pandas draggable with handles
     this.pandas.forEach((panda, i) => {
-      // Create handle for panda
-      const handle = this.add.circle(panda.x, panda.y, 15, 0xff00ff, 0.8);
-      handle.setStrokeStyle(2, 0x000000);
+      const handle = this.add.circle(panda.x, panda.y, 25, 0xff00ff, 0.3);
       handle.setDepth(1002);
       handle.setInteractive({ draggable: true, useHandCursor: true });
-      handle.editName = `panda${i + 1}`;
       handle.linkedPanda = panda;
 
-      const label = this.add.text(panda.x, panda.y - 50, `panda${i + 1}\n(${Math.round(panda.x)}, ${Math.round(panda.y)})`, {
-        fontSize: '10px',
-        fontFamily: 'monospace',
-        color: '#FF00FF',
-        backgroundColor: '#000000',
-        align: 'center'
-      }).setOrigin(0.5).setDepth(1001);
-      handle.label = label;
-
-      // Update drag to move panda too
       handle.on('drag', (pointer, dragX, dragY) => {
-        panda.x = Math.round(dragX);
-        panda.y = Math.round(dragY);
+        handle.x = Math.round(dragX);
+        handle.y = Math.round(dragY);
+        panda.x = handle.x;
+        panda.y = handle.y;
+        this.updateLevelEditorDisplay();
       });
     });
 
@@ -772,10 +708,7 @@ class GameScene extends Phaser.Scene {
         } else {
           data.w = data.w + 10;
         }
-        // Update bamboo scale
-        const length = Math.max(data.w, data.h);
-        const scale = length / 3390;
-        this.selectedObstacle.bamboo.setScale(scale);
+        this.updateBambooVisual(this.selectedObstacle.bamboo, data);
         this.updateLevelEditorDisplay();
       }
     });
@@ -789,10 +722,7 @@ class GameScene extends Phaser.Scene {
         } else {
           data.w = Math.max(50, data.w - 10);
         }
-        // Update bamboo scale
-        const length = Math.max(data.w, data.h);
-        const scale = length / 3390;
-        this.selectedObstacle.bamboo.setScale(scale);
+        this.updateBambooVisual(this.selectedObstacle.bamboo, data);
         this.updateLevelEditorDisplay();
       }
     });
@@ -829,6 +759,7 @@ class GameScene extends Phaser.Scene {
         } else {
           data.h = data.h + 5;
         }
+        this.updateBambooVisual(this.selectedObstacle.bamboo, data);
         this.updateLevelEditorDisplay();
       }
     });
@@ -842,6 +773,7 @@ class GameScene extends Phaser.Scene {
         } else {
           data.h = Math.max(10, data.h - 5);
         }
+        this.updateBambooVisual(this.selectedObstacle.bamboo, data);
         this.updateLevelEditorDisplay();
       }
     });
@@ -857,6 +789,33 @@ class GameScene extends Phaser.Scene {
         this.deleteSelectedObstacle();
       }
     });
+
+    // P key to toggle practice mode (allows shooting)
+    this.input.keyboard.on('keydown-P', () => {
+      this.practiceMode = !this.practiceMode;
+      this.levelEnded = !this.practiceMode;
+      this.bulletFired = false;
+      this.ammoRemaining = 99;
+      this.selectedAmmo = 10;
+
+      // Destroy existing bullet if any
+      if (this.bullet) {
+        if (this.bullet.container) this.bullet.container.destroy();
+        this.bullet.destroy();
+        this.bullet = null;
+      }
+
+      this.practiceModeText.setText(this.practiceMode ? '🎯 PRACTICE MODE (P to edit)' : '✏️ EDIT MODE (P to practice)');
+      this.practiceModeText.setColor(this.practiceMode ? '#00FF00' : '#FFFF00');
+    });
+
+    // Practice mode indicator
+    this.practiceModeText = this.add.text(900, 40, '✏️ EDIT MODE (P to practice)', {
+      fontSize: '12px',
+      fontFamily: 'monospace',
+      color: '#FFFF00',
+      backgroundColor: '#000000'
+    }).setDepth(1000);
 
     // Copy button - position it better
     const copyBtn = this.add.text(900, 10, '📋 COPY LEVEL CONFIG', {
@@ -903,6 +862,19 @@ class GameScene extends Phaser.Scene {
     this.editorText.setText(info);
   }
 
+  updateBambooVisual(bamboo, data) {
+    // Use setDisplaySize like the frame bamboo does
+    const length = Math.max(data.w, data.h);
+    const thickness = Math.min(data.w, data.h);
+
+    // Set display size (length x thickness)
+    bamboo.setDisplaySize(length, thickness);
+
+    // Update rotation
+    const baseAngle = data.h > data.w ? 90 : 0;
+    bamboo.setAngle(baseAngle + (data.angle || 0));
+  }
+
   generateLevelConfig() {
     const obstacles = this.editableObstacles.map(obs => {
       const config = {
@@ -931,55 +903,52 @@ class GameScene extends Phaser.Scene {
   }
 
   spawnNewBamboo() {
-    const newObs = { x: 600, y: 325, w: 20, h: 200, angle: 0 };
+    // Spawn full-size bamboo like the frame - resize it down as needed
+    // w=20 matches frame thickness, h=300 for a good starting length
+    const newObs = { x: 600, y: 325, w: 20, h: 300, angle: 0 };
     const i = this.editableObstacles.length;
 
-    // Create bamboo image
+    // Create bamboo image with proper scaling
     const bamboo = this.add.image(newObs.x, newObs.y, 'bamboo');
-    const length = Math.max(newObs.w, newObs.h);
-    const scale = length / 3390;
-    bamboo.setScale(scale);
-    bamboo.setAngle(90); // Vertical
-    bamboo.editName = `bamboo${i + 1}`;
 
+    // Use updateBambooVisual for consistent scaling
     const obsData = { image: bamboo, index: i, w: newObs.w, h: newObs.h, angle: 0 };
+    this.updateBambooVisual(bamboo, obsData);
+
+    bamboo.editName = `bamboo${i + 1}`;
     bamboo.editData = obsData;
     this.editableObstacles.push(obsData);
 
-    // Create handle
-    const handle = this.add.circle(bamboo.x, bamboo.y, 15, 0xffff00, 0.8);
-    handle.setStrokeStyle(2, 0x000000);
+    // Create drag handle
+    const handle = this.add.circle(bamboo.x, bamboo.y, 25, 0xffff00, 0.3);
     handle.setDepth(1002);
     handle.setInteractive({ draggable: true, useHandCursor: true });
-    handle.editName = `bamboo${i + 1}`;
-    handle.editData = obsData;
     handle.linkedBamboo = bamboo;
+    handle.obsData = obsData;
 
-    // Label
-    const label = this.add.text(bamboo.x, bamboo.y - 40, `bamboo${i + 1}\n(${bamboo.x}, ${bamboo.y})`, {
-      fontSize: '10px',
-      fontFamily: 'monospace',
-      color: '#FFFF00',
-      backgroundColor: '#000000',
-      align: 'center'
-    }).setOrigin(0.5).setDepth(1001);
-    handle.label = label;
+    handle.on('drag', (pointer, dragX, dragY) => {
+      handle.x = Math.round(dragX);
+      handle.y = Math.round(dragY);
+      bamboo.x = handle.x;
+      bamboo.y = handle.y;
+      this.updateLevelEditorDisplay();
+    });
 
-    // Click to select
     handle.on('pointerdown', () => {
       if (this.selectedObstacle && this.selectedObstacle.handle) {
-        this.selectedObstacle.handle.setFillStyle(0xffff00, 0.8);
+        this.selectedObstacle.handle.setFillStyle(0xffff00, 0.3);
       }
       this.selectedObstacle = { bamboo, handle, data: obsData };
-      handle.setFillStyle(0x00ff00, 1);
+      handle.setFillStyle(0x00ff00, 0.6);
+      this.updateLevelEditorDisplay();
     });
 
     // Auto-select the new bamboo
     if (this.selectedObstacle && this.selectedObstacle.handle) {
-      this.selectedObstacle.handle.setFillStyle(0xffff00, 0.8);
+      this.selectedObstacle.handle.setFillStyle(0xffff00, 0.3);
     }
     this.selectedObstacle = { bamboo, handle, data: obsData };
-    handle.setFillStyle(0x00ff00, 1);
+    handle.setFillStyle(0x00ff00, 0.6);
 
     this.updateLevelEditorDisplay();
   }
@@ -995,13 +964,23 @@ class GameScene extends Phaser.Scene {
       this.editableObstacles.splice(idx, 1);
     }
 
-    // Destroy the visual elements
-    if (handle.label) handle.label.destroy();
-    handle.destroy();
+    // Destroy the bamboo and handle
+    if (handle) handle.destroy();
     bamboo.destroy();
 
     this.selectedObstacle = null;
     this.updateLevelEditorDisplay();
+  }
+
+  clearTrajectory() {
+    if (this.trajectoryDots) {
+      this.trajectoryDots.forEach(dot => dot.destroy());
+      this.trajectoryDots = [];
+    }
+    if (this.predictionDots) {
+      this.predictionDots.forEach(dot => dot.destroy());
+      this.predictionDots = [];
+    }
   }
 
   update(time, delta) {
@@ -1014,6 +993,16 @@ class GameScene extends Phaser.Scene {
     if (!this.bulletFired && this.ammoRemaining > 0) {
       const pointer = this.input.activePointer;
       this.updateAimLine(pointer);
+    }
+
+    // Track actual bullet trajectory in practice mode (shows path after shooting)
+    if (this.practiceMode && this.bullet && this.bulletFired) {
+      if (!this.trajectoryDots) this.trajectoryDots = [];
+      if (this.trajectoryDots.length < 500) {
+        const dot = this.add.circle(this.bullet.x, this.bullet.y, 3, 0xff0000, 1);
+        dot.setDepth(2000);
+        this.trajectoryDots.push(dot);
+      }
     }
 
     // Check if bullet has slowed down too much (stuck)
@@ -2605,6 +2594,11 @@ class GameScene extends Phaser.Scene {
 
   fireBullet(pointer) {
     if (this.bulletFired || this.ammoRemaining <= 0) return;
+
+    // Clear trajectory from previous shot in practice mode
+    if (this.editMode && this.practiceMode) {
+      this.clearTrajectory();
+    }
 
     // Get gun position
     const gunX = this.bunny.x + (this.bunny.gunOffsetX || 35);
