@@ -2917,15 +2917,6 @@ class GameScene extends Phaser.Scene {
 
     this.bullet.bounceCount++;
 
-    // Tutorial: if waiting for bounce, wait for bullet to finish then advance
-    if (this.tutorialWaitingForBounce) {
-      this.tutorialWaitingForBounce = false;
-      // Wait for bullet to finish its journey, then explain
-      this.time.delayedCall(1500, () => {
-        this.showTutorialStep(3);
-      });
-    }
-
     // Screen shake - steel hitting stone
     const shakeIntensity = 0.006 - (this.bullet.bounceCount * 0.001);
     this.cameras.main.shake(60, Math.max(0.002, shakeIntensity));
@@ -3308,6 +3299,12 @@ class GameScene extends Phaser.Scene {
 
   destroyBullet() {
     if (!this.bullet) return;
+
+    // Tutorial: show "Nice! Your bullet bounced twice!" after bullet is destroyed
+    if (this.tutorialWaitingForBounce) {
+      this.tutorialWaitingForBounce = false;
+      this.showTutorialStep(3);
+    }
 
     if (this.trailEvent) {
       this.trailEvent.destroy();
