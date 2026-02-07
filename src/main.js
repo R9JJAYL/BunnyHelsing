@@ -34,234 +34,332 @@ class SoundManager {
     const ctx = this.audioContext;
     const now = ctx.currentTime;
 
-    // Noise burst for the "crack"
-    const bufferSize = ctx.sampleRate * 0.1;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.1));
-    }
+    // Crossbow twang - string release sound
+    const twang = ctx.createOscillator();
+    twang.type = 'sawtooth';
+    twang.frequency.setValueAtTime(180, now);
+    twang.frequency.exponentialRampToValueAtTime(60, now + 0.15);
 
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
+    const twangGain = ctx.createGain();
+    twangGain.gain.setValueAtTime(0.25, now);
+    twangGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
 
-    const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.3, now);
-    noiseGain.gain.exponentialDecayTo = 0.01;
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+    // Wooden thunk
+    const thunk = ctx.createOscillator();
+    thunk.type = 'sine';
+    thunk.frequency.setValueAtTime(100, now);
+    thunk.frequency.exponentialRampToValueAtTime(40, now + 0.08);
 
-    // Low thump
-    const osc = ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(150, now);
-    osc.frequency.exponentialRampToValueAtTime(30, now + 0.1);
+    const thunkGain = ctx.createGain();
+    thunkGain.gain.setValueAtTime(0.3, now);
+    thunkGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
 
-    const oscGain = ctx.createGain();
-    oscGain.gain.setValueAtTime(0.4, now);
-    oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+    // Filter for muffled castle sound
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 600;
 
-    noise.connect(noiseGain).connect(ctx.destination);
-    osc.connect(oscGain).connect(ctx.destination);
+    twang.connect(twangGain).connect(filter).connect(ctx.destination);
+    thunk.connect(thunkGain).connect(ctx.destination);
 
-    noise.start(now);
-    osc.start(now);
-    noise.stop(now + 0.1);
-    osc.stop(now + 0.15);
+    twang.start(now);
+    thunk.start(now);
+    twang.stop(now + 0.15);
+    thunk.stop(now + 0.1);
   }
 
-  // Ricochet - metallic ping
+  // Ricochet - stone echo ping
   playRicochet() {
     if (!this.enabled || !this.audioContext) return;
     const ctx = this.audioContext;
     const now = ctx.currentTime;
 
-    const osc = ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(2000 + Math.random() * 500, now);
-    osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+    // Stone impact with reverb-like echoes
+    const frequencies = [800, 600, 450]; // Descending echoes
+    frequencies.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = freq + Math.random() * 100;
 
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.15, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+      const gain = ctx.createGain();
+      const delay = i * 0.04;
+      const volume = 0.12 - i * 0.03;
+      gain.gain.setValueAtTime(volume, now + delay);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + delay + 0.12);
 
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.15);
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = freq;
+      filter.Q.value = 8;
+
+      osc.connect(filter).connect(gain).connect(ctx.destination);
+      osc.start(now + delay);
+      osc.stop(now + delay + 0.12);
+    });
   }
 
-  // Enemy hit - thud with squish
+  // Enemy hit - ghostly whoosh with thud
   playHit() {
     if (!this.enabled || !this.audioContext) return;
     const ctx = this.audioContext;
     const now = ctx.currentTime;
 
-    const osc = ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(200, now);
-    osc.frequency.exponentialRampToValueAtTime(50, now + 0.2);
+    // Ghostly whoosh
+    const bufferSize = ctx.sampleRate * 0.3;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.15));
+    }
 
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.3, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
 
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.2);
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.frequency.setValueAtTime(400, now);
+    noiseFilter.frequency.exponentialRampToValueAtTime(100, now + 0.25);
+    noiseFilter.Q.value = 2;
+
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.2, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+
+    // Deep thud
+    const thud = ctx.createOscillator();
+    thud.type = 'sine';
+    thud.frequency.setValueAtTime(80, now);
+    thud.frequency.exponentialRampToValueAtTime(30, now + 0.15);
+
+    const thudGain = ctx.createGain();
+    thudGain.gain.setValueAtTime(0.25, now);
+    thudGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+    noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
+    thud.connect(thudGain).connect(ctx.destination);
+
+    noise.start(now);
+    thud.start(now);
+    noise.stop(now + 0.3);
+    thud.stop(now + 0.15);
   }
 
-  // Victory fanfare
+  // Victory - medieval horn fanfare
   playVictory() {
     if (!this.enabled || !this.audioContext) return;
     const ctx = this.audioContext;
     const now = ctx.currentTime;
 
-    const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
+    // Medieval perfect 5th intervals (more ancient sounding)
+    const notes = [196, 294, 392, 294, 392]; // G3, D4, G4, D4, G4
+    const durations = [0.2, 0.2, 0.15, 0.15, 0.4];
+    let time = 0;
+
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator();
-      osc.type = 'triangle';
+      osc.type = 'sawtooth'; // Brass-like
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 1200;
+
       osc.frequency.value = freq;
 
       const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0, now + i * 0.15);
-      gain.gain.linearRampToValueAtTime(0.2, now + i * 0.15 + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.15 + 0.4);
+      gain.gain.setValueAtTime(0, now + time);
+      gain.gain.linearRampToValueAtTime(0.15, now + time + 0.03);
+      gain.gain.setValueAtTime(0.15, now + time + durations[i] - 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + time + durations[i]);
 
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(now + i * 0.15);
-      osc.stop(now + i * 0.15 + 0.4);
+      osc.connect(filter).connect(gain).connect(ctx.destination);
+      osc.start(now + time);
+      osc.stop(now + time + durations[i]);
+
+      time += durations[i];
     });
   }
 
-  // Fail sound - descending tone
+  // Fail sound - ominous church bell toll
   playFail() {
     if (!this.enabled || !this.audioContext) return;
     const ctx = this.audioContext;
     const now = ctx.currentTime;
 
-    const osc = ctx.createOscillator();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(400, now);
-    osc.frequency.exponentialRampToValueAtTime(100, now + 0.5);
+    // Bell-like tone with harmonics
+    const fundamentals = [110, 138.6, 164.8]; // A2 and overtones
+    fundamentals.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
 
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.15, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      const gain = ctx.createGain();
+      const vol = 0.15 - i * 0.04;
+      gain.gain.setValueAtTime(vol, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
 
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 800;
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 1.5);
+    });
 
-    osc.connect(filter).connect(gain).connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.5);
+    // Add slight vibrato for eeriness
+    const vibrato = ctx.createOscillator();
+    vibrato.type = 'sine';
+    vibrato.frequency.value = 5;
+    const vibratoGain = ctx.createGain();
+    vibratoGain.gain.value = 3;
   }
 
-  // UI Click
+  // UI Click - stone button press
   playClick() {
     if (!this.enabled || !this.audioContext) return;
     const ctx = this.audioContext;
     const now = ctx.currentTime;
 
+    // Short stone tap
     const osc = ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.value = 600;
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(300, now);
+    osc.frequency.exponentialRampToValueAtTime(150, now + 0.04);
 
     const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.1, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
 
-    osc.connect(gain).connect(ctx.destination);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 500;
+
+    osc.connect(filter).connect(gain).connect(ctx.destination);
     osc.start(now);
     osc.stop(now + 0.05);
   }
 
-  // Dark ambient background music with variance
+  // Mysterious castle ambient music
   startMusic() {
     if (!this.musicEnabled || !this.audioContext) return;
     if (this.musicOscillators.length > 0) return; // Already playing
 
     const ctx = this.audioContext;
     this.musicGain = ctx.createGain();
-    this.musicGain.gain.value = 0.025; // Very quiet
+    this.musicGain.gain.value = 0.02; // Very quiet
     this.musicGain.connect(ctx.destination);
 
-    // Create a filter for warmth
+    // Cathedral-like reverb filter
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.value = 400;
+    filter.frequency.value = 350;
+    filter.Q.value = 1;
     filter.connect(this.musicGain);
 
-    // Deep bass drone with slow wobble
-    const bass = ctx.createOscillator();
-    bass.type = 'sine';
-    bass.frequency.value = 55; // Low A
+    // Deep organ-like drone (D minor - dark key)
+    const drone1 = ctx.createOscillator();
+    drone1.type = 'sine';
+    drone1.frequency.value = 73.4; // D2
 
-    const bassLfo = ctx.createOscillator();
-    bassLfo.type = 'sine';
-    bassLfo.frequency.value = 0.05; // Very slow
-    const bassLfoGain = ctx.createGain();
-    bassLfoGain.gain.value = 3;
-    bassLfo.connect(bassLfoGain).connect(bass.frequency);
+    const drone2 = ctx.createOscillator();
+    drone2.type = 'sine';
+    drone2.frequency.value = 110; // A2 (fifth)
 
-    // Mid tone with different wobble rate
-    const mid = ctx.createOscillator();
-    mid.type = 'triangle';
-    mid.frequency.value = 110; // A2
+    // Very slow breathing LFO
+    const lfo = ctx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.03; // Very slow breath
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 2;
+    lfo.connect(lfoGain).connect(drone1.frequency);
 
-    const midLfo = ctx.createOscillator();
-    midLfo.type = 'sine';
-    midLfo.frequency.value = 0.08;
-    const midLfoGain = ctx.createGain();
-    midLfoGain.gain.value = 4;
-    midLfo.connect(midLfoGain).connect(mid.frequency);
+    // Gains for balance
+    const drone1Gain = ctx.createGain();
+    drone1Gain.gain.value = 0.5;
+    const drone2Gain = ctx.createGain();
+    drone2Gain.gain.value = 0.3;
 
-    // Separate gains for balance
-    const bassGain = ctx.createGain();
-    bassGain.gain.value = 0.6;
-    const midGain = ctx.createGain();
-    midGain.gain.value = 0.3;
+    drone1.connect(drone1Gain).connect(filter);
+    drone2.connect(drone2Gain).connect(filter);
 
-    bass.connect(bassGain).connect(filter);
-    mid.connect(midGain).connect(filter);
+    // Start atmospheric effects
+    this.playAtmosphere(ctx, filter);
 
-    // Start melodic note player for variety
-    this.playMelodyNote(ctx, filter);
+    drone1.start();
+    drone2.start();
+    lfo.start();
 
-    bass.start();
-    bassLfo.start();
-    mid.start();
-    midLfo.start();
-
-    this.musicOscillators = [bass, bassLfo, mid, midLfo];
+    this.musicOscillators = [drone1, drone2, lfo];
     this.musicFilter = filter;
   }
 
-  // Play occasional subtle melody notes
-  playMelodyNote(ctx, destination) {
+  // Play occasional atmospheric castle sounds
+  playAtmosphere(ctx, destination) {
     if (!this.musicEnabled || !ctx) return;
 
-    // Minor key notes for dark feel (A minor pentatonic)
-    const notes = [220, 261, 293, 329, 392, 440]; // A3, C4, D4, E4, G4, A4
-    const note = notes[Math.floor(Math.random() * notes.length)];
-
-    const osc = ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.value = note;
-
-    const gain = ctx.createGain();
     const now = ctx.currentTime;
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.08, now + 0.5); // Fade in
-    gain.gain.linearRampToValueAtTime(0, now + 3); // Fade out
+    const effectType = Math.floor(Math.random() * 3);
 
-    osc.connect(gain).connect(destination);
-    osc.start(now);
-    osc.stop(now + 3);
+    if (effectType === 0) {
+      // Distant wind whistle
+      const bufferSize = ctx.sampleRate * 2;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1);
+      }
 
-    // Schedule next note randomly between 4-8 seconds
-    const nextDelay = 4000 + Math.random() * 4000;
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const windFilter = ctx.createBiquadFilter();
+      windFilter.type = 'bandpass';
+      windFilter.frequency.value = 300 + Math.random() * 200;
+      windFilter.Q.value = 15;
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.03, now + 1);
+      gain.gain.linearRampToValueAtTime(0, now + 2);
+
+      noise.connect(windFilter).connect(gain).connect(destination);
+      noise.start(now);
+      noise.stop(now + 2);
+
+    } else if (effectType === 1) {
+      // Mysterious bell-like tone (distant)
+      const notes = [146.8, 174.6, 196, 220]; // D3, F3, G3, A3 (D minor)
+      const note = notes[Math.floor(Math.random() * notes.length)];
+
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = note;
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.04, now + 0.3);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 3);
+
+      osc.connect(gain).connect(destination);
+      osc.start(now);
+      osc.stop(now + 3);
+
+    } else {
+      // Low rumble (like distant thunder or castle groan)
+      const rumble = ctx.createOscillator();
+      rumble.type = 'sine';
+      rumble.frequency.value = 40 + Math.random() * 20;
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.06, now + 0.5);
+      gain.gain.linearRampToValueAtTime(0, now + 2);
+
+      rumble.connect(gain).connect(destination);
+      rumble.start(now);
+      rumble.stop(now + 2);
+    }
+
+    // Schedule next atmospheric effect
+    const nextDelay = 5000 + Math.random() * 7000;
     this.melodyTimeout = setTimeout(() => {
-      this.playMelodyNote(ctx, destination);
+      this.playAtmosphere(ctx, destination);
     }, nextDelay);
   }
 
