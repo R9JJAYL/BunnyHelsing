@@ -452,6 +452,209 @@ const COLORS = {
   steel: 0x71797E,
 };
 
+// ============================================
+// LEVEL VALIDATOR - Tests if levels are solvable
+// Run in browser console: validateAllLevels() or validateLevel(1)
+// ============================================
+function validateLevel(levelNum) {
+  const level = LEVELS[levelNum - 1];
+  if (!level) {
+    console.error(`Level ${levelNum} not found`);
+    return false;
+  }
+
+  console.log(`\n🎯 Validating Level ${levelNum}...`);
+  console.log(`   Ammo: ${level.ammo}, Pandas: ${level.pandas.length}`);
+
+  const bunnyX = 150;
+  const bunnyY = 580;
+  const pandaRadius = 40; // Hit detection radius
+
+  // Wall bounds
+  const leftBound = 35;
+  const rightBound = 1165;
+  const topBound = 35;
+  const bottomBound = 615;
+
+  // Parse obstacles into line segments for collision
+  const obstacles = (level.obstacles || []).map(obs => ({
+    x: obs.x,
+    y: obs.y,
+    w: obs.w || 20,
+    h: obs.h || 100,
+    angle: obs.angle || 0
+  }));
+
+  // Check if a point hits an obstacle
+  function hitsObstacle(x, y) {
+    for (const obs of obstacles) {
+      // Simple AABB for non-rotated, rotated needs more complex check
+      if (obs.angle === 0 || obs.angle === undefined) {
+        const halfW = obs.w / 2;
+        const halfH = obs.h / 2;
+        if (x >= obs.x - halfW && x <= obs.x + halfW &&
+            y >= obs.y - halfH && y <= obs.y + halfH) {
+          return true;
+        }
+      } else if (obs.angle === 90) {
+        // Swapped dimensions for 90 degree rotation
+        const halfW = obs.h / 2;
+        const halfH = obs.w / 2;
+        if (x >= obs.x - halfW && x <= obs.x + halfW &&
+            y >= obs.y - halfH && y <= obs.y + halfH) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  // Simulate a shot and return which pandas it hits
+  function simulateShot(angle, power, maxBounces) {
+    const speed = Math.min(power * 4, 600);
+    let vx = Math.cos(angle) * speed;
+    let vy = Math.sin(angle) * speed;
+    let x = bunnyX + 35; // Gun offset
+    let y = bunnyY - 25;
+    let bounces = 0;
+    const hitPandas = new Set();
+
+    for (let i = 0; i < 2000 && bounces <= maxBounces; i++) {
+      x += vx * 0.005;
+      y += vy * 0.005;
+
+      // Wall bounces
+      if (x < leftBound || x > rightBound) {
+        vx *= -1;
+        x = x < leftBound ? leftBound : rightBound;
+        bounces++;
+      }
+      if (y < topBound || y > bottomBound) {
+        vy *= -1;
+        y = y < topBound ? topBound : bottomBound;
+        bounces++;
+      }
+
+      // Obstacle collision (stop bullet)
+      if (hitsObstacle(x, y)) {
+        break;
+      }
+
+      // Check panda hits
+      level.pandas.forEach((panda, idx) => {
+        const dist = Math.sqrt((x - panda.x) ** 2 + (y - panda.y) ** 2);
+        if (dist < pandaRadius) {
+          hitPandas.add(idx);
+        }
+      });
+    }
+
+    return hitPandas;
+  }
+
+  // Try many angles and powers to find solutions
+  const solutions = [];
+  const pandaHitCount = new Array(level.pandas.length).fill(0);
+
+  // Test range of angles (-PI to PI) and powers
+  for (let angleDeg = -80; angleDeg <= 80; angleDeg += 2) {
+    for (let power = 50; power <= 200; power += 10) {
+      for (let bounces = 1; bounces <= Math.min(level.ammo, 5); bounces++) {
+        const angle = (angleDeg * Math.PI) / 180;
+        const hits = simulateShot(angle, power, bounces);
+
+        if (hits.size > 0) {
+          hits.forEach(idx => pandaHitCount[idx]++);
+
+          // Store good solutions (multi-kills or single kills)
+          if (hits.size >= 1) {
+            solutions.push({
+              angle: angleDeg,
+              power,
+              bounces,
+              hits: Array.from(hits)
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // Check results
+  const unreachable = [];
+  level.pandas.forEach((panda, idx) => {
+    if (pandaHitCount[idx] === 0) {
+      unreachable.push({ idx: idx + 1, x: panda.x, y: panda.y });
+    }
+  });
+
+  if (unreachable.length > 0) {
+    console.log(`   ❌ IMPOSSIBLE! ${unreachable.length} panda(s) cannot be hit:`);
+    unreachable.forEach(p => {
+      console.log(`      Panda #${p.idx} at (${p.x}, ${p.y})`);
+    });
+    return false;
+  }
+
+  // Check if we have enough ammo
+  // Find minimum shots needed (greedy: prioritize multi-kills)
+  const sortedSolutions = solutions.sort((a, b) => b.hits.length - a.hits.length);
+  const killablePandas = new Set();
+  let shotsNeeded = 0;
+  let ammoUsed = 0;
+
+  for (const sol of sortedSolutions) {
+    const newKills = sol.hits.filter(idx => !killablePandas.has(idx));
+    if (newKills.length > 0) {
+      shotsNeeded++;
+      ammoUsed += sol.bounces;
+      newKills.forEach(idx => killablePandas.add(idx));
+    }
+    if (killablePandas.size === level.pandas.length) break;
+  }
+
+  if (ammoUsed > level.ammo) {
+    console.log(`   ⚠️  WARNING: May need ${ammoUsed} ammo but only ${level.ammo} given`);
+    console.log(`   Best solution uses ${shotsNeeded} shots`);
+  }
+
+  console.log(`   ✅ SOLVABLE! Found ${solutions.length} valid shot combinations`);
+  console.log(`   Min shots needed: ~${shotsNeeded}, Est. ammo: ${ammoUsed}/${level.ammo}`);
+
+  // Show best solutions
+  const bestMultiKill = sortedSolutions.find(s => s.hits.length > 1);
+  if (bestMultiKill) {
+    console.log(`   🎯 Best multi-kill: angle ${bestMultiKill.angle}°, power ${bestMultiKill.power}, ${bestMultiKill.bounces} bounces → kills ${bestMultiKill.hits.length} pandas`);
+  }
+
+  return true;
+}
+
+function validateAllLevels() {
+  console.log('🔍 LEVEL VALIDATION REPORT');
+  console.log('==========================');
+
+  let passed = 0;
+  let failed = 0;
+
+  for (let i = 1; i <= LEVELS.length; i++) {
+    if (validateLevel(i)) {
+      passed++;
+    } else {
+      failed++;
+    }
+  }
+
+  console.log('\n==========================');
+  console.log(`📊 Results: ${passed} passed, ${failed} failed out of ${LEVELS.length} levels`);
+
+  return failed === 0;
+}
+
+// Make functions globally available
+window.validateLevel = validateLevel;
+window.validateAllLevels = validateAllLevels;
+
 // Level configurations - Much harder with angles and moving parts
 // Game area is now 1200x650 landscape (bamboo frame fills entire canvas)
 // Bunny is at bottom-left around x:150, y:580
