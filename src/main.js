@@ -1183,11 +1183,16 @@ class GameScene extends Phaser.Scene {
   createObstacles(obstacles) {
     obstacles.forEach((obs, index) => {
       const angle = obs.angle || 0;
+      const isVertical = obs.h > obs.w;
+      const length = Math.max(obs.w, obs.h);
+      const thickness = Math.min(obs.w, obs.h);
 
-      // Draw bamboo - visual matches exact w,h from config
+      // Draw bamboo - setDisplaySize(length, thickness) then rotate if vertical
       const bamboo = this.add.image(obs.x, obs.y, 'bamboo');
-      bamboo.setDisplaySize(obs.w, obs.h);
-      bamboo.setAngle(angle);
+      bamboo.setDisplaySize(length, thickness);
+      // Rotate 90 if vertical, then add any custom angle
+      const baseAngle = isVertical ? 90 : 0;
+      bamboo.setAngle(baseAngle + angle);
       this.obstacleImages.push(bamboo);
 
       // Store for edit mode
@@ -1203,21 +1208,20 @@ class GameScene extends Phaser.Scene {
 
       // Physics hitbox - exact w,h from config, visible in red
       if (angle === 0) {
-        // Simple case: no rotation, single physics body
+        // Simple case: no rotation, single physics body matches w,h
         const wall = this.add.rectangle(obs.x, obs.y, obs.w, obs.h, 0xff0000, 0.3);
         this.physics.add.existing(wall, true);
         this.walls.push(wall);
       } else {
-        // Angled obstacle: create colliders along the length
-        const angleRad = Phaser.Math.DegToRad(angle);
-        const length = Math.max(obs.w, obs.h);
-        const thickness = Math.min(obs.w, obs.h);
+        // Angled obstacle: create colliders along the rotated length
+        const totalAngle = baseAngle + angle;
+        const totalAngleRad = Phaser.Math.DegToRad(totalAngle);
         const numSegments = Math.ceil(length / 20);
 
         for (let i = 0; i < numSegments; i++) {
           const t = (i + 0.5) / numSegments - 0.5; // -0.5 to 0.5
-          const segX = obs.x + Math.cos(angleRad) * (t * length);
-          const segY = obs.y + Math.sin(angleRad) * (t * length);
+          const segX = obs.x + Math.cos(totalAngleRad) * (t * length);
+          const segY = obs.y + Math.sin(totalAngleRad) * (t * length);
 
           const segment = this.add.rectangle(segX, segY, thickness + 5, thickness + 5, 0xff0000, 0.3);
           this.physics.add.existing(segment, true);
