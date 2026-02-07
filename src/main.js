@@ -3659,8 +3659,7 @@ const config = {
   parent: 'game-container',
   backgroundColor: 0x1A1A1F,
   scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
+    mode: Phaser.Scale.NONE,
     width: 1200,
     height: 650
   },
