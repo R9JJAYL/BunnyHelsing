@@ -2268,8 +2268,18 @@ class GameScene extends Phaser.Scene {
         this.tutorialText.setText('Select 2 ricochets');
         this.tutorialSubtext.setText('Tap AMMO in the sidebar\nthen select 2 for 2 bounces!');
 
-        // Hide arrow, use flash effect on ammo section instead
-        this.tutorialArrow.setVisible(false);
+        // Show arrow pointing left towards sidebar
+        this.tutorialArrow.setVisible(true);
+        this.tutorialArrow.setText('👈');
+        this.tutorialArrow.setPosition(350, 200);
+        this.tutorialArrow.setDepth(200);
+        this.tweens.add({
+          targets: this.tutorialArrow,
+          x: 330,
+          duration: 500,
+          yoyo: true,
+          repeat: -1
+        });
 
         // Expand and flash the ammo section
         const ammoSection = document.getElementById('ammo-section');
@@ -2286,7 +2296,8 @@ class GameScene extends Phaser.Scene {
         break;
 
       case 2:
-        // Stop the flashing from step 1
+        // Stop the flashing and arrow animation from step 1
+        this.tweens.killTweensOf(this.tutorialArrow);
         const ammoSectionStep2 = document.getElementById('ammo-section');
         if (ammoSectionStep2) ammoSectionStep2.classList.remove('flashing');
         const btn2Step2 = document.querySelector('.ammo-btn[data-value="2"]');
