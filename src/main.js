@@ -259,7 +259,7 @@ class MainMenuScene extends Phaser.Scene {
 
     // === CHARACTERS ===
     // Bunny hero - left side (uses selected skin)
-    const bunny = this.add.image(220, 330, currentSkin);
+    const bunny = this.add.image(244, 320, currentSkin);
     bunny.setScale(0.10);
 
     // Bunny breathing animation
